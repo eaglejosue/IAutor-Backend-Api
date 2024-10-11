@@ -1,0 +1,6 @@
+@ContaMais.Api_HostAddress = http://localhost:5150
+
+GET {{ContaMais.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

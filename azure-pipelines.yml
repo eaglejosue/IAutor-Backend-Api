@@ -1,0 +1,22 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- script: dotnet build --configuration Release
+  displayName: 'dotnet build Release'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Publish'
+  inputs:
+    command: 'publish'
+    publishWebProjects: true
+
+- task: AzureWebApp@1
+  inputs:
+    azureSubscription: 'OnlineApp(1)(c88610d0-a3ae-4a0a-8acb-238417a16080)'
+    appType: 'webAppLinux'
+    appName: 'IAutor-Api'
+    package: '$(System.DefaultWorkingDirectory)/**/*.zip'
