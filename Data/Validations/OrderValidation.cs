@@ -5,7 +5,7 @@ public sealed class OrderCreateValidator : Validation<Order>
     public OrderCreateValidator()
     {
         RuleFor(p => p.UserId).NotEmpty().NotNull();
-        RuleFor(p => p.VideoId).NotEmpty().NotNull();
+        RuleFor(p => p.BookId).NotEmpty().NotNull();
     }
 }
 
@@ -15,7 +15,7 @@ public sealed class OrderUpdateValidator : Validation<Order>
     {
         RuleFor(r => r.Id).NotNull().NotEmpty();
         RuleFor(p => p.UserId).NotEmpty().NotNull();
-        RuleFor(p => p.VideoId).NotEmpty().NotNull();
+        RuleFor(p => p.BookId).NotEmpty().NotNull();
     }
 }
 
@@ -25,7 +25,7 @@ public sealed class OrderPatchValidator : Validation<Order>
     {
         RuleFor(r => r.Id).NotNull().NotEmpty();
         RuleFor(p => p.UserId).NotEmpty().NotNull();
-        RuleFor(p => p.VideoId).NotEmpty().NotNull();
+        RuleFor(p => p.BookId).NotEmpty().NotNull();
     }
 }
 

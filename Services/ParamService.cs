@@ -36,10 +36,10 @@ public sealed class ParamService(
             predicate.And(a => a.DeletedAt == filters.DeletedAt.Value.Date);
 
         if (!string.IsNullOrEmpty(filters.Key))
-            predicate.And(a => EF.Functions.ILike(a.Key, filters.Key.LikeConcat()));
+            predicate.And(a => EF.Functions.Like(a.Key, filters.Key.LikeConcat()));
 
         if (!string.IsNullOrEmpty(filters.Value))
-            predicate.And(a => EF.Functions.ILike(a.Value, filters.Value.LikeConcat()));
+            predicate.And(a => EF.Functions.Like(a.Value, filters.Value.LikeConcat()));
 
         return await db.Params.Where(predicate).AsNoTracking().ToListAsync().ConfigureAwait(false);
     }

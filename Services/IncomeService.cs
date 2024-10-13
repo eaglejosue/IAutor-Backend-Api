@@ -62,12 +62,12 @@ public sealed class IncomeService(IAutorDb db, IIuguIntegrationService iuguInteg
         if (!string.IsNullOrEmpty(filters.Filter))
         {
             predicate.And(a =>
-                EF.Functions.ILike(a.Owner.FirstName, filters.Filter.LikeConcat()) ||
-                EF.Functions.ILike(a.Owner.LastName, filters.Filter.LikeConcat())
+                EF.Functions.Like(a.Owner.FirstName, filters.Filter.LikeConcat()) ||
+                EF.Functions.Like(a.Owner.LastName, filters.Filter.LikeConcat())
             );
         }
 
-        if (filters != null && filters.OwnerId > 1)//Id 1 é da conta principal IAutor
+        if (filters != null && filters.OwnerId > 1)//Id 1 é da conta principal Pay4Tru
             predicate.And(a => a.OwnerId == filters.OwnerId);
 
         #endregion
@@ -91,7 +91,7 @@ public sealed class IncomeService(IAutorDb db, IIuguIntegrationService iuguInteg
             .ToListAsync().ConfigureAwait(false);
 
         if (string.IsNullOrEmpty(filters?.Filter) || ownerIds.Count == 1 || ownerIds.Contains(1))
-            ownerIds.Add(0);//Adiciona id 0 para 2 primeiras linhas com valor de Volume de Venda
+            ownerIds.Add(0);//Adiciona id 0 para 2 primeiras linhas com valor de Volume de Venda 
 
         #endregion
 

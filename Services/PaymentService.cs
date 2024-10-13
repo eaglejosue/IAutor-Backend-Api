@@ -1,6 +1,4 @@
-﻿using IAutor.Api.Data.Dtos.Iugu;
-
-namespace IAutor.Api.Services;
+﻿namespace IAutor.Api.Services;
 
 public interface IPaymentService
 {
@@ -52,7 +50,7 @@ public sealed class PaymentService(
             predicate.And(a => a.Status == filters.PaymentStatus);
 
         if (filters.PaymentDate.HasValue && filters.PaymentDate > DateTime.MinValue)
-            predicate.And(a => a.IuguPaidAt != null && EF.Functions.ILike(a.IuguPaidAt, filters.PaymentDate.Value.ToString().LikeConcat()));
+            predicate.And(a => a.IuguPaidAt != null && EF.Functions.Like(a.IuguPaidAt, filters.PaymentDate.Value.ToString().LikeConcat()));
 
         var query = db.Payments.Where(predicate).OrderBy(o => o.Id);
 
@@ -168,28 +166,28 @@ public sealed class PaymentService(
         {
             var order = await db.Orders.FirstOrDefaultAsync(f => f.Id == newEntity.OrderId);
 
-            var hoursBeforeVideoReleaseNotification = await paramService.GetByKeyAsync(Params.HoursBeforeVideoReleaseNotification);
-            var hours = int.Parse(hoursBeforeVideoReleaseNotification?.Value ?? "24");
+            var hoursBeforeBookReleaseNotification = await paramService.GetByKeyAsync(Params.HoursBeforeBookReleaseNotification);
+            var hours = int.Parse(hoursBeforeBookReleaseNotification?.Value ?? "24");
 
-            var videoReleaseDate = await db.Videos.Where(f => f.Id == order!.VideoId)
+            var BookReleaseDate = await db.Books.Where(f => f.Id == order!.BookId)
                 .Select(s => new { s.ReleaseDate }).FirstOrDefaultAsync();
 
-            var releaseDate = videoReleaseDate!.ReleaseDate;
+            var releaseDate = BookReleaseDate!.ReleaseDate;
             var scheduleDate = DateTimeBr.Now > releaseDate ? DateTimeBr.Now : releaseDate.AddHours(-hours);
 
             var newEmail = await emailService.CreateAsync(new Email(
                 order!.UserId,
-                EmailTypeEnum.VideoReleaseSchedule,
+                EmailTypeEnum.BookReleaseSchedule,
                 scheduleDate,
-                order!.VideoId
+                order!.BookId
             ));
 
             logger.LogInformation("Payment - UpdateStatusAsync | E-mail: {E}", JsonSerializer.Serialize(newEmail));
 
             if (DateTimeBr.Now > releaseDate)
             {
-                logger.LogInformation("Payment - UpdateStatusAsync | Video Released, calling Email API");
-                await httpEmail.SendVideoReleaseAsync(newEmail!.Id);
+                logger.LogInformation("Payment - UpdateStatusAsync | Book Released, calling Email API");
+                await httpEmail.SendBookReleaseAsync(newEmail!.Id);
             }
         }
 

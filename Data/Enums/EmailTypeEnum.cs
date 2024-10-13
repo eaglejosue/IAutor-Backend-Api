@@ -5,5 +5,5 @@ public enum EmailTypeEnum
 {
     [EnumMember(Value = "UserActivation")] UserActivation,
     [EnumMember(Value = "ForgotPassword")] ForgotPassword,
-    [EnumMember(Value = "VideoReleaseSchedule")] VideoReleaseSchedule,
+    [EnumMember(Value = "BookReleaseSchedule")] BookReleaseSchedule,
 }

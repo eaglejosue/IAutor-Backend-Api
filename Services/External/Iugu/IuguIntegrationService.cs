@@ -1,10 +1,8 @@
-﻿using IAutor.Api.Data.Dtos.Iugu;
-
-namespace IAutor.Api.Services.External.Iugu;
+﻿namespace IAutor.Api.Services.External.Iugu;
 
 public interface IIuguIntegrationService
 {
-    Task<IuguFaturaResponse?> CreateFaturaAsync(string userEmail, long orderId, string videoTitulo, decimal price, List<OwnerVideo> ownerVideos);
+    Task<IuguFaturaResponse?> CreateFaturaAsync(string userEmail, long orderId, string title, decimal price);
     Task<IuguSubAccountCreateResponse?> CreateSubAccountAsync(string name);
     Task<SubAccountVerificationResponse?> VerifySubAccountAsync(Owner owner);
     Task<IuguAccountInfoResponse?> GetAccountInfoAsync(Owner owner);
@@ -19,7 +17,7 @@ public sealed class IuguIntegrationService(
 {
     private readonly WrapperHttpClient _wrapperHttpClient = new(logger, notification);
 
-    public async Task<IuguFaturaResponse?> CreateFaturaAsync(string userEmail, long orderId, string videoTitulo, decimal price, List<OwnerVideo> ownerVideos)
+    public async Task<IuguFaturaResponse?> CreateFaturaAsync(string userEmail, long orderId, string title, decimal price)
     {
         var errorMsg = "Erro ao criar Fatura na IUGU.";
 
@@ -31,9 +29,8 @@ public sealed class IuguIntegrationService(
             var request = new IuguFaturaRequest(
                 userEmail,
                 orderId,
-                videoTitulo,
+                title,
                 price,
-                ownerVideos,
                 iuguConfig.Value.QtdDiasVencimentoFatura,
                 iuguConfig.Value.QtdDiasExpiracaoFatura,
                 iuguConfig.Value.OpcoesPagamento,

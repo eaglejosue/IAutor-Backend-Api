@@ -1,16 +1,16 @@
-﻿namespace Pay4Tru.Api.Data.Model;
+﻿namespace IAutor.Api.Data.Entities;
 
 public sealed class Email : Base
 {
     public long UserId { get; set; }
-    public long? VideoId { get; set; }
+    public long? BookId { get; set; }
     public EmailTypeEnum? EmailType { get; set; }
     public DateTime? ScheduleDate { get; set; }
     public DateTime? DateSent { get; set; }
     public int? SendAttempts { get; set; }
 
     [JsonIgnore] public User? User { get; set; }
-    [JsonIgnore] public Video? Video { get; set; }
+    [JsonIgnore] public Book? Book { get; set; }
 
     public Email() { }
 
@@ -18,11 +18,11 @@ public sealed class Email : Base
         long userId,
         EmailTypeEnum emailType,
         DateTime? scheduleDate = null,
-        long? videoId = null)
+        long? BookId = null)
     {
         UserId = userId;
         EmailType = emailType;
         ScheduleDate = scheduleDate;
-        VideoId = videoId;
+        BookId = BookId;
     }
 }

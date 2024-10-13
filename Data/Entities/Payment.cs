@@ -1,4 +1,4 @@
-﻿namespace Pay4Tru.Api.Data.Model;
+﻿namespace IAutor.Api.Data.Entities;
 
 public sealed class Payment : Base
 {

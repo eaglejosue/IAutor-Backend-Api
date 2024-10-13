@@ -3,9 +3,8 @@
 public sealed class IuguFaturaRequest(
     string userEmail,
     long orderId,
-    string videoTitulo,
+    string title,
     decimal price,
-    List<OwnerVideo> ownerVideos,
     int qtdDiasVencimentoFatura,
     int qtdDiasExpiracaoFatura,
     string[] payableWith,
@@ -20,11 +19,11 @@ public sealed class IuguFaturaRequest(
     [JsonPropertyName("expires_in")]//Expira uma fatura e impossibilita o seu pagamento depois 'x' dias após o vencimento
     public string ExpiresIn { get; set; } = qtdDiasExpiracaoFatura.ToString();
     [JsonPropertyName("items")]
-    public List<IuguFaturaItem> Items { get; set; } = [new(string.Concat("Vídeo: ", videoTitulo), 1, Convert.ToInt32(price * 100))];
+    public List<IuguFaturaItem> Items { get; set; } = [new(string.Concat("Livro: ", title), 1, Convert.ToInt32(price * 100))];
     [JsonPropertyName("return_url")]//Url para onde usuário será direcionado ao finalizar pagamento
     public string ReturnUrl { get; set; } = string.Concat(urlPortalIAutor, "/paid-truths?paid=true");
-    [JsonPropertyName("splits")]//Split de valor para owners do vídeo
-    public List<IuguFaturaSplit> Splits { get; set; } = ownerVideos.Select(s => new IuguFaturaSplit(s.IuguAccountId, s.PercentageSplit)).ToList();
+    [JsonPropertyName("splits")]//Split de valor para owners do Livro
+    public List<IuguFaturaSplit> Splits { get; set; }
     [JsonPropertyName("payable_with")]//Opções de pagamento
     public string[] PayableWith { get; set; } = payableWith;
     [JsonPropertyName("ensure_workday_due_date")]//Data de vencimento apenas em dias de semana

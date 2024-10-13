@@ -8,7 +8,7 @@ public interface IUserService
     Task<User?> UpdateAsync(User model, long loggedUserId, string loggedUserName);
     Task<User?> PatchAsync(User model, long loggedUserId, string loggedUserName);
     Task<bool?> DeleteAsync(long id, long loggedUserId, string loggedUserName);
-    Task<UserVideoLog?> CreateUserVideoLogAsync(UserVideoLog model);
+    Task<UserBookLog?> CreateUserBookLogAsync(UserBookLog model);
     Task<UserLog?> CreateUserLogAsync(UserLog model);
 }
 
@@ -44,23 +44,23 @@ public sealed class UserService(
         if (!string.IsNullOrEmpty(filters.Filter))
         {
             predicate.And(a =>
-                EF.Functions.ILike(a.FirstName, filters.Filter.LikeConcat()) ||
-                EF.Functions.ILike(a.LastName, filters.Filter.LikeConcat()) ||
-                EF.Functions.ILike(a.Email, filters.Filter.LikeConcat())
+                EF.Functions.Like(a.FirstName, filters.Filter.LikeConcat()) ||
+                EF.Functions.Like(a.LastName, filters.Filter.LikeConcat()) ||
+                EF.Functions.Like(a.Email, filters.Filter.LikeConcat())
             );
         }
 
         if (!string.IsNullOrEmpty(filters.FirstName))
-            predicate.And(a => EF.Functions.ILike(a.FirstName, filters.FirstName.LikeConcat()));
+            predicate.And(a => EF.Functions.Like(a.FirstName, filters.FirstName.LikeConcat()));
 
         if (!string.IsNullOrEmpty(filters.LastName))
-            predicate.And(a => EF.Functions.ILike(a.LastName, filters.LastName.LikeConcat()));
+            predicate.And(a => EF.Functions.Like(a.LastName, filters.LastName.LikeConcat()));
 
         if (!string.IsNullOrEmpty(filters.Email))
-            predicate.And(a => EF.Functions.ILike(a.Email, filters.Email.LikeConcat()));
+            predicate.And(a => EF.Functions.Like(a.Email, filters.Email.LikeConcat()));
 
         if (!string.IsNullOrEmpty(filters.SignInWith))
-            predicate.And(a => a.SignInWith != null && EF.Functions.ILike(a.SignInWith, filters.SignInWith.LikeConcat()));
+            predicate.And(a => a.SignInWith != null && EF.Functions.Like(a.SignInWith, filters.SignInWith.LikeConcat()));
 
         if (filters.Type != null)
             predicate.And(a => a.Type == filters.Type);
@@ -229,16 +229,16 @@ public sealed class UserService(
         return true;
     }
 
-    public async Task<UserVideoLog?> CreateUserVideoLogAsync(UserVideoLog model)
+    public async Task<UserBookLog?> CreateUserBookLogAsync(UserBookLog model)
     {
-        var validation = await model.ValidateCreateUserVideoLogAsync();
+        var validation = await model.ValidateCreateUserBookLogAsync();
         if (!validation.IsValid)
         {
             notification.AddNotifications(validation);
             return default;
         }
 
-        var addResult = await db.UserVideoLogs.AddAsync(model).ConfigureAwait(false);
+        var addResult = await db.UserBookLogs.AddAsync(model).ConfigureAwait(false);
         await db.SaveChangesAsync().ConfigureAwait(false);
 
         return addResult.Entity;

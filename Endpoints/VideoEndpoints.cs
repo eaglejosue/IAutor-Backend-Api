@@ -1,20 +1,20 @@
 ﻿namespace IAutor.Api.Endpoints;
 
-public static class VideoEndpoints
+public static class BookEndpoints
 {
-    public static void MapVideoEndpoints(this WebApplication app)
+    public static void MapBookEndpoints(this WebApplication app)
     {
-        const string ModelName = nameof(Video);
+        const string ModelName = nameof(Book);
         var tag = new List<OpenApiTag> { new() { Name = ModelName } };
 
-        app.MapGet("/api/videos/{id:long}",
-        async (long id, [FromServices] IVideoService service) =>
+        app.MapGet("/api/Books/{id:long}",
+        async (long id, [FromServices] IBookService service) =>
         {
             var entitie = await service.GetByIdAsync(id);
             if (entitie is null) return Results.NoContent();
             return Results.Ok(entitie);
         })
-        .Produces((int)HttpStatusCode.OK, typeof(Video))
+        .Produces((int)HttpStatusCode.OK, typeof(Book))
         .WithName($"{ModelName}ById")
         .WithOpenApi(x => new OpenApiOperation(x)
         {
@@ -23,10 +23,10 @@ public static class VideoEndpoints
             Tags = tag
         });
 
-        app.MapGet("/api/videos",
+        app.MapGet("/api/Books",
         async (
-            [AsParameters] VideoFilters filters,
-            [FromServices] IVideoService service,
+            [AsParameters] BookFilters filters,
+            [FromServices] IBookService service,
             HttpContext context) =>
         {
             var loggedUserId = TokenExtension.GetUserIdFromToken(context);
@@ -34,7 +34,7 @@ public static class VideoEndpoints
             if (entities.Count == 0) return Results.NoContent();
             return Results.Ok(entities);
         })
-        .Produces((int)HttpStatusCode.OK, typeof(List<Video>))
+        .Produces((int)HttpStatusCode.OK, typeof(List<Book>))
         .WithName($"All{ModelName}")
         .WithOpenApi(x => new OpenApiOperation(x)
         {
@@ -43,15 +43,15 @@ public static class VideoEndpoints
             Tags = tag
         });
 
-        app.MapPost("/api/videos",
+        app.MapPost("/api/Books",
         async (
-            Video model,
-            [FromServices] IVideoService service,
+            Book model,
+            [FromServices] IBookService service,
             [FromServices] INotificationService notification) =>
         {
             var entitie = await service.CreateAsync(model);
             if (notification.HasNotifications) return Results.BadRequest(notification.Notifications);
-            return Results.Created($"/videos/{entitie!.Id}", entitie);
+            return Results.Created($"/Books/{entitie!.Id}", entitie);
         })
         .Produces((int)HttpStatusCode.Created)
         .WithName($"Create{ModelName}")
@@ -63,10 +63,10 @@ public static class VideoEndpoints
         })
         .RequireAuthorization("Create");
 
-        app.MapPut("/api/videos",
+        app.MapPut("/api/Books",
         async (
-            Video model,
-            [FromServices] IVideoService service,
+            Book model,
+            [FromServices] IBookService service,
             [FromServices] INotificationService notification,
             HttpContext context) =>
         {
@@ -87,10 +87,10 @@ public static class VideoEndpoints
         })
         .RequireAuthorization("Update");
 
-        app.MapPatch("/api/videos",
+        app.MapPatch("/api/Books",
         async (
-            Video model,
-            [FromServices] IVideoService service,
+            Book model,
+            [FromServices] IBookService service,
             [FromServices] INotificationService notification,
             HttpContext context) =>
         {
@@ -111,10 +111,10 @@ public static class VideoEndpoints
         })
         .RequireAuthorization("Update");
 
-        app.MapDelete("/api/videos/{id:long}",
+        app.MapDelete("/api/Books/{id:long}",
         async (
             long id,
-            [FromServices] IVideoService service,
+            [FromServices] IBookService service,
             [FromServices] INotificationService notification,
             HttpContext context) =>
         {
@@ -135,77 +135,77 @@ public static class VideoEndpoints
         })
         .RequireAuthorization("Delete");
 
-        app.MapGet("/api/videos/trailer/{id:long}",
-        async (long id, [FromServices] IVideoService service) =>
+        app.MapGet("/api/Books/trailer/{id:long}",
+        async (long id, [FromServices] IBookService service) =>
         {
-            var entitie = await service.GetVideoTrailerByIdAsync(id);
+            var entitie = await service.GetBookTrailerByIdAsync(id);
             if (entitie is null) return Results.NoContent();
             return Results.Ok(entitie);
         })
-        .Produces((int)HttpStatusCode.OK, typeof(Video))
-        .WithName("VideoTrailerById")
+        .Produces((int)HttpStatusCode.OK, typeof(Book))
+        .WithName("BookTrailerById")
         .WithOpenApi(x => new OpenApiOperation(x)
         {
-            Summary = $"Get all VideoTrailers",
-            Description = $"This endpoint receives an Id from the header and searches for it in the VideoTrailers table by Id. It produces a 200 status code.",
+            Summary = $"Get all BookTrailers",
+            Description = $"This endpoint receives an Id from the header and searches for it in the BookTrailers table by Id. It produces a 200 status code.",
             Tags = tag
         })
         .RequireAuthorization("Get");
 
-        app.MapGet("/api/videos/{id:long}/trailers",
-        async (long id, [FromServices] IVideoService service) =>
+        app.MapGet("/api/Books/{id:long}/trailers",
+        async (long id, [FromServices] IBookService service) =>
         {
-            var entities = await service.GetVideoTrailersByVideoIdAsync(id);
+            var entities = await service.GetBookTrailersByBookIdAsync(id);
             if (entities.Count == 0) return Results.NoContent();
             return Results.Ok(entities);
         })
-        .Produces((int)HttpStatusCode.OK, typeof(Video))
-        .WithName("VideoTrailersByVideoId")
+        .Produces((int)HttpStatusCode.OK, typeof(Book))
+        .WithName("BookTrailersByBookId")
         .WithOpenApi(x => new OpenApiOperation(x)
         {
-            Summary = $"Get all VideoTrailers",
-            Description = $"This endpoint receives an Id from the header and searches for it in the VideoTrailers table by VideoId. It produces a 200 status code.",
+            Summary = $"Get all BookTrailers",
+            Description = $"This endpoint receives an Id from the header and searches for it in the BookTrailers table by BookId. It produces a 200 status code.",
             Tags = tag
         })
         .RequireAuthorization("Get");
 
-        app.MapPost("/api/videos/trailers",
+        app.MapPost("/api/Books/trailers",
         async (
-            VideoTrailer model,
-            [FromServices] IVideoService service,
+            BookDegust model,
+            [FromServices] IBookService service,
             [FromServices] INotificationService notification) =>
         {
-            var entitie = await service.AddVideoTrailerAsync(model);
+            var entitie = await service.AddBookTrailerAsync(model);
             if (notification.HasNotifications) return Results.BadRequest(notification.Notifications);
-            return Results.Created($"/videos/trailers/{entitie!.Id}", entitie);
+            return Results.Created($"/Books/trailers/{entitie!.Id}", entitie);
         })
         .Produces((int)HttpStatusCode.Created)
-        .WithName("AddVideoTrailer")
+        .WithName("AddBookTrailer")
         .WithOpenApi(x => new OpenApiOperation(x)
         {
-            Summary = "Add VideoTrailer",
-            Description = "This endpoint receives a VideoTrailer object as the request body and add it in the VideoTrailers table. It produces a 201 status code.",
+            Summary = "Add BookTrailer",
+            Description = "This endpoint receives a BookTrailer object as the request body and add it in the BookTrailers table. It produces a 201 status code.",
             Tags = tag
         })
         .RequireAuthorization("Create");
 
-        app.MapDelete("/api/videos/trailers/{id:long}",
+        app.MapDelete("/api/Books/trailers/{id:long}",
         async (
             long id,
-            [FromServices] IVideoService service,
+            [FromServices] IBookService service,
             [FromServices] INotificationService notification) =>
         {
-            var result = await service.RemoveVideoTrailerAsync(id);
+            var result = await service.RemoveBookTrailerAsync(id);
             if (notification.HasNotifications) return Results.BadRequest(notification.Notifications);
             if (result == null) return Results.NoContent();
             return Results.Ok(result);
         })
         .Produces((int)HttpStatusCode.OK)
-        .WithName("RemoveVideoTrailer")
+        .WithName("RemoveBookTrailer")
         .WithOpenApi(x => new OpenApiOperation(x)
         {
-            Summary = "Remove VideoTrailer",
-            Description = "This endpoint receives an Id from the header and deletes it from the VideoTrailers table. It produces a 200 status code.",
+            Summary = "Remove BookTrailer",
+            Description = "This endpoint receives an Id from the header and deletes it from the BookTrailers table. It produces a 200 status code.",
             Tags = tag
         })
         .RequireAuthorization("Delete");

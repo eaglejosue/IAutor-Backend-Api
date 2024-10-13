@@ -1,29 +1,29 @@
-﻿namespace Pay4Tru.Api.Services;
+﻿namespace IAutor.Api.Services;
 
-public interface IVideoService
+public interface IBookService
 {
-    Task<Video?> GetByIdAsync(long id);
-    Task<List<Video>> GetAllAsync(VideoFilters filters, long? loggedUserId = null);
-    Task<Video?> CreateAsync(Video model);
-    Task<Video?> UpdateAsync(Video model, long loggedUserId, string loggedUserName);
-    Task<Video?> PatchAsync(Video model, long loggedUserId, string loggedUserName);
+    Task<Book?> GetByIdAsync(long id);
+    Task<List<Book>> GetAllAsync(BookFilters filters, long? loggedUserId = null);
+    Task<Book?> CreateAsync(Book model);
+    Task<Book?> UpdateAsync(Book model, long loggedUserId, string loggedUserName);
+    Task<Book?> PatchAsync(Book model, long loggedUserId, string loggedUserName);
     Task<bool?> DeleteAsync(long id, long loggedUserId, string loggedUserName);
-    Task<VideoTrailer?> GetVideoTrailerByIdAsync(long id);
-    Task<List<VideoTrailer>> GetVideoTrailersByVideoIdAsync(long id);
-    Task<VideoTrailer?> AddVideoTrailerAsync(VideoTrailer model);
-    Task<bool?> RemoveVideoTrailerAsync(long id);
+    Task<BookDegust?> GetBookTrailerByIdAsync(long id);
+    Task<List<BookDegust>> GetBookTrailersByBookIdAsync(long id);
+    Task<BookDegust?> AddBookTrailerAsync(BookDegust model);
+    Task<bool?> RemoveBookTrailerAsync(long id);
 }
 
-public sealed class VideoService(
-    Pay4TruDb db,
+public sealed class BookService(
+    IAutorDb db,
     INotificationService notification,
-    IUserService userService) : IVideoService
+    IUserService userService) : IBookService
 {
-    public async Task<Video?> GetByIdAsync(long id) => await db.Videos.FirstOrDefaultAsync(f => f.Id == id).ConfigureAwait(false);
+    public async Task<Book?> GetByIdAsync(long id) => await db.Books.FirstOrDefaultAsync(f => f.Id == id).ConfigureAwait(false);
 
-    public async Task<List<Video>> GetAllAsync(VideoFilters filters, long? loggedUserId = null)
+    public async Task<List<Book>> GetAllAsync(BookFilters filters, long? loggedUserId = null)
     {
-        var predicate = PredicateBuilder.New<Video>(true);
+        var predicate = PredicateBuilder.New<Book>(true);
 
         #region Filters
 
@@ -45,17 +45,13 @@ public sealed class VideoService(
         if (!string.IsNullOrEmpty(filters.Filter))
         {
             predicate.And(a =>
-                EF.Functions.ILike(a.Title, filters.Filter.LikeConcat()) ||
-                EF.Functions.ILike(a.Description, filters.Filter.LikeConcat()) ||
-                a.OwnerVideos.Any(a =>
-                    EF.Functions.ILike(a.Owner.FirstName, filters.Filter.LikeConcat()) ||
-                    EF.Functions.ILike(a.Owner.LastName, filters.Filter.LikeConcat())
-                )
+                EF.Functions.Like(a.Title, filters.Filter.LikeConcat()) ||
+                EF.Functions.Like(a.Description, filters.Filter.LikeConcat())
             );
         }
 
         if (!string.IsNullOrEmpty(filters.CloudinaryPublicId))
-            predicate.And(a => a.CloudinaryPublicId != null && EF.Functions.ILike(a.CloudinaryPublicId, filters.CloudinaryPublicId.LikeConcat()));
+            predicate.And(a => a.CloudinaryPublicId != null && EF.Functions.Like(a.CloudinaryPublicId, filters.CloudinaryPublicId.LikeConcat()));
 
         if (filters.ReleaseDate.HasValue && filters.ReleaseDate > DateTime.MinValue)
             predicate.And(a => a.ReleaseDate == filters.ReleaseDate.Value.Date);
@@ -72,14 +68,8 @@ public sealed class VideoService(
         if (filters.PromotionExpirationDate.HasValue && filters.PromotionExpirationDate > DateTime.MinValue)
             predicate.And(a => a.PromotionExpirationDate == filters.PromotionExpirationDate.Value.Date);
 
-        if (filters.WatchExpirationDate.HasValue && filters.WatchExpirationDate > DateTime.MinValue)
-            predicate.And(a => a.WatchExpirationDate == filters.WatchExpirationDate.Value.Date);
-
-        if (filters.OwnerId.HasValue)
-            predicate.And(a => a.OwnerVideos.Any(a => a.OwnerId == filters.OwnerId));
-
         if (filters.TrailerId.HasValue)
-            predicate.And(a => a.VideoTrailers.Any(a => a.Id == filters.TrailerId));
+            predicate.And(a => a.BookDegusts.Any(a => a.Id == filters.TrailerId));
 
         if (filters?.PaymentsApproved ?? false)
             predicate.And(a => a.Orders.Any(order =>
@@ -94,23 +84,17 @@ public sealed class VideoService(
         else if ((filters?.ListToCrud ?? false) == false)
             predicate.And(a => a.SaleExpirationDate.HasValue && a.SaleExpirationDate >= dateTimeNow || a.SaleExpirationDate == null);
 
-        //if (filters?.ListCopies != null && filters.ListCopies == false)
-        //    predicate.And(a => a.CopyFromVideoId == null);
-
         #endregion
 
-        var query = db.Videos.Where(predicate);
+        var query = db.Books.Where(predicate);
 
         #region Includes
 
-        if (filters?.IncludeOwnerVideos ?? false)
-            query = query.Include(i => i.OwnerVideos);
-
         if (filters?.IncludeTrailers ?? false)
-            query = query.Include(i => i.VideoTrailers);
+            query = query.Include(i => i.BookDegusts);
 
-        if (filters?.IncludeUserVideoLogs ?? false)
-            query = query.Include(i => i.UserVideoLogs.Take(1));
+        if (filters?.IncludeUserBookLogs ?? false)
+            query = query.Include(i => i.UserBookLogs.Take(1));
 
         if ((filters?.PaymentsApproved ?? false) || (filters?.IncludePayments ?? false))
             query = query
@@ -146,7 +130,7 @@ public sealed class VideoService(
         return items;
     }
 
-    public async Task<Video?> CreateAsync(Video model)
+    public async Task<Book?> CreateAsync(Book model)
     {
         var validation = await model.ValidateCreateAsync();
         if (!validation.IsValid)
@@ -155,33 +139,23 @@ public sealed class VideoService(
             return default;
         }
 
-        if (model.VideoTrailers != null)
+        if (model.BookDegusts != null)
         {
-            model.VideoTrailers = model.VideoTrailers.Where(w => !string.IsNullOrEmpty(w.CloudinaryPublicId)).ToList();
-            foreach (var item in model.VideoTrailers)
+            model.BookDegusts = model.BookDegusts.Where(w => !string.IsNullOrEmpty(w.CloudinaryPublicId)).ToList();
+            foreach (var item in model.BookDegusts)
             {
                 item.IsActive = true;
                 if (item.Id == 0) item.CreatedAt = DateTimeBr.Now;
             }
         }
 
-        if (model.OwnerVideos != null)
-        {
-            model.OwnerVideos = model.OwnerVideos.Where(w => w.OwnerId > 0 && w.PercentageSplit > 0).ToList();
-            foreach (var item in model.OwnerVideos)
-            {
-                item.IsActive = true;
-                if (item.Id == 0) item.CreatedAt = DateTimeBr.Now;
-            }
-        }
-
-        var addResult = await db.Videos.AddAsync(model).ConfigureAwait(false);
+        var addResult = await db.Books.AddAsync(model).ConfigureAwait(false);
         await db.SaveChangesAsync().ConfigureAwait(false);
 
         return addResult.Entity;
     }
 
-    public async Task<Video?> UpdateAsync(Video model, long loggedUserId, string loggedUserName)
+    public async Task<Book?> UpdateAsync(Book model, long loggedUserId, string loggedUserName)
     {
         var validation = await model.ValidateUpdateAsync();
         if (!validation.IsValid)
@@ -193,7 +167,7 @@ public sealed class VideoService(
         return await UpdateEntityAsync(model, loggedUserId, loggedUserName, "Updated");
     }
 
-    public async Task<Video?> PatchAsync(Video model, long loggedUserId, string loggedUserName)
+    public async Task<Book?> PatchAsync(Book model, long loggedUserId, string loggedUserName)
     {
         var validation = await model.ValidatePatchAsync();
         if (!validation.IsValid)
@@ -205,31 +179,20 @@ public sealed class VideoService(
         return await UpdateEntityAsync(model, loggedUserId, loggedUserName, "Patched");
     }
 
-    private async Task<Video?> UpdateEntityAsync(Video model, long loggedUserId, string loggedUserName, string changeFrom)
+    private async Task<Book?> UpdateEntityAsync(Book model, long loggedUserId, string loggedUserName, string changeFrom)
     {
-        var entitie = await db.Videos
-            .Include(i => i.VideoTrailers)
-            .Include(i => i.OwnerVideos)
+        var entitie = await db.Books
+            .Include(i => i.BookDegusts)
             .FirstOrDefaultAsync(f => f.Id == model.Id).ConfigureAwait(false);
 
         if (entitie == null) return null;
 
         if (entitie.EntityUpdated(model))
         {
-            if (model.VideoTrailers != null)
+            if (model.BookDegusts != null)
             {
-                model.VideoTrailers = model.VideoTrailers.Where(w => !string.IsNullOrEmpty(w.CloudinaryPublicId)).ToList();
-                foreach (var item in model.VideoTrailers)
-                {
-                    item.IsActive = true;
-                    if (item.Id == 0) item.CreatedAt = DateTimeBr.Now;
-                }
-            }
-
-            if (model.OwnerVideos != null)
-            {
-                model.OwnerVideos = model.OwnerVideos.Where(w => w.OwnerId > 0 && w.PercentageSplit > 0).ToList();
-                foreach (var item in model.OwnerVideos)
+                model.BookDegusts = model.BookDegusts.Where(w => !string.IsNullOrEmpty(w.CloudinaryPublicId)).ToList();
+                foreach (var item in model.BookDegusts)
                 {
                     item.IsActive = true;
                     if (item.Id == 0) item.CreatedAt = DateTimeBr.Now;
@@ -238,10 +201,10 @@ public sealed class VideoService(
 
             entitie.UpdatedAt = DateTimeBr.Now;
             entitie.UpdatedBy = loggedUserName;
-            db.Videos.Update(entitie);
+            db.Books.Update(entitie);
             await db.SaveChangesAsync().ConfigureAwait(false);
 
-            await userService.CreateUserLogAsync(new UserLog(loggedUserId, string.Format("Video Id {0} {1}", model.Id, changeFrom)));
+            await userService.CreateUserLogAsync(new UserLog(loggedUserId, string.Format("Book Id {0} {1}", model.Id, changeFrom)));
         }
 
         return entitie;
@@ -256,21 +219,21 @@ public sealed class VideoService(
         entitie.DeletedAt = DateTimeBr.Now;
         entitie.UpdatedBy = loggedUserName;
 
-        db.Videos.Update(entitie);
+        db.Books.Update(entitie);
         await db.SaveChangesAsync().ConfigureAwait(false);
-        
-        await userService.CreateUserLogAsync(new UserLog(loggedUserId, string.Format("Video Id {0} Deleted", id)));
+
+        await userService.CreateUserLogAsync(new UserLog(loggedUserId, string.Format("Book Id {0} Deleted", id)));
 
         return true;
     }
 
-    public async Task<VideoTrailer?> GetVideoTrailerByIdAsync(long id) =>
-        await db.VideoTrailers.FirstOrDefaultAsync(f => f.Id == id).ConfigureAwait(false);
+    public async Task<BookDegust?> GetBookTrailerByIdAsync(long id) =>
+        await db.BookTrailers.FirstOrDefaultAsync(f => f.Id == id).ConfigureAwait(false);
 
-    public async Task<List<VideoTrailer>> GetVideoTrailersByVideoIdAsync(long id) =>
-        await db.VideoTrailers.Where(w => w.VideoId == id).ToListAsync().ConfigureAwait(false);
+    public async Task<List<BookDegust>> GetBookTrailersByBookIdAsync(long id) =>
+        await db.BookTrailers.Where(w => w.BookId == id).ToListAsync().ConfigureAwait(false);
 
-    public async Task<VideoTrailer?> AddVideoTrailerAsync(VideoTrailer model)
+    public async Task<BookDegust?> AddBookTrailerAsync(BookDegust model)
     {
         var validation = await model.ValidateAsync();
         if (!validation.IsValid)
@@ -281,38 +244,38 @@ public sealed class VideoService(
 
         if (model.Id > 0)
         {
-            var entitie = await db.VideoTrailers.FirstOrDefaultAsync(f => f.Id == model.Id).ConfigureAwait(false);
+            var entitie = await db.BookTrailers.FirstOrDefaultAsync(f => f.Id == model.Id).ConfigureAwait(false);
             if (entitie != null)
             {
                 entitie.Title = model.Title;
                 entitie.CloudinaryPublicId = model.CloudinaryPublicId;
 
-                db.VideoTrailers.Update(entitie);
+                db.BookTrailers.Update(entitie);
                 await db.SaveChangesAsync().ConfigureAwait(false);
 
                 return entitie;
             }
         }
-        
-        var addResult = await db.VideoTrailers.AddAsync(model).ConfigureAwait(false);
+
+        var addResult = await db.BookTrailers.AddAsync(model).ConfigureAwait(false);
         await db.SaveChangesAsync().ConfigureAwait(false);
-        
+
         return addResult.Entity;
     }
 
-    public async Task<bool?> RemoveVideoTrailerAsync(long id)
+    public async Task<bool?> RemoveBookTrailerAsync(long id)
     {
-        var entitie = await db.VideoTrailers.FirstOrDefaultAsync(f => f.Id == id).ConfigureAwait(false);
+        var entitie = await db.BookTrailers.FirstOrDefaultAsync(f => f.Id == id).ConfigureAwait(false);
 
         if (entitie == null)
         {
-            notification.AddNotification("VideoTrailer", "Registro não encontrado.");
+            notification.AddNotification("BookTrailer", "Registro não encontrado.");
             return default;
         }
 
         entitie.Inactivate();
 
-        db.VideoTrailers.Update(entitie);
+        db.BookTrailers.Update(entitie);
         await db.SaveChangesAsync().ConfigureAwait(false);
 
         return true;

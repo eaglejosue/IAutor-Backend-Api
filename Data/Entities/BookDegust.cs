@@ -1,16 +1,16 @@
-﻿namespace Pay4Tru.Api.Data.Model;
+﻿namespace IAutor.Api.Data.Entities;
 
-public sealed class VideoTrailer
+public sealed class BookDegust
 {
     public long Id { get; set; }
     public bool IsActive { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? DeletedAt { get; set; }
     public string Title { get; set; }
-    public long VideoId { get; set; }
+    public long BookId { get; set; }
     public string CloudinaryPublicId { get; set; }
 
-    [JsonIgnore] public Video? Video { get; set; }
+    [JsonIgnore] public Book? Book { get; set; }
 
     internal void Inactivate()
     {

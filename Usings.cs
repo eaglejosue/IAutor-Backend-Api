@@ -2,6 +2,7 @@
 global using FluentValidation.Results;
 global using IAutor.Api.Data.Context;
 global using IAutor.Api.Data.Dtos;
+global using IAutor.Api.Data.Dtos.Iugu;
 global using IAutor.Api.Data.Entities;
 global using IAutor.Api.Data.Enums;
 global using IAutor.Api.Data.Validations;

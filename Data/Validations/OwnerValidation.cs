@@ -52,20 +52,9 @@ public sealed class OwnerPatchValidator : Validation<Owner>
     }
 }
 
-public sealed class OwnerVideoValidator : Validation<OwnerVideo>
-{
-    public OwnerVideoValidator()
-    {
-        RuleFor(p => p.OwnerId).NotEmpty().NotNull();
-        RuleFor(p => p.VideoId).NotEmpty().NotNull();
-        RuleFor(p => p.PercentageSplit).NotEmpty().NotNull();
-    }
-}
-
 public static class OwnerValidationExtension
 {
     public static Task<ValidationResult> ValidateCreateAsync(this Owner o) => new OwnerCreateValidator().ValidateCustomAsync(o);
     public static Task<ValidationResult> ValidateUpdateAsync(this Owner o) => new OwnerUpdateValidator().ValidateCustomAsync(o);
     public static Task<ValidationResult> ValidatePatchAsync(this Owner o) => new OwnerPatchValidator().ValidateCustomAsync(o);
-    public static Task<ValidationResult> ValidateAsync(this OwnerVideo o) => new OwnerVideoValidator().ValidateCustomAsync(o);
 }

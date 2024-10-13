@@ -1,6 +1,4 @@
-﻿using IAutor.Api.Data.Dtos.Iugu;
-
-namespace IAutor.Api.Endpoints;
+﻿namespace IAutor.Api.Endpoints;
 
 public static class PaymentEndpoints
 {

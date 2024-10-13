@@ -1,23 +1,23 @@
-﻿namespace Pay4Tru.Api.Data.Context;
+﻿namespace IAutor.Api.Data.Context;
 
-public class Pay4TruDb(DbContextOptions<Pay4TruDb> o, IConfiguration config) : DbContext(o)
+public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbContext(o)
 {
     public DbSet<Email> Emails => Set<Email>();
     public DbSet<Income> Incomes => Set<Income>();
     public DbSet<Order> Orders => Set<Order>();
-    public DbSet<OwnerVideo> OwnerVideos => Set<OwnerVideo>();
+    public DbSet<Owner> Owners => Set<Owner>();
     public DbSet<Param> Params => Set<Param>();
     public DbSet<Payment> Payments => Set<Payment>();
     public DbSet<User> Users => Set<User>();
-    public DbSet<UserVideoLog> UserVideoLogs => Set<UserVideoLog>();
+    public DbSet<UserBookLog> UserBookLogs => Set<UserBookLog>();
     public DbSet<UserLog> UserLogs => Set<UserLog>();
-    public DbSet<Video> Videos => Set<Video>();
-    public DbSet<VideoTrailer> VideoTrailers => Set<VideoTrailer>();
+    public DbSet<Book> Books => Set<Book>();
+    public DbSet<BookDegust> BookTrailers => Set<BookDegust>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder o)
     {
-        o.UseNpgsql(config.GetConnectionString("Pay4TruDb"));
-        //o.UseSqlite("Data Source=pay4tru.db;Cache=Shared");
+        //o.UseNpgsql(config.GetConnectionString("IAutorDb"));
+        o.UseSqlite("Data Source=IAutor.db;Cache=Shared");
     }
 
     protected override void OnModelCreating(ModelBuilder b)
@@ -40,7 +40,6 @@ public class Pay4TruDb(DbContextOptions<Pay4TruDb> o, IConfiguration config) : D
             entity.Property(u => u.SignInWith).IsRequired().HasColumnType("varchar(10)").HasColumnName("sign_in_with");
             entity.Property(o => o.Type).HasColumnType("smallint").HasColumnName("type");
             entity.Property(u => u.BirthDate).HasColumnType("date").HasColumnName("birth_date");
-            entity.Property(o => o.ProfileImgUrl).HasColumnType("varchar(1000)").HasColumnName("profile_img_url");
             entity.Property(u => u.PasswordHash).HasColumnName("password_hash");
             entity.Property(u => u.ActivationCode).HasColumnType("varchar(50)").HasColumnName("activation_code");
             entity.Property(u => u.ActivationAt).HasColumnType("timestamp").HasColumnName("activation_at");
@@ -61,14 +60,14 @@ public class Pay4TruDb(DbContextOptions<Pay4TruDb> o, IConfiguration config) : D
             entity.Property(e => e.DeletedAt).HasColumnType("timestamp").HasColumnName("deleted_at");
 
             entity.Property(e => e.UserId).HasColumnType("bigint").HasColumnName("user_id");
-            entity.Property(u => u.VideoId).HasColumnType("bigint").HasColumnName("video_id");
+            entity.Property(u => u.BookId).HasColumnType("bigint").HasColumnName("Book_id");
             entity.Property(e => e.EmailType).HasColumnType("smallint").HasColumnName("email_type");
             entity.Property(e => e.ScheduleDate).HasColumnType("timestamp").HasColumnName("schedule_date");
             entity.Property(e => e.DateSent).HasColumnType("timestamp").HasColumnName("date_sent");
             entity.Property(e => e.SendAttempts).HasColumnType("smallint").HasColumnName("send_attempts");
 
             entity.HasOne(e => e.User).WithMany(e => e.Emails).HasForeignKey(e => e.UserId).IsRequired().OnDelete(DeleteBehavior.Restrict);
-            entity.HasOne(o => o.Video).WithMany(o => o.Emails).HasForeignKey(o => o.VideoId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(o => o.Book).WithMany(o => o.Emails).HasForeignKey(o => o.BookId).OnDelete(DeleteBehavior.Restrict);
         });
 
         b.Entity<Owner>(entity =>
@@ -87,11 +86,6 @@ public class Pay4TruDb(DbContextOptions<Pay4TruDb> o, IConfiguration config) : D
             entity.Property(o => o.Type).HasColumnType("smallint").HasColumnName("type");
             entity.Property(o => o.UserId).HasColumnType("bigint").HasColumnName("user_id");
             entity.Property(o => o.ProfileImgUrl).HasColumnType("varchar(1000)").HasColumnName("profile_img_url");
-            entity.Property(o => o.ProfileNavImgUrl).HasColumnType("varchar(1000)").HasColumnName("profile_nav_img_url");
-            entity.Property(o => o.FansCount).HasColumnType("bigint").HasColumnName("fans_count");
-            entity.Property(o => o.PostedVideosCount).HasColumnType("bigint").HasColumnName("posted_videos_count");
-            entity.Property(o => o.PaidVideosCount).HasColumnType("bigint").HasColumnName("paid_videos_count");
-            entity.Property(o => o.Twitter).HasColumnType("varchar(100)").HasColumnName("twitter");
             entity.Property(o => o.Instagram).HasColumnType("varchar(100)").HasColumnName("instagram");
             entity.Property(o => o.TikTok).HasColumnType("varchar(100)").HasColumnName("tiktok");
             entity.Property(o => o.PersonType).HasColumnType("varchar(50)").HasColumnName("person_type");
@@ -119,9 +113,9 @@ public class Pay4TruDb(DbContextOptions<Pay4TruDb> o, IConfiguration config) : D
             entity.HasOne(o => o.User).WithOne(o => o.Owner).HasForeignKey<Owner>(o => o.UserId).IsRequired().OnDelete(DeleteBehavior.Restrict);
         });
 
-        b.Entity<Video>(entity =>
+        b.Entity<Book>(entity =>
         {
-            entity.ToTable("videos");
+            entity.ToTable("books");
             entity.Property(v => v.Id).HasColumnName("id");
             entity.HasKey(v => v.Id);
             entity.Property(v => v.IsActive).IsRequired().HasColumnType("boolean").HasColumnName("is_active");
@@ -141,24 +135,6 @@ public class Pay4TruDb(DbContextOptions<Pay4TruDb> o, IConfiguration config) : D
             entity.Property(v => v.PromotionExpirationDate).HasColumnType("timestamp").HasColumnName("promotion_expiration_date");
             entity.Property(v => v.WatchExpirationDate).HasColumnType("timestamp").HasColumnName("watch_expiration_date");
             entity.Property(u => u.UpdatedBy).HasColumnType("varchar(50)").HasColumnName("updated_by");
-            //entity.Property(u => u.CopyFromVideoId).HasColumnType("bigint").HasColumnName("copy_from_video_id");
-        });
-
-        b.Entity<OwnerVideo>(entity =>
-        {
-            entity.ToTable("owner_videos");
-            entity.Property(o => o.Id).HasColumnName("id");
-            entity.HasKey(o => o.Id);
-            entity.Property(o => o.IsActive).IsRequired().HasColumnType("boolean").HasColumnName("is_active");
-            entity.Property(o => o.CreatedAt).IsRequired().HasColumnType("timestamp").HasColumnName("created_at");
-            entity.Property(o => o.DeletedAt).HasColumnType("timestamp").HasColumnName("deleted_at");
-
-            entity.Property(o => o.OwnerId).HasColumnType("bigint").HasColumnName("owner_id");
-            entity.Property(o => o.VideoId).HasColumnType("bigint").HasColumnName("video_id");
-            entity.Property(o => o.PercentageSplit).IsRequired().HasColumnType("decimal(5,2)").HasColumnName("percentage_split");
-
-            entity.HasOne(o => o.Owner).WithMany(o => o.OwnerVideos).HasForeignKey(o => o.OwnerId).IsRequired().OnDelete(DeleteBehavior.Cascade);
-            entity.HasOne(o => o.Video).WithMany(o => o.OwnerVideos).HasForeignKey(o => o.VideoId).IsRequired().OnDelete(DeleteBehavior.Cascade);
         });
 
         b.Entity<Order>(entity =>
@@ -172,10 +148,10 @@ public class Pay4TruDb(DbContextOptions<Pay4TruDb> o, IConfiguration config) : D
             entity.Property(u => u.DeletedAt).HasColumnType("timestamp").HasColumnName("deleted_at");
 
             entity.Property(u => u.UserId).HasColumnType("bigint").HasColumnName("user_id");
-            entity.Property(u => u.VideoId).HasColumnType("bigint").HasColumnName("video_id");
+            entity.Property(u => u.BookId).HasColumnType("bigint").HasColumnName("Book_id");
 
             entity.HasOne(v => v.User).WithMany(u => u.Orders).HasForeignKey(v => v.UserId).IsRequired().OnDelete(DeleteBehavior.Restrict);
-            entity.HasOne(v => v.Video).WithMany(v => v.Orders).HasForeignKey(v => v.VideoId).IsRequired().OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(v => v.Book).WithMany(v => v.Orders).HasForeignKey(v => v.BookId).IsRequired().OnDelete(DeleteBehavior.Restrict);
         });
 
         b.Entity<Payment>(entity =>
@@ -223,24 +199,24 @@ public class Pay4TruDb(DbContextOptions<Pay4TruDb> o, IConfiguration config) : D
             entity.HasOne(i => i.Owner).WithMany(i => i.Incomes).HasForeignKey(i => i.OwnerId).OnDelete(DeleteBehavior.Restrict);
         });
 
-        b.Entity<UserVideoLog>(entity =>
+        b.Entity<UserBookLog>(entity =>
         {
-            entity.ToTable("user_video_logs");
+            entity.ToTable("user_Book_logs");
             entity.Property(u => u.Id).HasColumnName("id");
             entity.HasKey(u => u.Id);
             entity.Property(u => u.CreatedAt).IsRequired().HasColumnType("timestamp").HasColumnName("created_at");
 
             entity.Property(u => u.UserId).HasColumnType("bigint").HasColumnName("user_id");
-            entity.Property(u => u.VideoId).HasColumnType("bigint").HasColumnName("video_id");
+            entity.Property(u => u.BookId).HasColumnType("bigint").HasColumnName("Book_id");
             entity.Property(u => u.Log).IsRequired().HasColumnType("varchar(100)").HasColumnName("log");
 
-            entity.HasOne(u => u.User).WithMany(u => u.UserVideoLogs).HasForeignKey(u => u.UserId).IsRequired().OnDelete(DeleteBehavior.Restrict);
-            entity.HasOne(u => u.Video).WithMany(u => u.UserVideoLogs).HasForeignKey(u => u.VideoId).IsRequired().OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(u => u.User).WithMany(u => u.UserBookLogs).HasForeignKey(u => u.UserId).IsRequired().OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(u => u.Book).WithMany(u => u.UserBookLogs).HasForeignKey(u => u.BookId).IsRequired().OnDelete(DeleteBehavior.Restrict);
         });
 
-        b.Entity<VideoTrailer>(entity =>
+        b.Entity<BookDegust>(entity =>
         {
-            entity.ToTable("video_trailers");
+            entity.ToTable("Book_trailers");
             entity.Property(v => v.Id).HasColumnName("id");
             entity.HasKey(v => v.Id);
             entity.Property(v => v.IsActive).IsRequired().HasColumnType("boolean").HasColumnName("is_active");
@@ -248,10 +224,10 @@ public class Pay4TruDb(DbContextOptions<Pay4TruDb> o, IConfiguration config) : D
             entity.Property(v => v.DeletedAt).HasColumnType("timestamp").HasColumnName("deleted_at");
 
             entity.Property(v => v.Title).IsRequired().HasColumnType("varchar(100)").HasColumnName("title");
-            entity.Property(v => v.VideoId).HasColumnType("bigint").HasColumnName("video_id");
+            entity.Property(v => v.BookId).HasColumnType("bigint").HasColumnName("Book_id");
             entity.Property(v => v.CloudinaryPublicId).IsRequired().HasColumnType("varchar(1000)").HasColumnName("cloudinary_public_id");
 
-            entity.HasOne(v => v.Video).WithMany(v => v.VideoTrailers).HasForeignKey(v => v.VideoId).IsRequired().OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(v => v.Book).WithMany(v => v.BookDegusts).HasForeignKey(v => v.BookId).IsRequired().OnDelete(DeleteBehavior.Cascade);
         });
 
         b.Entity<Param>(entity =>

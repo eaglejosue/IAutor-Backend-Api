@@ -4,7 +4,7 @@ public interface IHttpEmail
 {
     Task SendActivateAccountAsync(long emailId);
     Task SendForgotPasswordAsync(long emailId);
-    Task SendVideoReleaseAsync(long emailId);
+    Task SendBookReleaseAsync(long emailId);
 }
 
 public class HttpEmail(ILogger<WrapperHttpClient> logger, INotificationService notification, IConfiguration configuration) : IHttpEmail
@@ -36,15 +36,15 @@ public class HttpEmail(ILogger<WrapperHttpClient> logger, INotificationService n
         }
     }
 
-    public async Task SendVideoReleaseAsync(long emailId)
+    public async Task SendBookReleaseAsync(long emailId)
     {
         try
         {
-            await _wrapperHttpClient.PostAsync(string.Concat(_urlEmail, "/api/emails/send-video-release/", emailId)).ConfigureAwait(false);
+            await _wrapperHttpClient.PostAsync(string.Concat(_urlEmail, "/api/emails/send-Book-release/", emailId)).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, string.Concat("Erro ao enviar E-mail de Notificação de Lançamento de Vídeo. Id: ", emailId));
+            logger.LogError(ex, string.Concat("Erro ao enviar E-mail de Notificação de Lançamento de Livro. Id: ", emailId));
         }
     }
 }

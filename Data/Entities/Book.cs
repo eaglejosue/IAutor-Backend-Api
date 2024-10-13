@@ -1,6 +1,6 @@
-﻿namespace Pay4Tru.Api.Data.Model;
+﻿namespace IAutor.Api.Data.Entities;
 
-public sealed class Video : Base
+public sealed class Book : Base
 {
     public string Title { get; set; }
     public string Description { get; set; }
@@ -14,10 +14,7 @@ public sealed class Video : Base
     public decimal? PromotionPrice { get; set; }
     public DateTime? PromotionExpirationDate { get; set; }
     public string? UpdatedBy { get; set; }
-    [NotMapped] public long? CopyFromVideoId { get; set; }
 
-    [NotMapped] public bool IsWatched => UserVideoLogs?.Count > 0;
-    [NotMapped] public bool UserCanWatch => DateTimeBr.Now >= ReleaseDate;
     [NotMapped] public string? PaidDateTime {
         get
         {
@@ -26,9 +23,8 @@ public sealed class Video : Base
         }
     }
 
-    public ICollection<VideoTrailer>? VideoTrailers { get; set; }
-    public ICollection<OwnerVideo>? OwnerVideos { get; set; }
+    public ICollection<BookDegust>? BookDegusts { get; set; }
     public ICollection<Order>? Orders { get; set; }
-    public ICollection<UserVideoLog>? UserVideoLogs { get; set; }
+    public ICollection<UserBookLog>? UserBookLogs { get; set; }
     public ICollection<Email>? Emails { get; set; }
 }

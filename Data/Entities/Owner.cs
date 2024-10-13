@@ -1,4 +1,4 @@
-﻿namespace Pay4Tru.Api.Data.Model;
+﻿namespace IAutor.Api.Data.Entities;
 
 public sealed class Owner : Base
 {
@@ -8,11 +8,6 @@ public sealed class Owner : Base
     public OwnerTypeEnum? Type { get; set; }
     public long UserId { get; set; }
     public string? ProfileImgUrl { get; set; }
-    public string? ProfileNavImgUrl { get; set; }
-    public long? FansCount { get; set; }
-    public long? PostedVideosCount { get; set; }
-    public long? PaidVideosCount { get; set; }
-    public string? Twitter { get; set; }
     public string? Instagram { get; set; }
     public string? TikTok { get; set; }
     public string? PersonType { get; set; }//'Pessoa Física' ou 'Pessoa Jurídica'
@@ -43,7 +38,6 @@ public sealed class Owner : Base
     [NotMapped] public string? Doc => !string.IsNullOrEmpty(Cpf) ? Cpf : Cnpj;
 
     public User? User { get; set; }
-    [JsonIgnore] public ICollection<OwnerVideo>? OwnerVideos { get; set; }
     [JsonIgnore] public ICollection<Income>? Incomes { get; set; }
 
     public void SetIuguTokens(IuguSubAccountCreateResponse subAccount)

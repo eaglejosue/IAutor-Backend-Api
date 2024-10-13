@@ -1,4 +1,4 @@
-﻿namespace Pay4Tru.Api.Data.Model;
+﻿namespace IAutor.Api.Data.Entities;
 
 public sealed class User : Base
 {
@@ -20,7 +20,7 @@ public sealed class User : Base
 
     public ICollection<Email>? Emails { get; set; }
     public ICollection<Order>? Orders { get; set; }
-    public ICollection<UserVideoLog>? UserVideoLogs { get; set; }
+    public ICollection<UserBookLog>? UserBookLogs { get; set; }
     public ICollection<UserLog>? UserLogs { get; set; }
 
     [JsonIgnore] public Owner? Owner { get; set; }
@@ -58,8 +58,8 @@ public sealed class User : Base
         SignInWith = o.Email!.Contains("@gmail.com") ? SignInEnum.Google.ToString() : SignInEnum.Default.ToString();
         FirstName = o.FirstName;
         LastName = o.LastName;
-        ProfileImgUrl = o.ProfileImgUrl;
         Cpf = o?.Cpf ?? o.CnpjRespCpf;
+        ProfileImgUrl = o.ProfileImgUrl;
 
         Type = UserTypeEnum.Default;
 

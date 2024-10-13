@@ -133,22 +133,22 @@ public static class UserEndpoints
         })
         .RequireAuthorization("Admin");
 
-        app.MapPost("/api/users/video-log",
+        app.MapPost("/api/users/Book-log",
         async (
-            UserVideoLog model,
+            UserBookLog model,
             [FromServices] IUserService service,
             [FromServices] INotificationService notification) =>
         {
-            var entitie = await service.CreateUserVideoLogAsync(model);
+            var entitie = await service.CreateUserBookLogAsync(model);
             if (notification.HasNotifications) return Results.BadRequest(notification.Notifications);
-            return Results.Created($"/users/video-log/{entitie!.Id}", entitie);
+            return Results.Created($"/users/Book-log/{entitie!.Id}", entitie);
         })
         .Produces((int)HttpStatusCode.Created)
-        .WithName("CreateUserVideoLog")
+        .WithName("CreateUserBookLog")
         .WithOpenApi(x => new OpenApiOperation(x)
         {
-            Summary = "Create a new UserVideoLog",
-            Description = "This endpoint receives a UserVideoLog object as the request body and add it in the UserVideoLogs table. It produces a 201 status code.",
+            Summary = "Create a new UserBookLog",
+            Description = "This endpoint receives a UserBookLog object as the request body and add it in the UserBookLogs table. It produces a 201 status code.",
             Tags = tag
         });
     }

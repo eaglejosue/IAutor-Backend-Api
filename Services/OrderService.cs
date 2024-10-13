@@ -12,7 +12,7 @@ public interface IOrderService
 
 public sealed class OrderService(
     IAutorDb db,
-    IVideoService videoService,
+    IBookService bookService,
     IPaymentService paymentService,
     IIuguIntegrationService iuguIntegrationService,
     INotificationService notification) : IOrderService
@@ -41,16 +41,16 @@ public sealed class OrderService(
         if (filters.UserId.HasValue)
             predicate.And(a => a.UserId == filters.UserId);
 
-        if (filters.VideoId.HasValue)
-            predicate.And(a => a.VideoId == filters.VideoId);
+        if (filters.BookId.HasValue)
+            predicate.And(a => a.BookId == filters.BookId);
 
         var query = db.Orders.Where(predicate);
 
         if (filters.IncludeUser.HasValue && filters.IncludeUser.Value)
             query = query.Include(i => i.User);
 
-        if (filters.IncludeVideo.HasValue && filters.IncludeVideo.Value)
-            query = query.Include(i => i.Video);
+        if (filters.IncludeBook.HasValue && filters.IncludeBook.Value)
+            query = query.Include(i => i.Book);
 
         if (filters.PaymentId.HasValue)
         {
@@ -77,31 +77,19 @@ public sealed class OrderService(
 
         var newOrder = addResult.Entity;
 
-        var video = (await videoService.GetAllAsync(new VideoFilters { Id = newOrder.VideoId, IncludeOwnerVideos = true })).FirstOrDefault();
-        if (video == null)
+        var book = (await bookService.GetAllAsync(new BookFilters { Id = newOrder.BookId })).FirstOrDefault();
+        if (book == null)
         {
-            notification.AddNotification("Order", "Vídeo não encontrado.");
+            notification.AddNotification("Order", "Livro não encontrado.");
             return newOrder;
         }
 
-        if (video.OwnerVideos == null)
-        {
-            notification.AddNotification("Order", "Configurações do Vídeo inconsistentes.");
-            return newOrder;
-        }
-
-        var videoOwners = video.OwnerVideos.ToList();
-        var ownerIds = videoOwners.Select(o => o.OwnerId).ToList();
-
-        videoOwners = await GetOwnersIuguAccountIds(videoOwners, ownerIds);
-        if (notification.HasNotifications) return newOrder;
-
-        var fatura = await iuguIntegrationService.CreateFaturaAsync(userEmail, newOrder.Id, video.Title, video.Price, videoOwners);
+        var fatura = await iuguIntegrationService.CreateFaturaAsync(userEmail, newOrder.Id, book.Title, book.Price);
         if (notification.HasNotifications) return newOrder;
 
         newOrder.IuguFaturaSecureUrl = fatura!.SecureUrl;
 
-        await paymentService.CreateAsync(new Payment(newOrder, video!.Price, fatura));
+        await paymentService.CreateAsync(new Payment(newOrder, book!.Price, fatura));
 
         return newOrder;
     }
@@ -162,22 +150,5 @@ public sealed class OrderService(
         await db.SaveChangesAsync().ConfigureAwait(false);
 
         return true;
-    }
-
-
-
-    private async Task<List<OwnerVideo>> GetOwnersIuguAccountIds(List<OwnerVideo> videoOwners, List<long> ownerIds)
-    {
-        var ownerIuguAccountIds = await db.Owners.Where(w => ownerIds.Contains(w.Id)).Select(s => new { OwnerId = s.Id, s.IuguAccountId }).ToListAsync();
-        if (ownerIuguAccountIds == null)
-        {
-            notification.AddNotification("Order", "Configurações do Vídeo inconsistentes para pagamento.");
-            return [];
-        }
-
-        foreach (var videoOwner in videoOwners)
-            videoOwner.IuguAccountId = ownerIuguAccountIds.FirstOrDefault(f => f.OwnerId == videoOwner.OwnerId)!.IuguAccountId!;
-
-        return videoOwners;
     }
 }

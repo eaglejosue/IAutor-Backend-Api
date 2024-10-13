@@ -1,6 +1,4 @@
-﻿using IAutor.Api.Data.Dtos.Iugu;
-
-namespace IAutor.Api.Helpers.Extensions;
+﻿namespace IAutor.Api.Helpers.Extensions;
 
 public static class BuilderExtensions
 {
@@ -19,8 +17,8 @@ public static class BuilderExtensions
             o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
         });
 
-        builder.Services.AddDbContext<IAutorDb>(o => o.UseNpgsql(config.GetConnectionString("IAutorDb")));
-        //builder.Services.AddDbContext<IAutorDb>(o => o.UseSqlite("DataSource=app.db;Cache=Shared", b => b.MigrationsAssembly("IAutor.Api")));
+        //builder.Services.AddDbContext<IAutorDb>(o => o.UseNpgsql(config.GetConnectionString("IAutorDb")));
+        builder.Services.AddDbContext<IAutorDb>(o => o.UseSqlite("DataSource=IAutor.db;Cache=Shared", b => b.MigrationsAssembly("IAutor.Api")));
 
         builder.AddSwagger();
         builder.AddSecurity(config);
@@ -137,8 +135,8 @@ public static class BuilderExtensions
         builder.Services.AddScoped<ILoginService, LoginService>();
         builder.Services.AddScoped<ITokenService, TokenService>();
         builder.Services.AddScoped<IHttpEmail, HttpEmail>();
-        builder.Services.AddHostedService<HostedConsolidatePayment>();
 
+        builder.Services.AddScoped<IBookService, BookService>();
         builder.Services.AddScoped<IEmailService, EmailService>();
         builder.Services.AddScoped<IIncomeService, IncomeService>();
         builder.Services.AddScoped<IOrderService, OrderService>();
@@ -146,7 +144,6 @@ public static class BuilderExtensions
         builder.Services.AddScoped<IParamService, ParamService>();
         builder.Services.AddScoped<IPaymentService, PaymentService>();
         builder.Services.AddScoped<IUserService, UserService>();
-        builder.Services.AddScoped<IVideoService, VideoService>();
 
         builder.Services.Configure<IuguConfig>(config.GetSection("IuguConfig"));
         builder.Services.AddScoped<IIuguIntegrationService, IuguIntegrationService>();
