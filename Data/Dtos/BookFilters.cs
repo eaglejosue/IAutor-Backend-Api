@@ -4,7 +4,6 @@ public sealed class BookFilters : BaseFilters
 {
     public string? Filter { get; set; }
     public string? CloudinaryPublicId { get; set; }
-    public DateTime? ReleaseDate { get; set; }
     public decimal? Price { get; set; }
     public DateTime? SaleExpirationDate { get; set; }
     public decimal? PromotionPrice { get; set; }

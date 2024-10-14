@@ -51,10 +51,7 @@ public sealed class BookService(
         }
 
         if (!string.IsNullOrEmpty(filters.CloudinaryPublicId))
-            predicate.And(a => a.CloudinaryPublicId != null && EF.Functions.Like(a.CloudinaryPublicId, filters.CloudinaryPublicId.LikeConcat()));
-
-        if (filters.ReleaseDate.HasValue && filters.ReleaseDate > DateTime.MinValue)
-            predicate.And(a => a.ReleaseDate == filters.ReleaseDate.Value.Date);
+            predicate.And(a => a.PublicId != null && EF.Functions.Like(a.PublicId, filters.CloudinaryPublicId.LikeConcat()));
 
         if (filters.Price.HasValue && filters.Price.Value > decimal.Zero)
             predicate.And(a => a.Price == filters.Price);
@@ -80,7 +77,7 @@ public sealed class BookService(
         var dateTimeNow = DateTimeBr.Now;
 
         if ((filters?.ListToWatch ?? false) == true)
-            predicate.And(a => a.WatchExpirationDate.HasValue && a.WatchExpirationDate >= dateTimeNow || a.WatchExpirationDate == null);
+            predicate.And(a => a.DownloadExpirationDate.HasValue && a.DownloadExpirationDate >= dateTimeNow || a.DownloadExpirationDate == null);
         else if ((filters?.ListToCrud ?? false) == false)
             predicate.And(a => a.SaleExpirationDate.HasValue && a.SaleExpirationDate >= dateTimeNow || a.SaleExpirationDate == null);
 
@@ -107,12 +104,10 @@ public sealed class BookService(
 
         query = filters?.OrderBy switch
         {
-            "1" => query.OrderBy(o => o.ReleaseDate),
-            "2" => query.OrderByDescending(o => o.ReleaseDate),
-            "3" => query.OrderBy(o => o.Title),
-            "4" => query.OrderByDescending(o => o.Title),
-            "5" => query.OrderBy(o => o.CreatedAt),
-            "6" => query.OrderByDescending(o => o.CreatedAt),
+            "1" => query.OrderBy(o => o.Title),
+            "2" => query.OrderByDescending(o => o.Title),
+            "3" => query.OrderBy(o => o.CreatedAt),
+            "4" => query.OrderByDescending(o => o.CreatedAt),
             _ => query.OrderBy(o => o.Id)
         };
 
@@ -141,7 +136,7 @@ public sealed class BookService(
 
         if (model.BookDegusts != null)
         {
-            model.BookDegusts = model.BookDegusts.Where(w => !string.IsNullOrEmpty(w.CloudinaryPublicId)).ToList();
+            model.BookDegusts = model.BookDegusts.Where(w => !string.IsNullOrEmpty(w.PublicId)).ToList();
             foreach (var item in model.BookDegusts)
             {
                 item.IsActive = true;
@@ -191,7 +186,7 @@ public sealed class BookService(
         {
             if (model.BookDegusts != null)
             {
-                model.BookDegusts = model.BookDegusts.Where(w => !string.IsNullOrEmpty(w.CloudinaryPublicId)).ToList();
+                model.BookDegusts = model.BookDegusts.Where(w => !string.IsNullOrEmpty(w.PublicId)).ToList();
                 foreach (var item in model.BookDegusts)
                 {
                     item.IsActive = true;
@@ -228,10 +223,10 @@ public sealed class BookService(
     }
 
     public async Task<BookDegust?> GetBookTrailerByIdAsync(long id) =>
-        await db.BookTrailers.FirstOrDefaultAsync(f => f.Id == id).ConfigureAwait(false);
+        await db.BookDegusts.FirstOrDefaultAsync(f => f.Id == id).ConfigureAwait(false);
 
     public async Task<List<BookDegust>> GetBookTrailersByBookIdAsync(long id) =>
-        await db.BookTrailers.Where(w => w.BookId == id).ToListAsync().ConfigureAwait(false);
+        await db.BookDegusts.Where(w => w.BookId == id).ToListAsync().ConfigureAwait(false);
 
     public async Task<BookDegust?> AddBookTrailerAsync(BookDegust model)
     {
@@ -244,20 +239,20 @@ public sealed class BookService(
 
         if (model.Id > 0)
         {
-            var entitie = await db.BookTrailers.FirstOrDefaultAsync(f => f.Id == model.Id).ConfigureAwait(false);
+            var entitie = await db.BookDegusts.FirstOrDefaultAsync(f => f.Id == model.Id).ConfigureAwait(false);
             if (entitie != null)
             {
                 entitie.Title = model.Title;
-                entitie.CloudinaryPublicId = model.CloudinaryPublicId;
+                entitie.PublicId = model.PublicId;
 
-                db.BookTrailers.Update(entitie);
+                db.BookDegusts.Update(entitie);
                 await db.SaveChangesAsync().ConfigureAwait(false);
 
                 return entitie;
             }
         }
 
-        var addResult = await db.BookTrailers.AddAsync(model).ConfigureAwait(false);
+        var addResult = await db.BookDegusts.AddAsync(model).ConfigureAwait(false);
         await db.SaveChangesAsync().ConfigureAwait(false);
 
         return addResult.Entity;
@@ -265,7 +260,7 @@ public sealed class BookService(
 
     public async Task<bool?> RemoveBookTrailerAsync(long id)
     {
-        var entitie = await db.BookTrailers.FirstOrDefaultAsync(f => f.Id == id).ConfigureAwait(false);
+        var entitie = await db.BookDegusts.FirstOrDefaultAsync(f => f.Id == id).ConfigureAwait(false);
 
         if (entitie == null)
         {
@@ -275,7 +270,7 @@ public sealed class BookService(
 
         entitie.Inactivate();
 
-        db.BookTrailers.Update(entitie);
+        db.BookDegusts.Update(entitie);
         await db.SaveChangesAsync().ConfigureAwait(false);
 
         return true;

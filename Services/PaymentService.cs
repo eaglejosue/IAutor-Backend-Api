@@ -15,7 +15,6 @@ public sealed class PaymentService(
     IAutorDb db,
     IEmailService emailService,
     IHttpEmail httpEmail,
-    IParamService paramService,
     INotificationService notification,
     ILogger<PaymentService> logger) : IPaymentService
 {
@@ -166,29 +165,15 @@ public sealed class PaymentService(
         {
             var order = await db.Orders.FirstOrDefaultAsync(f => f.Id == newEntity.OrderId);
 
-            var hoursBeforeBookReleaseNotification = await paramService.GetByKeyAsync(Params.HoursBeforeBookReleaseNotification);
-            var hours = int.Parse(hoursBeforeBookReleaseNotification?.Value ?? "24");
-
-            var BookReleaseDate = await db.Books.Where(f => f.Id == order!.BookId)
-                .Select(s => new { s.ReleaseDate }).FirstOrDefaultAsync();
-
-            var releaseDate = BookReleaseDate!.ReleaseDate;
-            var scheduleDate = DateTimeBr.Now > releaseDate ? DateTimeBr.Now : releaseDate.AddHours(-hours);
-
             var newEmail = await emailService.CreateAsync(new Email(
                 order!.UserId,
                 EmailTypeEnum.BookReleaseSchedule,
-                scheduleDate,
+                null,
                 order!.BookId
             ));
 
-            logger.LogInformation("Payment - UpdateStatusAsync | E-mail: {E}", JsonSerializer.Serialize(newEmail));
-
-            if (DateTimeBr.Now > releaseDate)
-            {
-                logger.LogInformation("Payment - UpdateStatusAsync | Book Released, calling Email API");
-                await httpEmail.SendBookReleaseAsync(newEmail!.Id);
-            }
+            logger.LogInformation("Payment - UpdateStatusAsync | Book Released, calling Email API");
+            await httpEmail.SendBookReleaseAsync(newEmail!.Id);
         }
 
         return addResult.Entity;

@@ -6,7 +6,6 @@ public sealed class Constants
     {
         public const string Terms = "terms";
         public const string MainAccountPercent = "main_account_percent";
-        public const string HoursBeforeBookReleaseNotification = "hours_before_Book_release_notification";
         public const string Banks = "banks";
     }
 

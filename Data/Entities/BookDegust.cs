@@ -8,7 +8,7 @@ public sealed class BookDegust
     public DateTime? DeletedAt { get; set; }
     public string Title { get; set; }
     public long BookId { get; set; }
-    public string CloudinaryPublicId { get; set; }
+    public string PublicId { get; set; }
 
     [JsonIgnore] public Book? Book { get; set; }
 

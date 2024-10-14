@@ -6,9 +6,8 @@ public sealed class BookCreateValidator : Validation<Book>
     {
         RuleFor(p => p.Title).NotEmpty().NotNull().MaximumLength(80);
         RuleFor(p => p.Description).NotEmpty().NotNull().MaximumLength(100);
-        RuleFor(p => p.ReleaseDate).NotEmpty().NotNull();
         RuleFor(p => p.Price).NotEmpty().NotNull().GreaterThan(0.99M).WithMessage("Preço deve ser no mínimo R$ 1,00.");
-        RuleFor(p => p.CloudinaryPublicId).NotEmpty().NotNull();
+        RuleFor(p => p.PublicId).NotEmpty().NotNull();
     }
 }
 
@@ -19,9 +18,8 @@ public sealed class BookUpdateValidator : Validation<Book>
         RuleFor(p => p.Id).NotNull().NotEmpty();
         RuleFor(p => p.Title).NotEmpty().NotNull().MaximumLength(80);
         RuleFor(p => p.Description).NotEmpty().NotNull().MaximumLength(100);
-        RuleFor(p => p.ReleaseDate).NotEmpty().NotNull();
         RuleFor(p => p.Price).NotEmpty().NotNull().GreaterThan(0.99M).WithMessage("Preço deve ser no mínimo R$ 1,00.");
-        RuleFor(p => p.CloudinaryPublicId).NotEmpty().NotNull();
+        RuleFor(p => p.PublicId).NotEmpty().NotNull();
     }
 }
 
@@ -38,7 +36,7 @@ public sealed class BookTrailerValidator : Validation<BookDegust>
     public BookTrailerValidator()
     {
         RuleFor(p => p.BookId).NotEmpty().NotNull();
-        RuleFor(p => p.CloudinaryPublicId).NotEmpty().NotNull();
+        RuleFor(p => p.PublicId).NotEmpty().NotNull();
     }
 }
 

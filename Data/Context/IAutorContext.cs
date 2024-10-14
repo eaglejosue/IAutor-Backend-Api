@@ -12,7 +12,7 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
     public DbSet<UserBookLog> UserBookLogs => Set<UserBookLog>();
     public DbSet<UserLog> UserLogs => Set<UserLog>();
     public DbSet<Book> Books => Set<Book>();
-    public DbSet<BookDegust> BookTrailers => Set<BookDegust>();
+    public DbSet<BookDegust> BookDegusts => Set<BookDegust>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder o)
     {
@@ -125,15 +125,13 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
 
             entity.Property(v => v.Title).IsRequired().HasColumnType("varchar(100)").HasColumnName("title");
             entity.Property(v => v.Description).HasColumnType("varchar(100)").HasColumnName("description");
-            entity.Property(v => v.Duration).HasColumnType("varchar(20)").HasColumnName("duration");
-            entity.Property(v => v.ReleaseDate).HasColumnType("timestamp").HasColumnName("release_date");
             entity.Property(v => v.Price).HasColumnType("decimal(10,2)").HasColumnName("price");
-            entity.Property(v => v.CloudinaryPublicId).IsRequired().HasColumnType("varchar(1000)").HasColumnName("cloudinary_public_id");
+            entity.Property(v => v.PublicId).IsRequired().HasColumnType("varchar(1000)").HasColumnName("cloudinary_public_id");
             entity.Property(v => v.ThumbImgUrl).HasColumnType("varchar(1000)").HasColumnName("thumb_img_url");
             entity.Property(v => v.SaleExpirationDate).HasColumnType("timestamp").HasColumnName("sale_expiration_date");
             entity.Property(v => v.PromotionPrice).HasColumnType("decimal(10,2)").HasColumnName("promotion_price");
             entity.Property(v => v.PromotionExpirationDate).HasColumnType("timestamp").HasColumnName("promotion_expiration_date");
-            entity.Property(v => v.WatchExpirationDate).HasColumnType("timestamp").HasColumnName("watch_expiration_date");
+            entity.Property(v => v.DownloadExpirationDate).HasColumnType("timestamp").HasColumnName("download_expiration_date");
             entity.Property(u => u.UpdatedBy).HasColumnType("varchar(50)").HasColumnName("updated_by");
         });
 
@@ -216,7 +214,7 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
 
         b.Entity<BookDegust>(entity =>
         {
-            entity.ToTable("Book_trailers");
+            entity.ToTable("book_degusts");
             entity.Property(v => v.Id).HasColumnName("id");
             entity.HasKey(v => v.Id);
             entity.Property(v => v.IsActive).IsRequired().HasColumnType("boolean").HasColumnName("is_active");
@@ -225,7 +223,7 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
 
             entity.Property(v => v.Title).IsRequired().HasColumnType("varchar(100)").HasColumnName("title");
             entity.Property(v => v.BookId).HasColumnType("bigint").HasColumnName("Book_id");
-            entity.Property(v => v.CloudinaryPublicId).IsRequired().HasColumnType("varchar(1000)").HasColumnName("cloudinary_public_id");
+            entity.Property(v => v.PublicId).IsRequired().HasColumnType("varchar(1000)").HasColumnName("public_id");
 
             entity.HasOne(v => v.Book).WithMany(v => v.BookDegusts).HasForeignKey(v => v.BookId).IsRequired().OnDelete(DeleteBehavior.Cascade);
         });
