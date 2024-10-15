@@ -4,8 +4,8 @@
 # Recommended: VisualStudio.gitignore
 
 .DS_Store
-appsettings.Development.json
-appsettings.json
+# appsettings.Development.json
+# appsettings.json
 
 # Ignore model files that are auto-generated
 ModelIndex.xml
