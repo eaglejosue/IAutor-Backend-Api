@@ -16,8 +16,8 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
 
     protected override void OnConfiguring(DbContextOptionsBuilder o)
     {
-        //o.UseNpgsql(config.GetConnectionString("IAutorDb"));
-        o.UseSqlite("Data Source=IAutor.db;Cache=Shared");
+        o.UseNpgsql(config.GetConnectionString("IAutorDb"));
+       // o.UseSqlite("Data Source=IAutor.db;Cache=Shared");
     }
 
     protected override void OnModelCreating(ModelBuilder b)
