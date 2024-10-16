@@ -271,6 +271,10 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.Property(u => u.InitialValidityPeriod).HasColumnType("timestamp").HasColumnName("initial_validity_period");
             entity.Property(u => u.FinalValidityPeriod).HasColumnType("timestamp").HasColumnName("final_validity_period");
             entity.Property(u => u.MaxLimitSendDataIA).HasColumnType("smallint").HasColumnName("max_limit_send_data_IA");
+
+            entity.Property(v => v.Title).IsRequired().HasColumnType("varchar(500)").HasColumnName("title");
+            entity.Property(v => v.Price).IsRequired().HasColumnType("decimal(10,2)").HasColumnName("price");
+            entity.Property(v => v.Currency).IsRequired().HasColumnType("varchar(10)").HasColumnName("currency");
         });
 
         b.Entity<Theme>(entity =>
@@ -281,6 +285,7 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.Property(u => u.CreatedAt).IsRequired().HasColumnType("timestamp").HasColumnName("created_at");
             entity.Property(u => u.UpdatedAt).HasColumnType("timestamp").HasColumnName("updated_at");
             entity.Property(u => u.DeletedAt).HasColumnType("timestamp").HasColumnName("deleted_at");
+            entity.Property(v => v.Title).IsRequired().HasColumnType("varchar(500)").HasColumnName("title");
         });
 
         b.Entity<Question>(entity =>
@@ -293,7 +298,7 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.Property(u => u.DeletedAt).HasColumnType("timestamp").HasColumnName("deleted_at");
             entity.Property(u => u.MaxLimitCharacters).HasColumnType("smallint").HasColumnName("max_limit_characters");
             entity.Property(u => u.MinLimitCharacters).HasColumnType("smallint").HasColumnName("min_limit_characters");
-
+            entity.Property(v => v.Title).IsRequired().HasColumnType("varchar(500)").HasColumnName("title");
             entity.HasOne(u => u.Chapter).WithMany(u => u.Questions).HasForeignKey(u => u.ChapterId).IsRequired().OnDelete(DeleteBehavior.Restrict);
             entity.HasOne(u => u.Theme).WithMany(u => u.Questions).HasForeignKey(u => u.ThemeId).IsRequired().OnDelete(DeleteBehavior.Restrict);
         });
@@ -306,7 +311,8 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.Property(u => u.CreatedAt).IsRequired().HasColumnType("timestamp").HasColumnName("created_at");
             entity.Property(u => u.UpdatedAt).HasColumnType("timestamp").HasColumnName("updated_at");
             entity.Property(u => u.DeletedAt).HasColumnType("timestamp").HasColumnName("deleted_at");
-          
+            entity.Property(v => v.Title).IsRequired().HasColumnType("varchar(500)").HasColumnName("title");
+            entity.Property(v => v.ChapterNumber).HasColumnType("varchar(100)").HasColumnName("chapter_number");
         });
     }
 }

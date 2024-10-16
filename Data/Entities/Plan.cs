@@ -12,7 +12,7 @@
 
         public DateTime InitialValidityPeriod { get; set; }
 
-        public DateTime FinalValidityPeriod { get; set; }
+        public DateTime? FinalValidityPeriod { get; set; }
 
         #region Methods
         public Plan() { }   
