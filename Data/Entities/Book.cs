@@ -22,7 +22,6 @@ public sealed class Book : Base
         }
     }
 
-    public ICollection<BookDegust>? BookDegusts { get; set; }
     public ICollection<Order>? Orders { get; set; }
     public ICollection<UserBookLog>? UserBookLogs { get; set; }
     public ICollection<Email>? Emails { get; set; }

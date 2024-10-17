@@ -8,10 +8,6 @@ public interface IBookService
     Task<Book?> UpdateAsync(Book model, long loggedUserId, string loggedUserName);
     Task<Book?> PatchAsync(Book model, long loggedUserId, string loggedUserName);
     Task<bool?> DeleteAsync(long id, long loggedUserId, string loggedUserName);
-    Task<BookDegust?> GetBookTrailerByIdAsync(long id);
-    Task<List<BookDegust>> GetBookTrailersByBookIdAsync(long id);
-    Task<BookDegust?> AddBookTrailerAsync(BookDegust model);
-    Task<bool?> RemoveBookTrailerAsync(long id);
 }
 
 public sealed class BookService(
@@ -65,9 +61,6 @@ public sealed class BookService(
         if (filters.PromotionExpirationDate.HasValue && filters.PromotionExpirationDate > DateTime.MinValue)
             predicate.And(a => a.PromotionExpirationDate == filters.PromotionExpirationDate.Value.Date);
 
-        if (filters.TrailerId.HasValue)
-            predicate.And(a => a.BookDegusts.Any(a => a.Id == filters.TrailerId));
-
         if (filters?.PaymentsApproved ?? false)
             predicate.And(a => a.Orders.Any(order =>
                 order.Payments.Any(a => a.Status == PaymentStatusEnum.Paid) &&
@@ -86,9 +79,6 @@ public sealed class BookService(
         var query = db.Books.Where(predicate);
 
         #region Includes
-
-        if (filters?.IncludeTrailers ?? false)
-            query = query.Include(i => i.BookDegusts);
 
         if (filters?.IncludeUserBookLogs ?? false)
             query = query.Include(i => i.UserBookLogs.Take(1));
@@ -134,16 +124,6 @@ public sealed class BookService(
             return default;
         }
 
-        if (model.BookDegusts != null)
-        {
-            model.BookDegusts = model.BookDegusts.Where(w => !string.IsNullOrEmpty(w.PublicId)).ToList();
-            foreach (var item in model.BookDegusts)
-            {
-                item.IsActive = true;
-                if (item.Id == 0) item.CreatedAt = DateTimeBr.Now;
-            }
-        }
-
         var addResult = await db.Books.AddAsync(model).ConfigureAwait(false);
         await db.SaveChangesAsync().ConfigureAwait(false);
 
@@ -176,24 +156,12 @@ public sealed class BookService(
 
     private async Task<Book?> UpdateEntityAsync(Book model, long loggedUserId, string loggedUserName, string changeFrom)
     {
-        var entitie = await db.Books
-            .Include(i => i.BookDegusts)
-            .FirstOrDefaultAsync(f => f.Id == model.Id).ConfigureAwait(false);
+        var entitie = await db.Books.FirstOrDefaultAsync(f => f.Id == model.Id).ConfigureAwait(false);
 
         if (entitie == null) return null;
 
         if (entitie.EntityUpdated(model))
         {
-            if (model.BookDegusts != null)
-            {
-                model.BookDegusts = model.BookDegusts.Where(w => !string.IsNullOrEmpty(w.PublicId)).ToList();
-                foreach (var item in model.BookDegusts)
-                {
-                    item.IsActive = true;
-                    if (item.Id == 0) item.CreatedAt = DateTimeBr.Now;
-                }
-            }
-
             entitie.UpdatedAt = DateTimeBr.Now;
             entitie.UpdatedBy = loggedUserName;
             db.Books.Update(entitie);
@@ -218,60 +186,6 @@ public sealed class BookService(
         await db.SaveChangesAsync().ConfigureAwait(false);
 
         await userService.CreateUserLogAsync(new UserLog(loggedUserId, string.Format("Book Id {0} Deleted", id)));
-
-        return true;
-    }
-
-    public async Task<BookDegust?> GetBookTrailerByIdAsync(long id) =>
-        await db.BookDegusts.FirstOrDefaultAsync(f => f.Id == id).ConfigureAwait(false);
-
-    public async Task<List<BookDegust>> GetBookTrailersByBookIdAsync(long id) =>
-        await db.BookDegusts.Where(w => w.BookId == id).ToListAsync().ConfigureAwait(false);
-
-    public async Task<BookDegust?> AddBookTrailerAsync(BookDegust model)
-    {
-        var validation = await model.ValidateAsync();
-        if (!validation.IsValid)
-        {
-            notification.AddNotifications(validation);
-            return default;
-        }
-
-        if (model.Id > 0)
-        {
-            var entitie = await db.BookDegusts.FirstOrDefaultAsync(f => f.Id == model.Id).ConfigureAwait(false);
-            if (entitie != null)
-            {
-                entitie.Title = model.Title;
-                entitie.PublicId = model.PublicId;
-
-                db.BookDegusts.Update(entitie);
-                await db.SaveChangesAsync().ConfigureAwait(false);
-
-                return entitie;
-            }
-        }
-
-        var addResult = await db.BookDegusts.AddAsync(model).ConfigureAwait(false);
-        await db.SaveChangesAsync().ConfigureAwait(false);
-
-        return addResult.Entity;
-    }
-
-    public async Task<bool?> RemoveBookTrailerAsync(long id)
-    {
-        var entitie = await db.BookDegusts.FirstOrDefaultAsync(f => f.Id == id).ConfigureAwait(false);
-
-        if (entitie == null)
-        {
-            notification.AddNotification("BookTrailer", "Registro não encontrado.");
-            return default;
-        }
-
-        entitie.Inactivate();
-
-        db.BookDegusts.Update(entitie);
-        await db.SaveChangesAsync().ConfigureAwait(false);
 
         return true;
     }

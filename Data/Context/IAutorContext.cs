@@ -12,8 +12,6 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
     public DbSet<UserBookLog> UserBookLogs => Set<UserBookLog>();
     public DbSet<UserLog> UserLogs => Set<UserLog>();
     public DbSet<Book> Books => Set<Book>();
-    public DbSet<BookDegust> BookDegusts => Set<BookDegust>();
-
     public DbSet<Plan> Plans => Set<Plan>();
     public DbSet<Chapter> Chapters => Set<Chapter>();
     public DbSet<Question> Questions => Set<Question>();
@@ -217,22 +215,6 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.HasOne(u => u.Book).WithMany(u => u.UserBookLogs).HasForeignKey(u => u.BookId).IsRequired().OnDelete(DeleteBehavior.Restrict);
         });
 
-        b.Entity<BookDegust>(entity =>
-        {
-            entity.ToTable("book_degusts");
-            entity.Property(v => v.Id).HasColumnName("id");
-            entity.HasKey(v => v.Id);
-            entity.Property(v => v.IsActive).IsRequired().HasColumnType("boolean").HasColumnName("is_active");
-            entity.Property(v => v.CreatedAt).IsRequired().HasColumnType("timestamp").HasColumnName("created_at");
-            entity.Property(v => v.DeletedAt).HasColumnType("timestamp").HasColumnName("deleted_at");
-
-            entity.Property(v => v.Title).IsRequired().HasColumnType("varchar(100)").HasColumnName("title");
-            entity.Property(v => v.BookId).HasColumnType("bigint").HasColumnName("Book_id");
-            entity.Property(v => v.PublicId).IsRequired().HasColumnType("varchar(1000)").HasColumnName("public_id");
-
-            entity.HasOne(v => v.Book).WithMany(v => v.BookDegusts).HasForeignKey(v => v.BookId).IsRequired().OnDelete(DeleteBehavior.Cascade);
-        });
-
         b.Entity<Param>(entity =>
         {
             entity.ToTable("params");
@@ -268,39 +250,12 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.Property(u => u.CreatedAt).IsRequired().HasColumnType("timestamp").HasColumnName("created_at");
             entity.Property(u => u.UpdatedAt).HasColumnType("timestamp").HasColumnName("updated_at");
 
+            entity.Property(v => v.Title).IsRequired().HasColumnType("varchar(100)").HasColumnName("title");
+            entity.Property(v => v.Price).IsRequired().HasColumnType("decimal(10,2)").HasColumnName("price");
+            entity.Property(v => v.Currency).IsRequired().HasColumnType("varchar(10)").HasColumnName("currency");
             entity.Property(u => u.InitialValidityPeriod).HasColumnType("timestamp").HasColumnName("initial_validity_period");
             entity.Property(u => u.FinalValidityPeriod).HasColumnType("timestamp").HasColumnName("final_validity_period");
             entity.Property(u => u.MaxLimitSendDataIA).HasColumnType("smallint").HasColumnName("max_limit_send_data_IA");
-
-            entity.Property(v => v.Title).IsRequired().HasColumnType("varchar(500)").HasColumnName("title");
-            entity.Property(v => v.Price).IsRequired().HasColumnType("decimal(10,2)").HasColumnName("price");
-            entity.Property(v => v.Currency).IsRequired().HasColumnType("varchar(10)").HasColumnName("currency");
-        });
-
-        b.Entity<Theme>(entity =>
-        {
-            entity.ToTable("themes");
-            entity.Property(u => u.Id).HasColumnName("id");
-            entity.HasKey(u => u.Id);
-            entity.Property(u => u.CreatedAt).IsRequired().HasColumnType("timestamp").HasColumnName("created_at");
-            entity.Property(u => u.UpdatedAt).HasColumnType("timestamp").HasColumnName("updated_at");
-            entity.Property(u => u.DeletedAt).HasColumnType("timestamp").HasColumnName("deleted_at");
-            entity.Property(v => v.Title).IsRequired().HasColumnType("varchar(500)").HasColumnName("title");
-        });
-
-        b.Entity<Question>(entity =>
-        {
-            entity.ToTable("questions");
-            entity.Property(u => u.Id).HasColumnName("id");
-            entity.HasKey(u => u.Id);
-            entity.Property(u => u.CreatedAt).IsRequired().HasColumnType("timestamp").HasColumnName("created_at");
-            entity.Property(u => u.UpdatedAt).HasColumnType("timestamp").HasColumnName("updated_at");
-            entity.Property(u => u.DeletedAt).HasColumnType("timestamp").HasColumnName("deleted_at");
-            entity.Property(u => u.MaxLimitCharacters).HasColumnType("smallint").HasColumnName("max_limit_characters");
-            entity.Property(u => u.MinLimitCharacters).HasColumnType("smallint").HasColumnName("min_limit_characters");
-            entity.Property(v => v.Title).IsRequired().HasColumnType("varchar(500)").HasColumnName("title");
-            entity.HasOne(u => u.Chapter).WithMany(u => u.Questions).HasForeignKey(u => u.ChapterId).IsRequired().OnDelete(DeleteBehavior.Restrict);
-            entity.HasOne(u => u.Theme).WithMany(u => u.Questions).HasForeignKey(u => u.ThemeId).IsRequired().OnDelete(DeleteBehavior.Restrict);
         });
 
         b.Entity<Chapter>(entity =>
@@ -311,8 +266,38 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.Property(u => u.CreatedAt).IsRequired().HasColumnType("timestamp").HasColumnName("created_at");
             entity.Property(u => u.UpdatedAt).HasColumnType("timestamp").HasColumnName("updated_at");
             entity.Property(u => u.DeletedAt).HasColumnType("timestamp").HasColumnName("deleted_at");
-            entity.Property(v => v.Title).IsRequired().HasColumnType("varchar(500)").HasColumnName("title");
+
+            entity.Property(v => v.Title).IsRequired().HasColumnType("varchar(100)").HasColumnName("title");
             entity.Property(v => v.ChapterNumber).HasColumnType("varchar(100)").HasColumnName("chapter_number");
+        });
+
+        b.Entity<Question>(entity =>
+        {
+            entity.ToTable("questions");
+            entity.Property(u => u.Id).HasColumnName("id");
+            entity.HasKey(u => u.Id);
+            entity.Property(u => u.CreatedAt).IsRequired().HasColumnType("timestamp").HasColumnName("created_at");
+            entity.Property(u => u.UpdatedAt).HasColumnType("timestamp").HasColumnName("updated_at");
+            entity.Property(u => u.DeletedAt).HasColumnType("timestamp").HasColumnName("deleted_at");
+
+            entity.Property(v => v.Title).IsRequired().HasColumnType("varchar(500)").HasColumnName("title");
+            entity.Property(u => u.MaxLimitCharacters).HasColumnType("smallint").HasColumnName("max_limit_characters");
+            entity.Property(u => u.MinLimitCharacters).HasColumnType("smallint").HasColumnName("min_limit_characters");
+            entity.Property(u => u.ChapterId).HasColumnType("bigint").HasColumnName("chapter_id");
+
+            entity.HasOne(u => u.Chapter).WithMany(u => u.Questions).HasForeignKey(u => u.ChapterId).IsRequired().OnDelete(DeleteBehavior.Restrict);
+        });
+
+        b.Entity<Theme>(entity =>
+        {
+            entity.ToTable("themes");
+            entity.Property(u => u.Id).HasColumnName("id");
+            entity.HasKey(u => u.Id);
+            entity.Property(u => u.CreatedAt).IsRequired().HasColumnType("timestamp").HasColumnName("created_at");
+            entity.Property(u => u.UpdatedAt).HasColumnType("timestamp").HasColumnName("updated_at");
+            entity.Property(u => u.DeletedAt).HasColumnType("timestamp").HasColumnName("deleted_at");
+
+            entity.Property(v => v.Title).IsRequired().HasColumnType("varchar(100)").HasColumnName("title");
         });
     }
 }
