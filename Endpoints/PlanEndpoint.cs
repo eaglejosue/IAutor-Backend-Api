@@ -1,20 +1,20 @@
 ﻿namespace IAutor.Api.Endpoints;
 
-public static class QuestionEndpoint
+public static class PlanEndpoint
 {
-    public static void MapQuestionEndpoints(this WebApplication app)
+    public static void MapPlanEndpoints(this WebApplication app)
     {
-        const string ModelName = nameof(Question);
+        const string ModelName = nameof(Plan);
         var tag = new List<OpenApiTag> { new() { Name = ModelName } };
 
-        app.MapGet("/api/questions/{id:long}",
-        async (long id, [FromServices] IQuestionService service) =>
+        app.MapGet("/api/plans/{id:long}",
+        async (long id, [FromServices] IPlanService service) =>
         {
             var entitie = await service.GetByIdAsync(id);
             if (entitie is null) return Results.NoContent();
             return Results.Ok(entitie);
         })
-        .Produces((int)HttpStatusCode.OK, typeof(Question))
+        .Produces((int)HttpStatusCode.OK, typeof(Plan))
         .WithName($"{ModelName}ById")
         .WithOpenApi(x => new OpenApiOperation(x)
         {
@@ -23,17 +23,17 @@ public static class QuestionEndpoint
             Tags = tag
         });
 
-        app.MapGet("/api/questions",
+        app.MapGet("/api/plans",
         async (
-            [AsParameters] QuestionFilters filters,
-            [FromServices] IQuestionService service,
+            [AsParameters] PlanFilters filters,
+            [FromServices] IPlanService service,
             HttpContext context) =>
         {
             var entities = await service.GetAllAsync(filters);
             if (entities.Count == 0) return Results.NoContent();
             return Results.Ok(entities);
         })
-        .Produces((int)HttpStatusCode.OK, typeof(List<Question>))
+        .Produces((int)HttpStatusCode.OK, typeof(List<Plan>))
         .WithName($"All{ModelName}")
         .WithOpenApi(x => new OpenApiOperation(x)
         {
@@ -42,15 +42,15 @@ public static class QuestionEndpoint
             Tags = tag
         });
 
-        app.MapPost("/api/questions",
+        app.MapPost("/api/plans",
         async (
-            Question model,
-            [FromServices] IQuestionService service,
+            Plan model,
+            [FromServices] IPlanService service,
             [FromServices] INotificationService notification) =>
         {
             var entitie = await service.CreateAsync(model);
             if (notification.HasNotifications) return Results.BadRequest(notification.Notifications);
-            return Results.Created($"/Questions/{entitie!.Id}", entitie);
+            return Results.Created($"/Plans/{entitie!.Id}", entitie);
         })
         .Produces((int)HttpStatusCode.Created)
         .WithName($"Create{ModelName}")
@@ -62,10 +62,10 @@ public static class QuestionEndpoint
         })
         .RequireAuthorization("Create");
 
-        app.MapPut("/api/questions",
+        app.MapPut("/api/plans",
         async (
-            Question model,
-            [FromServices] IQuestionService service,
+            Plan model,
+            [FromServices] IPlanService service,
             [FromServices] INotificationService notification,
             HttpContext context) =>
         {
@@ -86,10 +86,10 @@ public static class QuestionEndpoint
         })
         .RequireAuthorization("Update");
 
-        app.MapPatch("/api/questions",
+        app.MapPatch("/api/plans",
         async (
-            Question model,
-            [FromServices] IQuestionService service,
+            Plan model,
+            [FromServices] IPlanService service,
             [FromServices] INotificationService notification,
             HttpContext context) =>
         {
@@ -110,10 +110,10 @@ public static class QuestionEndpoint
         })
         .RequireAuthorization("Update");
 
-        app.MapDelete("/api/questions/{id:long}",
+        app.MapDelete("/api/plans/{id:long}",
         async (
             long id,
-            [FromServices] IQuestionService service,
+            [FromServices] IPlanService service,
             [FromServices] INotificationService notification,
             HttpContext context) =>
         {
