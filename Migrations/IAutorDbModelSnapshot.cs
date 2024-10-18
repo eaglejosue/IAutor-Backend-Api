@@ -98,48 +98,6 @@ namespace IAutor.Api.Migrations
                     b.ToTable("books", (string)null);
                 });
 
-            modelBuilder.Entity("IAutor.Api.Data.Entities.BookDegust", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("BookId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("Book_id");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp")
-                        .HasColumnName("created_at");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp")
-                        .HasColumnName("deleted_at");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
-
-                    b.Property<string>("PublicId")
-                        .IsRequired()
-                        .HasColumnType("varchar(1000)")
-                        .HasColumnName("public_id");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("varchar(100)")
-                        .HasColumnName("title");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BookId");
-
-                    b.ToTable("book_degusts", (string)null);
-                });
-
             modelBuilder.Entity("IAutor.Api.Data.Entities.Chapter", b =>
                 {
                     b.Property<long>("Id")
@@ -149,8 +107,8 @@ namespace IAutor.Api.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("ChapterNumber")
-                        .HasColumnType("varchar(100)")
+                    b.Property<int?>("ChapterNumber")
+                        .HasColumnType("integer")
                         .HasColumnName("chapter_number");
 
                     b.Property<DateTime>("CreatedAt")
@@ -166,12 +124,16 @@ namespace IAutor.Api.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("varchar(500)")
+                        .HasColumnType("varchar(100)")
                         .HasColumnName("title");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp")
                         .HasColumnName("updated_at");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("updated_by");
 
                     b.HasKey("Id");
 
@@ -222,6 +184,9 @@ namespace IAutor.Api.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp")
                         .HasColumnName("updated_at");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
 
                     b.Property<long>("UserId")
                         .HasColumnType("bigint")
@@ -305,6 +270,9 @@ namespace IAutor.Api.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp")
                         .HasColumnName("updated_at");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
 
                     b.Property<long>("UserId")
                         .HasColumnType("bigint")
@@ -499,6 +467,9 @@ namespace IAutor.Api.Migrations
                         .HasColumnType("timestamp")
                         .HasColumnName("updated_at");
 
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
                     b.Property<string>("Value")
                         .IsRequired()
                         .HasColumnType("text")
@@ -594,6 +565,9 @@ namespace IAutor.Api.Migrations
                         .HasColumnType("timestamp")
                         .HasColumnName("updated_at");
 
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("OrderId");
@@ -643,12 +617,16 @@ namespace IAutor.Api.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("varchar(500)")
+                        .HasColumnType("varchar(100)")
                         .HasColumnName("title");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp")
                         .HasColumnName("updated_at");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("updated_by");
 
                     b.HasKey("Id");
 
@@ -665,7 +643,8 @@ namespace IAutor.Api.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<long>("ChapterId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasColumnName("chapter_id");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp")
@@ -686,9 +665,6 @@ namespace IAutor.Api.Migrations
                         .HasColumnType("smallint")
                         .HasColumnName("min_limit_characters");
 
-                    b.Property<long>("ThemeId")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("varchar(500)")
@@ -698,11 +674,13 @@ namespace IAutor.Api.Migrations
                         .HasColumnType("timestamp")
                         .HasColumnName("updated_at");
 
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("updated_by");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ChapterId");
-
-                    b.HasIndex("ThemeId");
 
                     b.ToTable("questions", (string)null);
                 });
@@ -729,12 +707,16 @@ namespace IAutor.Api.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("varchar(500)")
+                        .HasColumnType("varchar(100)")
                         .HasColumnName("title");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp")
                         .HasColumnName("updated_at");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("updated_by");
 
                     b.HasKey("Id");
 
@@ -869,7 +851,7 @@ namespace IAutor.Api.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("user_Book_logs", (string)null);
+                    b.ToTable("user_book_logs", (string)null);
                 });
 
             modelBuilder.Entity("IAutor.Api.Data.Entities.UserLog", b =>
@@ -899,17 +881,6 @@ namespace IAutor.Api.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("user_logs", (string)null);
-                });
-
-            modelBuilder.Entity("IAutor.Api.Data.Entities.BookDegust", b =>
-                {
-                    b.HasOne("IAutor.Api.Data.Entities.Book", "Book")
-                        .WithMany("BookDegusts")
-                        .HasForeignKey("BookId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Book");
                 });
 
             modelBuilder.Entity("IAutor.Api.Data.Entities.Email", b =>
@@ -990,15 +961,7 @@ namespace IAutor.Api.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("IAutor.Api.Data.Entities.Theme", "Theme")
-                        .WithMany("Questions")
-                        .HasForeignKey("ThemeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.Navigation("Chapter");
-
-                    b.Navigation("Theme");
                 });
 
             modelBuilder.Entity("IAutor.Api.Data.Entities.UserBookLog", b =>
@@ -1033,8 +996,6 @@ namespace IAutor.Api.Migrations
 
             modelBuilder.Entity("IAutor.Api.Data.Entities.Book", b =>
                 {
-                    b.Navigation("BookDegusts");
-
                     b.Navigation("Emails");
 
                     b.Navigation("Orders");
@@ -1055,11 +1016,6 @@ namespace IAutor.Api.Migrations
             modelBuilder.Entity("IAutor.Api.Data.Entities.Owner", b =>
                 {
                     b.Navigation("Incomes");
-                });
-
-            modelBuilder.Entity("IAutor.Api.Data.Entities.Theme", b =>
-                {
-                    b.Navigation("Questions");
                 });
 
             modelBuilder.Entity("IAutor.Api.Data.Entities.User", b =>
