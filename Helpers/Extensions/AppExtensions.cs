@@ -26,6 +26,8 @@ public static class AppExtensions
         app.MapParamEndpoints();
         app.MapPaymentEndpoints();
         app.MapUserEndpoints();
+        app.MapChapterEndpoints();
+        app.MapQuestionEndpoints();
     }
 
     public static IApplicationBuilder UseExceptionHandleMiddleware(this IApplicationBuilder builder)
