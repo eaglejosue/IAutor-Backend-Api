@@ -144,6 +144,8 @@ public static class BuilderExtensions
         builder.Services.AddScoped<IParamService, ParamService>();
         builder.Services.AddScoped<IPaymentService, PaymentService>();
         builder.Services.AddScoped<IUserService, UserService>();
+        builder.Services.AddScoped<IQuestionService, QuestionService>();
+        builder.Services.AddScoped<IChapterService, ChapterService>();
 
         builder.Services.Configure<IuguConfig>(config.GetSection("IuguConfig"));
         builder.Services.AddScoped<IIuguIntegrationService, IuguIntegrationService>();
