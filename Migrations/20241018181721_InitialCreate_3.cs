@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
@@ -6,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace IAutor.Api.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialCreate_3 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -27,15 +28,34 @@ namespace IAutor.Api.Migrations
                     download_expiration_date = table.Column<DateTime>(type: "timestamp", nullable: true),
                     promotion_price = table.Column<decimal>(type: "numeric(10,2)", nullable: true),
                     promotion_expiration_date = table.Column<DateTime>(type: "timestamp", nullable: true),
-                    updated_by = table.Column<string>(type: "varchar(50)", nullable: true),
                     is_active = table.Column<bool>(type: "boolean", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp", nullable: true),
-                    deleted_at = table.Column<DateTime>(type: "timestamp", nullable: true)
+                    deleted_at = table.Column<DateTime>(type: "timestamp", nullable: true),
+                    updated_by = table.Column<string>(type: "varchar(50)", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_books", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "chapters",
+                columns: table => new
+                {
+                    id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    title = table.Column<string>(type: "varchar(100)", nullable: false),
+                    chapter_number = table.Column<int>(type: "integer", nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp", nullable: true),
+                    deleted_at = table.Column<DateTime>(type: "timestamp", nullable: true),
+                    updated_by = table.Column<string>(type: "varchar(50)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_chapters", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -49,11 +69,53 @@ namespace IAutor.Api.Migrations
                     is_active = table.Column<bool>(type: "boolean", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp", nullable: true),
-                    deleted_at = table.Column<DateTime>(type: "timestamp", nullable: true)
+                    deleted_at = table.Column<DateTime>(type: "timestamp", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_params", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "plans",
+                columns: table => new
+                {
+                    id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    title = table.Column<string>(type: "varchar(100)", nullable: false),
+                    price = table.Column<decimal>(type: "numeric(10,2)", nullable: false),
+                    currency = table.Column<string>(type: "varchar(10)", nullable: false),
+                    max_limit_send_data_IA = table.Column<short>(type: "smallint", nullable: false),
+                    initial_validity_period = table.Column<DateTime>(type: "timestamp", nullable: false),
+                    final_validity_period = table.Column<DateTime>(type: "timestamp", nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp", nullable: true),
+                    DeletedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    updated_by = table.Column<string>(type: "varchar(50)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_plans", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "themes",
+                columns: table => new
+                {
+                    id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    title = table.Column<string>(type: "varchar(100)", nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp", nullable: true),
+                    deleted_at = table.Column<DateTime>(type: "timestamp", nullable: true),
+                    updated_by = table.Column<string>(type: "varchar(50)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_themes", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -76,11 +138,11 @@ namespace IAutor.Api.Migrations
                     reset_password = table.Column<bool>(type: "boolean", nullable: true),
                     reset_password_code = table.Column<string>(type: "varchar(50)", nullable: true),
                     reset_password_at = table.Column<DateTime>(type: "timestamp", nullable: true),
-                    updated_by = table.Column<string>(type: "varchar(50)", nullable: true),
                     is_active = table.Column<bool>(type: "boolean", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp", nullable: true),
-                    deleted_at = table.Column<DateTime>(type: "timestamp", nullable: true)
+                    deleted_at = table.Column<DateTime>(type: "timestamp", nullable: true),
+                    updated_by = table.Column<string>(type: "varchar(50)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -88,27 +150,30 @@ namespace IAutor.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "book_degusts",
+                name: "questions",
                 columns: table => new
                 {
                     id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    is_active = table.Column<bool>(type: "boolean", nullable: false),
+                    title = table.Column<string>(type: "varchar(500)", nullable: false),
+                    max_limit_characters = table.Column<short>(type: "smallint", nullable: false),
+                    min_limit_characters = table.Column<short>(type: "smallint", nullable: false),
+                    chapter_id = table.Column<long>(type: "bigint", nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp", nullable: true),
                     deleted_at = table.Column<DateTime>(type: "timestamp", nullable: true),
-                    title = table.Column<string>(type: "varchar(100)", nullable: false),
-                    Book_id = table.Column<long>(type: "bigint", nullable: false),
-                    public_id = table.Column<string>(type: "varchar(1000)", nullable: false)
+                    updated_by = table.Column<string>(type: "varchar(50)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_book_degusts", x => x.id);
+                    table.PrimaryKey("PK_questions", x => x.id);
                     table.ForeignKey(
-                        name: "FK_book_degusts_books_Book_id",
-                        column: x => x.Book_id,
-                        principalTable: "books",
+                        name: "FK_questions_chapters_chapter_id",
+                        column: x => x.chapter_id,
+                        principalTable: "chapters",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -126,7 +191,8 @@ namespace IAutor.Api.Migrations
                     is_active = table.Column<bool>(type: "boolean", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp", nullable: true),
-                    deleted_at = table.Column<DateTime>(type: "timestamp", nullable: true)
+                    deleted_at = table.Column<DateTime>(type: "timestamp", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -156,7 +222,8 @@ namespace IAutor.Api.Migrations
                     is_active = table.Column<bool>(type: "boolean", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp", nullable: true),
-                    deleted_at = table.Column<DateTime>(type: "timestamp", nullable: true)
+                    deleted_at = table.Column<DateTime>(type: "timestamp", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -209,11 +276,11 @@ namespace IAutor.Api.Migrations
                     user_token = table.Column<string>(type: "varchar(1000)", nullable: true),
                     live_api_token = table.Column<string>(type: "varchar(1000)", nullable: true),
                     test_api_token = table.Column<string>(type: "varchar(1000)", nullable: true),
-                    updated_by = table.Column<string>(type: "varchar(50)", nullable: true),
                     is_active = table.Column<bool>(type: "boolean", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp", nullable: true),
-                    deleted_at = table.Column<DateTime>(type: "timestamp", nullable: true)
+                    deleted_at = table.Column<DateTime>(type: "timestamp", nullable: true),
+                    updated_by = table.Column<string>(type: "varchar(50)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -227,7 +294,7 @@ namespace IAutor.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "user_Book_logs",
+                name: "user_book_logs",
                 columns: table => new
                 {
                     id = table.Column<long>(type: "bigint", nullable: false)
@@ -239,15 +306,15 @@ namespace IAutor.Api.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_user_Book_logs", x => x.id);
+                    table.PrimaryKey("PK_user_book_logs", x => x.id);
                     table.ForeignKey(
-                        name: "FK_user_Book_logs_books_Book_id",
+                        name: "FK_user_book_logs_books_Book_id",
                         column: x => x.Book_id,
                         principalTable: "books",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_user_Book_logs_users_user_id",
+                        name: "FK_user_book_logs_users_user_id",
                         column: x => x.user_id,
                         principalTable: "users",
                         principalColumn: "id",
@@ -299,7 +366,8 @@ namespace IAutor.Api.Migrations
                     is_active = table.Column<bool>(type: "boolean", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp", nullable: true),
-                    deleted_at = table.Column<DateTime>(type: "timestamp", nullable: true)
+                    deleted_at = table.Column<DateTime>(type: "timestamp", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -335,11 +403,6 @@ namespace IAutor.Api.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_book_degusts_Book_id",
-                table: "book_degusts",
-                column: "Book_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_emails_Book_id",
@@ -378,13 +441,18 @@ namespace IAutor.Api.Migrations
                 column: "order_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_user_Book_logs_Book_id",
-                table: "user_Book_logs",
+                name: "IX_questions_chapter_id",
+                table: "questions",
+                column: "chapter_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_user_book_logs_Book_id",
+                table: "user_book_logs",
                 column: "Book_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_user_Book_logs_user_id",
-                table: "user_Book_logs",
+                name: "IX_user_book_logs_user_id",
+                table: "user_book_logs",
                 column: "user_id");
 
             migrationBuilder.CreateIndex(
@@ -403,9 +471,6 @@ namespace IAutor.Api.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "book_degusts");
-
-            migrationBuilder.DropTable(
                 name: "emails");
 
             migrationBuilder.DropTable(
@@ -418,7 +483,16 @@ namespace IAutor.Api.Migrations
                 name: "payments");
 
             migrationBuilder.DropTable(
-                name: "user_Book_logs");
+                name: "plans");
+
+            migrationBuilder.DropTable(
+                name: "questions");
+
+            migrationBuilder.DropTable(
+                name: "themes");
+
+            migrationBuilder.DropTable(
+                name: "user_book_logs");
 
             migrationBuilder.DropTable(
                 name: "user_logs");
@@ -428,6 +502,9 @@ namespace IAutor.Api.Migrations
 
             migrationBuilder.DropTable(
                 name: "orders");
+
+            migrationBuilder.DropTable(
+                name: "chapters");
 
             migrationBuilder.DropTable(
                 name: "books");

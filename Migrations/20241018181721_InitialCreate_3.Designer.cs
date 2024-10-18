@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace IAutor.Api.Migrations
 {
     [DbContext(typeof(IAutorDb))]
-    [Migration("20241015191725_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20241018181721_InitialCreate_3")]
+    partial class InitialCreate_3
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -101,7 +101,7 @@ namespace IAutor.Api.Migrations
                     b.ToTable("books", (string)null);
                 });
 
-            modelBuilder.Entity("IAutor.Api.Data.Entities.BookDegust", b =>
+            modelBuilder.Entity("IAutor.Api.Data.Entities.Chapter", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -110,9 +110,9 @@ namespace IAutor.Api.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<long>("BookId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("Book_id");
+                    b.Property<int?>("ChapterNumber")
+                        .HasColumnType("integer")
+                        .HasColumnName("chapter_number");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp")
@@ -123,24 +123,24 @@ namespace IAutor.Api.Migrations
                         .HasColumnName("deleted_at");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
-
-                    b.Property<string>("PublicId")
-                        .IsRequired()
-                        .HasColumnType("varchar(1000)")
-                        .HasColumnName("public_id");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("varchar(100)")
                         .HasColumnName("title");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("updated_by");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("BookId");
-
-                    b.ToTable("book_degusts", (string)null);
+                    b.ToTable("chapters", (string)null);
                 });
 
             modelBuilder.Entity("IAutor.Api.Data.Entities.Email", b =>
@@ -187,6 +187,9 @@ namespace IAutor.Api.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp")
                         .HasColumnName("updated_at");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
 
                     b.Property<long>("UserId")
                         .HasColumnType("bigint")
@@ -270,6 +273,9 @@ namespace IAutor.Api.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp")
                         .HasColumnName("updated_at");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
 
                     b.Property<long>("UserId")
                         .HasColumnType("bigint")
@@ -464,6 +470,9 @@ namespace IAutor.Api.Migrations
                         .HasColumnType("timestamp")
                         .HasColumnName("updated_at");
 
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
                     b.Property<string>("Value")
                         .IsRequired()
                         .HasColumnType("text")
@@ -559,11 +568,162 @@ namespace IAutor.Api.Migrations
                         .HasColumnType("timestamp")
                         .HasColumnName("updated_at");
 
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("OrderId");
 
                     b.ToTable("payments", (string)null);
+                });
+
+            modelBuilder.Entity("IAutor.Api.Data.Entities.Plan", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("varchar(10)")
+                        .HasColumnName("currency");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("FinalValidityPeriod")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("final_validity_period");
+
+                    b.Property<DateTime>("InitialValidityPeriod")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("initial_validity_period");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<short>("MaxLimitSendDataIA")
+                        .HasColumnType("smallint")
+                        .HasColumnName("max_limit_send_data_IA");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(10,2)")
+                        .HasColumnName("price");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("title");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("updated_by");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("plans", (string)null);
+                });
+
+            modelBuilder.Entity("IAutor.Api.Data.Entities.Question", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("ChapterId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("chapter_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<short>("MaxLimitCharacters")
+                        .HasColumnType("smallint")
+                        .HasColumnName("max_limit_characters");
+
+                    b.Property<short>("MinLimitCharacters")
+                        .HasColumnType("smallint")
+                        .HasColumnName("min_limit_characters");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("varchar(500)")
+                        .HasColumnName("title");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("updated_by");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChapterId");
+
+                    b.ToTable("questions", (string)null);
+                });
+
+            modelBuilder.Entity("IAutor.Api.Data.Entities.Theme", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("title");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("updated_by");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("themes", (string)null);
                 });
 
             modelBuilder.Entity("IAutor.Api.Data.Entities.User", b =>
@@ -694,7 +854,7 @@ namespace IAutor.Api.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("user_Book_logs", (string)null);
+                    b.ToTable("user_book_logs", (string)null);
                 });
 
             modelBuilder.Entity("IAutor.Api.Data.Entities.UserLog", b =>
@@ -724,17 +884,6 @@ namespace IAutor.Api.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("user_logs", (string)null);
-                });
-
-            modelBuilder.Entity("IAutor.Api.Data.Entities.BookDegust", b =>
-                {
-                    b.HasOne("IAutor.Api.Data.Entities.Book", "Book")
-                        .WithMany("BookDegusts")
-                        .HasForeignKey("BookId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Book");
                 });
 
             modelBuilder.Entity("IAutor.Api.Data.Entities.Email", b =>
@@ -807,6 +956,17 @@ namespace IAutor.Api.Migrations
                     b.Navigation("Order");
                 });
 
+            modelBuilder.Entity("IAutor.Api.Data.Entities.Question", b =>
+                {
+                    b.HasOne("IAutor.Api.Data.Entities.Chapter", "Chapter")
+                        .WithMany("Questions")
+                        .HasForeignKey("ChapterId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Chapter");
+                });
+
             modelBuilder.Entity("IAutor.Api.Data.Entities.UserBookLog", b =>
                 {
                     b.HasOne("IAutor.Api.Data.Entities.Book", "Book")
@@ -839,13 +999,16 @@ namespace IAutor.Api.Migrations
 
             modelBuilder.Entity("IAutor.Api.Data.Entities.Book", b =>
                 {
-                    b.Navigation("BookDegusts");
-
                     b.Navigation("Emails");
 
                     b.Navigation("Orders");
 
                     b.Navigation("UserBookLogs");
+                });
+
+            modelBuilder.Entity("IAutor.Api.Data.Entities.Chapter", b =>
+                {
+                    b.Navigation("Questions");
                 });
 
             modelBuilder.Entity("IAutor.Api.Data.Entities.Order", b =>
