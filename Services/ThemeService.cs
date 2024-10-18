@@ -1,24 +1,24 @@
 ﻿namespace IAutor.Api.Services;
 
-public interface IChapterService
+public interface IThemeService
 {
-    Task<Chapter?> GetByIdAsync(long id);
-    Task<List<Chapter>> GetAllAsync(ChapterFilters filters);
-    Task<Chapter?> CreateAsync(Chapter model);
-    Task<Chapter?> UpdateAsync(Chapter model, long loggedUserId, string loggedUserName);
-    Task<Chapter?> PatchAsync(Chapter model, long loggedUserId, string loggedUserName);
+    Task<Theme?> GetByIdAsync(long id);
+    Task<List<Theme>> GetAllAsync(ThemeFilters filters);
+    Task<Theme?> CreateAsync(Theme model);
+    Task<Theme?> UpdateAsync(Theme model, long loggedUserId, string loggedUserName);
+    Task<Theme?> PatchAsync(Theme model, long loggedUserId, string loggedUserName);
     Task<bool?> DeleteAsync(long id, long loggedUserId, string loggedUserName);
 }
-public sealed class ChapterService(
+public sealed class ThemeService(
     IAutorDb db,
     INotificationService notification,
-    IUserService userService) : IChapterService
+    IUserService userService) : IThemeService
 {
-    public async Task<Chapter?> GetByIdAsync(long id) => await db.Chapters.FirstOrDefaultAsync(f => f.Id == id).ConfigureAwait(false);
+    public async Task<Theme?> GetByIdAsync(long id) => await db.Themes.FirstOrDefaultAsync(f => f.Id == id).ConfigureAwait(false);
 
-    public async Task<List<Chapter>> GetAllAsync(ChapterFilters filters)
+    public async Task<List<Theme>> GetAllAsync(ThemeFilters filters)
     {
-        var predicate = PredicateBuilder.New<Chapter>(n => n.Id > 0);
+        var predicate = PredicateBuilder.New<Theme>(n => n.Id > 0);
 
         #region Filters
 
@@ -43,16 +43,15 @@ public sealed class ChapterService(
 
         #endregion
 
-        var query = db.Chapters.Where(predicate);
+        var query = db.Themes.Where(predicate);
 
         #region OrderBy
 
         query = filters?.OrderBy switch
         {
             "1" => query.OrderBy(o => o.Title),
-            "2" => query.OrderByDescending(o => o.ChapterNumber),
-            "3" => query.OrderBy(o => o.CreatedAt),
-            "4" => query.OrderByDescending(o => o.CreatedAt),
+            "2" => query.OrderBy(o => o.CreatedAt),
+            "3" => query.OrderByDescending(o => o.CreatedAt),
             _ => query.OrderBy(o => o.Id)
         };
 
@@ -65,7 +64,7 @@ public sealed class ChapterService(
         return await query.AsNoTracking().ToListAsync().ConfigureAwait(false);
     }
 
-    public async Task<Chapter?> CreateAsync(Chapter model)
+    public async Task<Theme?> CreateAsync(Theme model)
     {
         var validation = await model.ValidateCreateAsync();
         if (!validation.IsValid)
@@ -74,13 +73,13 @@ public sealed class ChapterService(
             return default;
         }
 
-        var addResult = await db.Chapters.AddAsync(model).ConfigureAwait(false);
+        var addResult = await db.Themes.AddAsync(model).ConfigureAwait(false);
         await db.SaveChangesAsync().ConfigureAwait(false);
 
         return addResult.Entity;
     }
 
-    public async Task<Chapter?> UpdateAsync(Chapter model, long loggedUserId, string loggedUserName)
+    public async Task<Theme?> UpdateAsync(Theme model, long loggedUserId, string loggedUserName)
     {
         var validation = await model.ValidateUpdateAsync();
         if (!validation.IsValid)
@@ -92,7 +91,7 @@ public sealed class ChapterService(
         return await UpdateEntityAsync(model, loggedUserId, loggedUserName, "Updated");
     }
 
-    public async Task<Chapter?> PatchAsync(Chapter model, long loggedUserId, string loggedUserName)
+    public async Task<Theme?> PatchAsync(Theme model, long loggedUserId, string loggedUserName)
     {
         var validation = await model.ValidatePatchAsync();
         if (!validation.IsValid)
@@ -104,9 +103,9 @@ public sealed class ChapterService(
         return await UpdateEntityAsync(model, loggedUserId, loggedUserName, "Patched");
     }
 
-    private async Task<Chapter?> UpdateEntityAsync(Chapter model, long loggedUserId, string loggedUserName, string changeFrom)
+    private async Task<Theme?> UpdateEntityAsync(Theme model, long loggedUserId, string loggedUserName, string changeFrom)
     {
-        var entitie = await db.Chapters.FirstOrDefaultAsync(f => f.Id == model.Id).ConfigureAwait(false);
+        var entitie = await db.Themes.FirstOrDefaultAsync(f => f.Id == model.Id).ConfigureAwait(false);
 
         if (entitie == null) return null;
 
@@ -114,10 +113,10 @@ public sealed class ChapterService(
         {
             entitie.UpdatedAt = DateTimeBr.Now;
             entitie.UpdatedBy = loggedUserName;
-            db.Chapters.Update(entitie);
+            db.Themes.Update(entitie);
             await db.SaveChangesAsync().ConfigureAwait(false);
 
-            await userService.CreateUserLogAsync(new UserLog(loggedUserId, string.Format("Chapter Id {0} {1}", model.Id, changeFrom)));
+            await userService.CreateUserLogAsync(new UserLog(loggedUserId, string.Format("Theme Id {0} {1}", model.Id, changeFrom)));
         }
 
         return entitie;
@@ -132,10 +131,10 @@ public sealed class ChapterService(
         entitie.DeletedAt = DateTimeBr.Now;
         entitie.UpdatedBy = loggedUserName;
 
-        db.Chapters.Update(entitie);
+        db.Themes.Update(entitie);
         await db.SaveChangesAsync().ConfigureAwait(false);
 
-        await userService.CreateUserLogAsync(new UserLog(loggedUserId, string.Format("Chapter Id {0} Deleted", id)));
+        await userService.CreateUserLogAsync(new UserLog(loggedUserId, string.Format("Theme Id {0} Deleted", id)));
 
         return true;
     }

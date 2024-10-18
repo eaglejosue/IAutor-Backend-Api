@@ -12,7 +12,6 @@ public sealed class Book : Base
     public DateTime? DownloadExpirationDate { get; set; }
     public decimal? PromotionPrice { get; set; }
     public DateTime? PromotionExpirationDate { get; set; }
-    public string? UpdatedBy { get; set; }
 
     [NotMapped] public string? PaidDateTime {
         get

@@ -1,7 +1,6 @@
-﻿namespace IAutor.Api.Data.Entities
+﻿namespace IAutor.Api.Data.Entities;
+
+public sealed class Theme : Base
 {
-    public sealed class Theme : Base
-    {
-        public string Title { get; set; }
-    }
+    public string Title { get; set; }
 }
