@@ -30,7 +30,6 @@ public sealed class Owner : Base
     public string? IuguUserToken { get; set; }
     public string? IuguLiveApiToken { get; set; }
     public string? IuguTestApiToken { get; set; }
-    public string? UpdatedBy { get; set; }
 
     [NotMapped] public string? Email { get; set; }
     [NotMapped] public string? Password { get; set; }

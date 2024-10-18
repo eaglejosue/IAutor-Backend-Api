@@ -5,7 +5,7 @@ public sealed class ChapterCreateValidator : Validation<Chapter>
     public ChapterCreateValidator()
     {
         RuleFor(p => p.Title).NotEmpty().NotNull().MaximumLength(500);
-        RuleFor(p => p.ChapterNumber).MaximumLength(100);
+        RuleFor(p => p.ChapterNumber).NotEmpty().NotNull();
     }
 }
 
@@ -14,7 +14,7 @@ public sealed class ChapterUpdateValidator : Validation<Chapter>
     public ChapterUpdateValidator()
     {
         RuleFor(p => p.Title).NotEmpty().NotNull().MaximumLength(500);
-        RuleFor(p => p.ChapterNumber).MaximumLength(100);
+        RuleFor(p => p.ChapterNumber).NotEmpty().NotNull();
         RuleFor(p => p.Id).NotEmpty().NotNull();
     }
 }

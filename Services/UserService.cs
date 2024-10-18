@@ -22,7 +22,7 @@ public sealed class UserService(
 
     public async Task<List<User>> GetAllAsync(UserFilters filters)
     {
-        var predicate = PredicateBuilder.New<User>(n => n.Id > 1);
+        var predicate = PredicateBuilder.New<User>(true);
 
         #region Filters
 

@@ -34,6 +34,7 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.Property(u => u.CreatedAt).IsRequired().HasColumnType("timestamp").HasColumnName("created_at");
             entity.Property(u => u.UpdatedAt).HasColumnType("timestamp").HasColumnName("updated_at");
             entity.Property(u => u.DeletedAt).HasColumnType("timestamp").HasColumnName("deleted_at");
+            entity.Property(u => u.UpdatedBy).HasColumnType("varchar(50)").HasColumnName("updated_by");
 
             entity.Property(u => u.FirstName).HasColumnType("varchar(50)").HasColumnName("first_name");
             entity.Property(u => u.LastName).HasColumnType("varchar(50)").HasColumnName("last_name");
@@ -49,7 +50,6 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.Property(u => u.ResetPassword).HasColumnType("boolean").HasColumnName("reset_password");
             entity.Property(u => u.ResetPasswordCode).HasColumnType("varchar(50)").HasColumnName("reset_password_code");
             entity.Property(u => u.ResetPasswordAt).HasColumnType("timestamp").HasColumnName("reset_password_at");
-            entity.Property(u => u.UpdatedBy).HasColumnType("varchar(50)").HasColumnName("updated_by");
         });
 
         b.Entity<Email>(entity =>
@@ -82,6 +82,7 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.Property(o => o.CreatedAt).IsRequired().HasColumnType("timestamp").HasColumnName("created_at");
             entity.Property(o => o.UpdatedAt).HasColumnType("timestamp").HasColumnName("updated_at");
             entity.Property(o => o.DeletedAt).HasColumnType("timestamp").HasColumnName("deleted_at");
+            entity.Property(u => u.UpdatedBy).HasColumnType("varchar(50)").HasColumnName("updated_by");
 
             entity.Property(o => o.FirstName).HasColumnType("varchar(50)").HasColumnName("first_name");
             entity.Property(o => o.LastName).HasColumnType("varchar(50)").HasColumnName("last_name");
@@ -111,7 +112,6 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.Property(o => o.IuguUserToken).HasColumnType("varchar(1000)").HasColumnName("user_token");
             entity.Property(o => o.IuguLiveApiToken).HasColumnType("varchar(1000)").HasColumnName("live_api_token");
             entity.Property(o => o.IuguTestApiToken).HasColumnType("varchar(1000)").HasColumnName("test_api_token");
-            entity.Property(u => u.UpdatedBy).HasColumnType("varchar(50)").HasColumnName("updated_by");
 
             entity.HasOne(o => o.User).WithOne(o => o.Owner).HasForeignKey<Owner>(o => o.UserId).IsRequired().OnDelete(DeleteBehavior.Restrict);
         });
@@ -125,6 +125,7 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.Property(v => v.CreatedAt).IsRequired().HasColumnType("timestamp").HasColumnName("created_at");
             entity.Property(v => v.UpdatedAt).HasColumnType("timestamp").HasColumnName("updated_at");
             entity.Property(v => v.DeletedAt).HasColumnType("timestamp").HasColumnName("deleted_at");
+            entity.Property(u => u.UpdatedBy).HasColumnType("varchar(50)").HasColumnName("updated_by");
 
             entity.Property(v => v.Title).IsRequired().HasColumnType("varchar(100)").HasColumnName("title");
             entity.Property(v => v.Description).HasColumnType("varchar(100)").HasColumnName("description");
@@ -135,7 +136,6 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.Property(v => v.PromotionPrice).HasColumnType("decimal(10,2)").HasColumnName("promotion_price");
             entity.Property(v => v.PromotionExpirationDate).HasColumnType("timestamp").HasColumnName("promotion_expiration_date");
             entity.Property(v => v.DownloadExpirationDate).HasColumnType("timestamp").HasColumnName("download_expiration_date");
-            entity.Property(u => u.UpdatedBy).HasColumnType("varchar(50)").HasColumnName("updated_by");
         });
 
         b.Entity<Order>(entity =>
@@ -202,7 +202,7 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
 
         b.Entity<UserBookLog>(entity =>
         {
-            entity.ToTable("user_Book_logs");
+            entity.ToTable("user_book_logs");
             entity.Property(u => u.Id).HasColumnName("id");
             entity.HasKey(u => u.Id);
             entity.Property(u => u.CreatedAt).IsRequired().HasColumnType("timestamp").HasColumnName("created_at");
@@ -249,6 +249,7 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.HasKey(u => u.Id);
             entity.Property(u => u.CreatedAt).IsRequired().HasColumnType("timestamp").HasColumnName("created_at");
             entity.Property(u => u.UpdatedAt).HasColumnType("timestamp").HasColumnName("updated_at");
+            entity.Property(u => u.UpdatedBy).HasColumnType("varchar(50)").HasColumnName("updated_by");
 
             entity.Property(v => v.Title).IsRequired().HasColumnType("varchar(100)").HasColumnName("title");
             entity.Property(v => v.Price).IsRequired().HasColumnType("decimal(10,2)").HasColumnName("price");
@@ -266,9 +267,10 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.Property(u => u.CreatedAt).IsRequired().HasColumnType("timestamp").HasColumnName("created_at");
             entity.Property(u => u.UpdatedAt).HasColumnType("timestamp").HasColumnName("updated_at");
             entity.Property(u => u.DeletedAt).HasColumnType("timestamp").HasColumnName("deleted_at");
+            entity.Property(u => u.UpdatedBy).HasColumnType("varchar(50)").HasColumnName("updated_by");
 
             entity.Property(v => v.Title).IsRequired().HasColumnType("varchar(100)").HasColumnName("title");
-            entity.Property(v => v.ChapterNumber).HasColumnType("varchar(100)").HasColumnName("chapter_number");
+            entity.Property(v => v.ChapterNumber).HasColumnType("integer").HasColumnName("chapter_number");
         });
 
         b.Entity<Question>(entity =>
@@ -279,6 +281,7 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.Property(u => u.CreatedAt).IsRequired().HasColumnType("timestamp").HasColumnName("created_at");
             entity.Property(u => u.UpdatedAt).HasColumnType("timestamp").HasColumnName("updated_at");
             entity.Property(u => u.DeletedAt).HasColumnType("timestamp").HasColumnName("deleted_at");
+            entity.Property(u => u.UpdatedBy).HasColumnType("varchar(50)").HasColumnName("updated_by");
 
             entity.Property(v => v.Title).IsRequired().HasColumnType("varchar(500)").HasColumnName("title");
             entity.Property(u => u.MaxLimitCharacters).HasColumnType("smallint").HasColumnName("max_limit_characters");
@@ -296,6 +299,7 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.Property(u => u.CreatedAt).IsRequired().HasColumnType("timestamp").HasColumnName("created_at");
             entity.Property(u => u.UpdatedAt).HasColumnType("timestamp").HasColumnName("updated_at");
             entity.Property(u => u.DeletedAt).HasColumnType("timestamp").HasColumnName("deleted_at");
+            entity.Property(u => u.UpdatedBy).HasColumnType("varchar(50)").HasColumnName("updated_by");
 
             entity.Property(v => v.Title).IsRequired().HasColumnType("varchar(100)").HasColumnName("title");
         });
