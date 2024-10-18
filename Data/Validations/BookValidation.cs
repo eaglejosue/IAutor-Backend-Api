@@ -31,19 +31,9 @@ public sealed class BookPatchValidator : Validation<Book>
     }
 }
 
-public sealed class BookTrailerValidator : Validation<BookDegust>
-{
-    public BookTrailerValidator()
-    {
-        RuleFor(p => p.BookId).NotEmpty().NotNull();
-        RuleFor(p => p.PublicId).NotEmpty().NotNull();
-    }
-}
-
 public static class BookValidationExtension
 {
     public static Task<ValidationResult> ValidateCreateAsync(this Book v) => new BookCreateValidator().ValidateCustomAsync(v);
     public static Task<ValidationResult> ValidateUpdateAsync(this Book v) => new BookUpdateValidator().ValidateCustomAsync(v);
     public static Task<ValidationResult> ValidatePatchAsync(this Book v) => new BookPatchValidator().ValidateCustomAsync(v);
-    public static Task<ValidationResult> ValidateAsync(this BookDegust v) => new BookTrailerValidator().ValidateCustomAsync(v);
 }

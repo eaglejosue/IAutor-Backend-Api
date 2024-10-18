@@ -8,8 +8,6 @@ public sealed class BookFilters : BaseFilters
     public DateTime? SaleExpirationDate { get; set; }
     public decimal? PromotionPrice { get; set; }
     public DateTime? PromotionExpirationDate { get; set; }
-    public long? TrailerId { get; set; }
-    public bool? IncludeTrailers { get; set; }
     public bool? PaymentsApproved { get; set; }
     public bool? IncludePayments { get; set; }
     public bool? IncludeUserBookLogs { get; set; }

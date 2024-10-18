@@ -7,7 +7,7 @@ public static class BookEndpoints
         const string ModelName = nameof(Book);
         var tag = new List<OpenApiTag> { new() { Name = ModelName } };
 
-        app.MapGet("/api/Books/{id:long}",
+        app.MapGet("/api/books/{id:long}",
         async (long id, [FromServices] IBookService service) =>
         {
             var entitie = await service.GetByIdAsync(id);
@@ -23,7 +23,7 @@ public static class BookEndpoints
             Tags = tag
         });
 
-        app.MapGet("/api/Books",
+        app.MapGet("/api/books",
         async (
             [AsParameters] BookFilters filters,
             [FromServices] IBookService service,
@@ -43,7 +43,7 @@ public static class BookEndpoints
             Tags = tag
         });
 
-        app.MapPost("/api/Books",
+        app.MapPost("/api/books",
         async (
             Book model,
             [FromServices] IBookService service,
@@ -63,7 +63,7 @@ public static class BookEndpoints
         })
         .RequireAuthorization("Create");
 
-        app.MapPut("/api/Books",
+        app.MapPut("/api/books",
         async (
             Book model,
             [FromServices] IBookService service,
@@ -87,7 +87,7 @@ public static class BookEndpoints
         })
         .RequireAuthorization("Update");
 
-        app.MapPatch("/api/Books",
+        app.MapPatch("/api/books",
         async (
             Book model,
             [FromServices] IBookService service,
@@ -111,7 +111,7 @@ public static class BookEndpoints
         })
         .RequireAuthorization("Update");
 
-        app.MapDelete("/api/Books/{id:long}",
+        app.MapDelete("/api/books/{id:long}",
         async (
             long id,
             [FromServices] IBookService service,
@@ -131,81 +131,6 @@ public static class BookEndpoints
         {
             Summary = $"Delete one {ModelName}",
             Description = $"This endpoint receives an Id from the header and deletes it from the {ModelName}s table. It produces a 200 status code.",
-            Tags = tag
-        })
-        .RequireAuthorization("Delete");
-
-        app.MapGet("/api/Books/trailer/{id:long}",
-        async (long id, [FromServices] IBookService service) =>
-        {
-            var entitie = await service.GetBookTrailerByIdAsync(id);
-            if (entitie is null) return Results.NoContent();
-            return Results.Ok(entitie);
-        })
-        .Produces((int)HttpStatusCode.OK, typeof(Book))
-        .WithName("BookTrailerById")
-        .WithOpenApi(x => new OpenApiOperation(x)
-        {
-            Summary = $"Get all BookTrailers",
-            Description = $"This endpoint receives an Id from the header and searches for it in the BookTrailers table by Id. It produces a 200 status code.",
-            Tags = tag
-        })
-        .RequireAuthorization("Get");
-
-        app.MapGet("/api/Books/{id:long}/trailers",
-        async (long id, [FromServices] IBookService service) =>
-        {
-            var entities = await service.GetBookTrailersByBookIdAsync(id);
-            if (entities.Count == 0) return Results.NoContent();
-            return Results.Ok(entities);
-        })
-        .Produces((int)HttpStatusCode.OK, typeof(Book))
-        .WithName("BookTrailersByBookId")
-        .WithOpenApi(x => new OpenApiOperation(x)
-        {
-            Summary = $"Get all BookTrailers",
-            Description = $"This endpoint receives an Id from the header and searches for it in the BookTrailers table by BookId. It produces a 200 status code.",
-            Tags = tag
-        })
-        .RequireAuthorization("Get");
-
-        app.MapPost("/api/Books/trailers",
-        async (
-            BookDegust model,
-            [FromServices] IBookService service,
-            [FromServices] INotificationService notification) =>
-        {
-            var entitie = await service.AddBookTrailerAsync(model);
-            if (notification.HasNotifications) return Results.BadRequest(notification.Notifications);
-            return Results.Created($"/Books/trailers/{entitie!.Id}", entitie);
-        })
-        .Produces((int)HttpStatusCode.Created)
-        .WithName("AddBookTrailer")
-        .WithOpenApi(x => new OpenApiOperation(x)
-        {
-            Summary = "Add BookTrailer",
-            Description = "This endpoint receives a BookTrailer object as the request body and add it in the BookTrailers table. It produces a 201 status code.",
-            Tags = tag
-        })
-        .RequireAuthorization("Create");
-
-        app.MapDelete("/api/Books/trailers/{id:long}",
-        async (
-            long id,
-            [FromServices] IBookService service,
-            [FromServices] INotificationService notification) =>
-        {
-            var result = await service.RemoveBookTrailerAsync(id);
-            if (notification.HasNotifications) return Results.BadRequest(notification.Notifications);
-            if (result == null) return Results.NoContent();
-            return Results.Ok(result);
-        })
-        .Produces((int)HttpStatusCode.OK)
-        .WithName("RemoveBookTrailer")
-        .WithOpenApi(x => new OpenApiOperation(x)
-        {
-            Summary = "Remove BookTrailer",
-            Description = "This endpoint receives an Id from the header and deletes it from the BookTrailers table. It produces a 200 status code.",
             Tags = tag
         })
         .RequireAuthorization("Delete");
