@@ -3,6 +3,7 @@ using System;
 using IAutor.Api.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace IAutor.Api.Migrations
 {
     [DbContext(typeof(IAutorDb))]
-    partial class IAutorDbModelSnapshot : ModelSnapshot
+    [Migration("20241022203444_AlterPlanQuestions")]
+    partial class AlterPlanQuestions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -637,37 +640,30 @@ namespace IAutor.Api.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
+                        .HasColumnType("bigint");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp")
-                        .HasColumnName("created_at");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp")
-                        .HasColumnName("deleted_at");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
                     b.Property<long>("PlanId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("plan_id");
+                        .HasColumnType("bigint");
 
                     b.Property<long>("QuestionId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("question_id");
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp")
-                        .HasColumnName("updated_at");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UpdatedBy")
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("updated_by");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -675,7 +671,7 @@ namespace IAutor.Api.Migrations
 
                     b.HasIndex("QuestionId");
 
-                    b.ToTable("plan_question", (string)null);
+                    b.ToTable("PlanQuestion");
                 });
 
             modelBuilder.Entity("IAutor.Api.Data.Entities.Question", b =>

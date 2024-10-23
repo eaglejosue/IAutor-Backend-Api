@@ -9,6 +9,7 @@ public sealed class Plan : Base
     public DateTime InitialValidityPeriod { get; set; }
     public DateTime? FinalValidityPeriod { get; set; }
 
+    [JsonIgnore] public ICollection<PlanQuestion>? PlansQuestions { get; } = [];
     public Plan()
     {
         InitialValidityPeriod = DateTimeBr.Now;

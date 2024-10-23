@@ -17,6 +17,8 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
     public DbSet<Question> Questions => Set<Question>();
     public DbSet<Theme> Themes => Set<Theme>();
 
+    public DbSet<PlanQuestion> PlansQuestions => Set<PlanQuestion>();
+
     protected override void OnConfiguring(DbContextOptionsBuilder o)
     {
         o.UseNpgsql(config.GetConnectionString("IAutorDb"));
@@ -302,6 +304,22 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.Property(u => u.UpdatedBy).HasColumnType("varchar(50)").HasColumnName("updated_by");
 
             entity.Property(v => v.Title).IsRequired().HasColumnType("varchar(100)").HasColumnName("title");
+        });
+
+        b.Entity<PlanQuestion>(entity =>
+        {
+            entity.ToTable("plan_question");
+            entity.Property(u => u.Id).HasColumnName("id");
+            entity.HasKey(u => u.Id);
+            entity.Property(u => u.CreatedAt).IsRequired().HasColumnType("timestamp").HasColumnName("created_at");
+            entity.Property(u => u.UpdatedAt).HasColumnType("timestamp").HasColumnName("updated_at");
+            entity.Property(u => u.DeletedAt).HasColumnType("timestamp").HasColumnName("deleted_at");
+            entity.Property(u => u.UpdatedBy).HasColumnType("varchar(50)").HasColumnName("updated_by");
+
+            entity.Property(u => u.PlanId).HasColumnType("bigint").HasColumnName("plan_id");
+            entity.Property(u => u.QuestionId).HasColumnType("bigint").HasColumnName("question_id");
+
+
         });
     }
 }

@@ -40,6 +40,8 @@ public sealed class QuestionService(
         if (!string.IsNullOrEmpty(filters.Title))
             predicate.And(a => EF.Functions.Like(a.Title, filters.Title.LikeConcat()));
 
+        if (filters.ChapterId!=null)
+            predicate.And(a => a.ChapterId ==filters.ChapterId);
 
         #endregion
 

@@ -3,4 +3,6 @@
 public sealed class QuestionFilters : BaseFilters
 {
     public string? Title { get; set; }
+
+    public long? ChapterId { get; set; }
 }
