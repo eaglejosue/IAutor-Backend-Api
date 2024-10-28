@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace IAutor.Api.Migrations
 {
     [DbContext(typeof(IAutorDb))]
-    [Migration("20241022203444_AlterPlanQuestions")]
-    partial class AlterPlanQuestions
+    [Migration("20241025185553_Recriate4")]
+    partial class Recriate4
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -587,6 +587,10 @@ namespace IAutor.Api.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
+                    b.Property<short>("CaractersLimitFactor")
+                        .HasColumnType("smallint")
+                        .HasColumnName("caracters_limit_factor");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp")
                         .HasColumnName("created_at");
@@ -636,45 +640,7 @@ namespace IAutor.Api.Migrations
                     b.ToTable("plans", (string)null);
                 });
 
-            modelBuilder.Entity("IAutor.Api.Data.Entities.PlanQuestion", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<long>("PlanId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("QuestionId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PlanId");
-
-                    b.HasIndex("QuestionId");
-
-                    b.ToTable("PlanQuestion");
-                });
-
-            modelBuilder.Entity("IAutor.Api.Data.Entities.Question", b =>
+            modelBuilder.Entity("IAutor.Api.Data.Entities.PlanChapter", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -698,6 +664,91 @@ namespace IAutor.Api.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
+                    b.Property<long>("PlanId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("plan_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("updated_by");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChapterId");
+
+                    b.HasIndex("PlanId");
+
+                    b.ToTable("plan_chapter", (string)null);
+                });
+
+            modelBuilder.Entity("IAutor.Api.Data.Entities.PlanChapterQuestion", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<long>("PlanChapterId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("plan_chapter_id");
+
+                    b.Property<long>("QuestionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("updated_by");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlanChapterId");
+
+                    b.HasIndex("QuestionId");
+
+                    b.ToTable("plan_chapter_question", (string)null);
+                });
+
+            modelBuilder.Entity("IAutor.Api.Data.Entities.Question", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
                     b.Property<short>("MaxLimitCharacters")
                         .HasColumnType("smallint")
                         .HasColumnName("max_limit_characters");
@@ -705,6 +756,10 @@ namespace IAutor.Api.Migrations
                     b.Property<short>("MinLimitCharacters")
                         .HasColumnType("smallint")
                         .HasColumnName("min_limit_characters");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -720,8 +775,6 @@ namespace IAutor.Api.Migrations
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ChapterId");
 
                     b.ToTable("questions", (string)null);
                 });
@@ -994,34 +1047,42 @@ namespace IAutor.Api.Migrations
                     b.Navigation("Order");
                 });
 
-            modelBuilder.Entity("IAutor.Api.Data.Entities.PlanQuestion", b =>
-                {
-                    b.HasOne("IAutor.Api.Data.Entities.Plan", "Plan")
-                        .WithMany("PlansQuestions")
-                        .HasForeignKey("PlanId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("IAutor.Api.Data.Entities.Question", "Question")
-                        .WithMany("PlansQuestions")
-                        .HasForeignKey("QuestionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Plan");
-
-                    b.Navigation("Question");
-                });
-
-            modelBuilder.Entity("IAutor.Api.Data.Entities.Question", b =>
+            modelBuilder.Entity("IAutor.Api.Data.Entities.PlanChapter", b =>
                 {
                     b.HasOne("IAutor.Api.Data.Entities.Chapter", "Chapter")
-                        .WithMany("Questions")
+                        .WithMany("PlansChapters")
                         .HasForeignKey("ChapterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("IAutor.Api.Data.Entities.Plan", "Plan")
+                        .WithMany("PlanChapters")
+                        .HasForeignKey("PlanId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Chapter");
+
+                    b.Navigation("Plan");
+                });
+
+            modelBuilder.Entity("IAutor.Api.Data.Entities.PlanChapterQuestion", b =>
+                {
+                    b.HasOne("IAutor.Api.Data.Entities.PlanChapter", "PlanChapter")
+                        .WithMany("PlanChapterQuestions")
+                        .HasForeignKey("PlanChapterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("IAutor.Api.Data.Entities.Question", "Question")
+                        .WithMany("PlansChaptersQuestions")
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PlanChapter");
+
+                    b.Navigation("Question");
                 });
 
             modelBuilder.Entity("IAutor.Api.Data.Entities.UserBookLog", b =>
@@ -1065,7 +1126,7 @@ namespace IAutor.Api.Migrations
 
             modelBuilder.Entity("IAutor.Api.Data.Entities.Chapter", b =>
                 {
-                    b.Navigation("Questions");
+                    b.Navigation("PlansChapters");
                 });
 
             modelBuilder.Entity("IAutor.Api.Data.Entities.Order", b =>
@@ -1080,12 +1141,17 @@ namespace IAutor.Api.Migrations
 
             modelBuilder.Entity("IAutor.Api.Data.Entities.Plan", b =>
                 {
-                    b.Navigation("PlansQuestions");
+                    b.Navigation("PlanChapters");
+                });
+
+            modelBuilder.Entity("IAutor.Api.Data.Entities.PlanChapter", b =>
+                {
+                    b.Navigation("PlanChapterQuestions");
                 });
 
             modelBuilder.Entity("IAutor.Api.Data.Entities.Question", b =>
                 {
-                    b.Navigation("PlansQuestions");
+                    b.Navigation("PlansChaptersQuestions");
                 });
 
             modelBuilder.Entity("IAutor.Api.Data.Entities.User", b =>

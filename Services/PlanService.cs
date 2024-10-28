@@ -1,10 +1,13 @@
-﻿namespace IAutor.Api.Services;
+﻿using IAutor.Api.Data.Dtos.ViewModel;
+using IAutor.Api.Data.Entities;
+
+namespace IAutor.Api.Services;
 
 public interface IPlanService
 {
     Task<Plan?> GetByIdAsync(long id);
     Task<List<Plan>> GetAllAsync(PlanFilters filters);
-    Task<Plan?> CreateAsync(Plan model);
+    Task<Plan?> CreateAsync(AddNewPlanRequest model);
     Task<Plan?> UpdateAsync(Plan model, long loggedUserId, string loggedUserName);
     Task<Plan?> PatchAsync(Plan model, long loggedUserId, string loggedUserName);
     Task<bool?> DeleteAsync(long id, long loggedUserId, string loggedUserName);
@@ -64,16 +67,44 @@ public sealed class PlanService(
         return await query.AsNoTracking().ToListAsync().ConfigureAwait(false);
     }
 
-    public async Task<Plan?> CreateAsync(Plan model)
+    public async Task<Plan?> CreateAsync(AddNewPlanRequest model)
     {
-        var validation = await model.ValidateCreateAsync();
-        if (!validation.IsValid)
+
+        var plan = new Plan()
         {
-            notification.AddNotifications(validation);
-            return default;
+            CaractersLimitFactor = model.CaractersLimitFactor,
+            Currency = model.Currency,
+            FinalValidityPeriod = model.FinalValidityPeriod,
+            InitialValidityPeriod = model.InitialValidityPeriod,
+            MaxLimitSendDataIA = model.MaxLimitSendDataIA,
+            Price = model.Price,
+            Title = model.Title,
+        };
+        if (model.ChapterPlanQuestion.Any())
+        {
+            var chapters = model.ChapterPlanQuestion.GroupBy(r => r.ChapterID);
+            plan.PlanChapters = new List<PlanChapter>();
+            foreach (var chapter in chapters)
+            {
+                var chapterId = chapter.Key;
+                var planChapterQuestion = new List<PlanChapterQuestion>();
+                foreach (var item in chapter)
+                {
+                    var questionId = item.QuestionId;
+                    planChapterQuestion.Add(new PlanChapterQuestion()
+                    {
+                        QuestionId = questionId
+                    });
+                }
+                plan.PlanChapters.Add(new PlanChapter()
+                {
+                    ChapterId = chapterId,
+                    PlanChapterQuestions = planChapterQuestion
+                });
+            }
         }
 
-        var addResult = await db.Plans.AddAsync(model).ConfigureAwait(false);
+        var addResult = await db.Plans.AddAsync(plan).ConfigureAwait(false);
         await db.SaveChangesAsync().ConfigureAwait(false);
 
         return addResult.Entity;

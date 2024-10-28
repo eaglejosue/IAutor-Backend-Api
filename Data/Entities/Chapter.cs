@@ -4,6 +4,8 @@ public class Chapter : Base
 {
     public string Title { get; set; }
     public int? ChapterNumber { get; set; }
+    public ICollection<PlanChapter>? PlansChapters { get; } = [];
 
-    [JsonIgnore] public ICollection<Question>? Questions { get; set; }
+    [NotMapped]
+    public bool Selected { get; set; }
 }
