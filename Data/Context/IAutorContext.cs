@@ -17,6 +17,10 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
     public DbSet<Question> Questions => Set<Question>();
     public DbSet<Theme> Themes => Set<Theme>();
 
+    public DbSet<PlanChapter> PlansChapters => Set<PlanChapter>();
+
+    public DbSet<PlanChapterQuestion> PlansChapterQuestion => Set<PlanChapterQuestion>();
+
     protected override void OnConfiguring(DbContextOptionsBuilder o)
     {
         o.UseNpgsql(config.GetConnectionString("IAutorDb"));
@@ -257,6 +261,8 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.Property(u => u.InitialValidityPeriod).HasColumnType("timestamp").HasColumnName("initial_validity_period");
             entity.Property(u => u.FinalValidityPeriod).HasColumnType("timestamp").HasColumnName("final_validity_period");
             entity.Property(u => u.MaxLimitSendDataIA).HasColumnType("smallint").HasColumnName("max_limit_send_data_IA");
+            entity.Property(u => u.CaractersLimitFactor).HasColumnType("smallint").HasColumnName("caracters_limit_factor");
+
         });
 
         b.Entity<Chapter>(entity =>
@@ -286,9 +292,7 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.Property(v => v.Title).IsRequired().HasColumnType("varchar(500)").HasColumnName("title");
             entity.Property(u => u.MaxLimitCharacters).HasColumnType("smallint").HasColumnName("max_limit_characters");
             entity.Property(u => u.MinLimitCharacters).HasColumnType("smallint").HasColumnName("min_limit_characters");
-            entity.Property(u => u.ChapterId).HasColumnType("bigint").HasColumnName("chapter_id");
-
-            entity.HasOne(u => u.Chapter).WithMany(u => u.Questions).HasForeignKey(u => u.ChapterId).IsRequired().OnDelete(DeleteBehavior.Restrict);
+            entity.Property(u => u.Subject).HasColumnType("varchar(100)").HasColumnName("subject");
         });
 
         b.Entity<Theme>(entity =>
@@ -302,6 +306,40 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.Property(u => u.UpdatedBy).HasColumnType("varchar(50)").HasColumnName("updated_by");
 
             entity.Property(v => v.Title).IsRequired().HasColumnType("varchar(100)").HasColumnName("title");
+        });
+
+        b.Entity<PlanChapter>(entity =>
+        {
+            entity.ToTable("plan_chapter");
+            entity.Property(u => u.Id).HasColumnName("id");
+            entity.HasKey(u => u.Id);
+            entity.Property(u => u.CreatedAt).IsRequired().HasColumnType("timestamp").HasColumnName("created_at");
+            entity.Property(u => u.UpdatedAt).HasColumnType("timestamp").HasColumnName("updated_at");
+            entity.Property(u => u.DeletedAt).HasColumnType("timestamp").HasColumnName("deleted_at");
+            entity.Property(u => u.UpdatedBy).HasColumnType("varchar(50)").HasColumnName("updated_by");
+
+            entity.Property(u => u.PlanId).HasColumnType("bigint").HasColumnName("plan_id");
+            entity.Property(u => u.ChapterId).HasColumnType("bigint").HasColumnName("chapter_id");
+
+            entity.HasOne(u => u.Plan).WithMany(u => u.PlanChapters).HasForeignKey(u => u.PlanId).IsRequired().OnDelete(DeleteBehavior.Restrict);
+
+
+        });
+
+        b.Entity<PlanChapterQuestion>(entity =>
+        {
+            entity.ToTable("plan_chapter_question");
+            entity.Property(u => u.Id).HasColumnName("id");
+            entity.HasKey(u => u.Id);
+            entity.Property(u => u.CreatedAt).IsRequired().HasColumnType("timestamp").HasColumnName("created_at");
+            entity.Property(u => u.UpdatedAt).HasColumnType("timestamp").HasColumnName("updated_at");
+            entity.Property(u => u.DeletedAt).HasColumnType("timestamp").HasColumnName("deleted_at");
+            entity.Property(u => u.UpdatedBy).HasColumnType("varchar(50)").HasColumnName("updated_by");
+
+            entity.Property(u => u.PlanChapterId).HasColumnType("bigint").HasColumnName("plan_chapter_id");
+            
+            //entity.HasOne(u => u.PlanChapter).WithMany(u => u.PlanChapterQuestions).HasForeignKey(u => u.QuestionId).IsRequired().OnDelete(DeleteBehavior.Restrict);
+            // entity.Property(u => u.QuestionId).HasColumnType("bigint").HasColumnName("question_id");
         });
     }
 }

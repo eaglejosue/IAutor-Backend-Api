@@ -37,9 +37,12 @@ public sealed class QuestionService(
         if (filters.DeletedAt.HasValue && filters.DeletedAt > DateTime.MinValue)
             predicate.And(a => a.DeletedAt == filters.DeletedAt.Value.Date);
 
-        if (!string.IsNullOrEmpty(filters.Title))
-            predicate.And(a => EF.Functions.Like(a.Title, filters.Title.LikeConcat()));
+        if (!string.IsNullOrEmpty(filters.Title) )
+        {
+            predicate.And(a => EF.Functions.Like(a.Title, filters.Title.LikeConcat()));    
+        }
 
+    
 
         #endregion
 

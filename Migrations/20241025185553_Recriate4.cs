@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace IAutor.Api.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate_3 : Migration
+    public partial class Recriate4 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -89,6 +89,7 @@ namespace IAutor.Api.Migrations
                     max_limit_send_data_IA = table.Column<short>(type: "smallint", nullable: false),
                     initial_validity_period = table.Column<DateTime>(type: "timestamp", nullable: false),
                     final_validity_period = table.Column<DateTime>(type: "timestamp", nullable: true),
+                    caracters_limit_factor = table.Column<short>(type: "smallint", nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp", nullable: true),
@@ -98,6 +99,27 @@ namespace IAutor.Api.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_plans", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "questions",
+                columns: table => new
+                {
+                    id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    title = table.Column<string>(type: "varchar(500)", nullable: false),
+                    max_limit_characters = table.Column<short>(type: "smallint", nullable: false),
+                    min_limit_characters = table.Column<short>(type: "smallint", nullable: false),
+                    Subject = table.Column<string>(type: "text", nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp", nullable: true),
+                    deleted_at = table.Column<DateTime>(type: "timestamp", nullable: true),
+                    updated_by = table.Column<string>(type: "varchar(50)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_questions", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -150,14 +172,12 @@ namespace IAutor.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "questions",
+                name: "plan_chapter",
                 columns: table => new
                 {
                     id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    title = table.Column<string>(type: "varchar(500)", nullable: false),
-                    max_limit_characters = table.Column<short>(type: "smallint", nullable: false),
-                    min_limit_characters = table.Column<short>(type: "smallint", nullable: false),
+                    plan_id = table.Column<long>(type: "bigint", nullable: false),
                     chapter_id = table.Column<long>(type: "bigint", nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
@@ -167,11 +187,17 @@ namespace IAutor.Api.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_questions", x => x.id);
+                    table.PrimaryKey("PK_plan_chapter", x => x.id);
                     table.ForeignKey(
-                        name: "FK_questions_chapters_chapter_id",
+                        name: "FK_plan_chapter_chapters_chapter_id",
                         column: x => x.chapter_id,
                         principalTable: "chapters",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_plan_chapter_plans_plan_id",
+                        column: x => x.plan_id,
+                        principalTable: "plans",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -343,6 +369,37 @@ namespace IAutor.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "plan_chapter_question",
+                columns: table => new
+                {
+                    id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    plan_chapter_id = table.Column<long>(type: "bigint", nullable: false),
+                    QuestionId = table.Column<long>(type: "bigint", nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp", nullable: true),
+                    deleted_at = table.Column<DateTime>(type: "timestamp", nullable: true),
+                    updated_by = table.Column<string>(type: "varchar(50)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_plan_chapter_question", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_plan_chapter_question_plan_chapter_plan_chapter_id",
+                        column: x => x.plan_chapter_id,
+                        principalTable: "plan_chapter",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_plan_chapter_question_questions_QuestionId",
+                        column: x => x.QuestionId,
+                        principalTable: "questions",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "payments",
                 columns: table => new
                 {
@@ -441,9 +498,24 @@ namespace IAutor.Api.Migrations
                 column: "order_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_questions_chapter_id",
-                table: "questions",
+                name: "IX_plan_chapter_chapter_id",
+                table: "plan_chapter",
                 column: "chapter_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_plan_chapter_plan_id",
+                table: "plan_chapter",
+                column: "plan_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_plan_chapter_question_QuestionId",
+                table: "plan_chapter_question",
+                column: "QuestionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_plan_chapter_question_plan_chapter_id",
+                table: "plan_chapter_question",
+                column: "plan_chapter_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_user_book_logs_Book_id",
@@ -483,10 +555,7 @@ namespace IAutor.Api.Migrations
                 name: "payments");
 
             migrationBuilder.DropTable(
-                name: "plans");
-
-            migrationBuilder.DropTable(
-                name: "questions");
+                name: "plan_chapter_question");
 
             migrationBuilder.DropTable(
                 name: "themes");
@@ -504,13 +573,22 @@ namespace IAutor.Api.Migrations
                 name: "orders");
 
             migrationBuilder.DropTable(
-                name: "chapters");
+                name: "plan_chapter");
+
+            migrationBuilder.DropTable(
+                name: "questions");
 
             migrationBuilder.DropTable(
                 name: "books");
 
             migrationBuilder.DropTable(
                 name: "users");
+
+            migrationBuilder.DropTable(
+                name: "chapters");
+
+            migrationBuilder.DropTable(
+                name: "plans");
         }
     }
 }

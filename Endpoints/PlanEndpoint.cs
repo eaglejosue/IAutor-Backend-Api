@@ -1,4 +1,6 @@
-﻿namespace IAutor.Api.Endpoints;
+﻿using IAutor.Api.Data.Dtos.ViewModel;
+
+namespace IAutor.Api.Endpoints;
 
 public static class PlanEndpoint
 {
@@ -44,7 +46,7 @@ public static class PlanEndpoint
 
         app.MapPost("/api/plans",
         async (
-            Plan model,
+            AddNewPlanRequest model,
             [FromServices] IPlanService service,
             [FromServices] INotificationService notification) =>
         {

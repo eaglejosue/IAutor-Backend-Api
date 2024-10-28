@@ -5,8 +5,11 @@
         public string Title { get; set; }
         public int MaxLimitCharacters { get; set; } = 10000;
         public int MinLimitCharacters { get; set; } = 1;
-        public long ChapterId { get; set; }
+        public string Subject { get; set; }
 
-        [JsonIgnore] public Chapter Chapter { get; set; }
+        [NotMapped]
+        public bool Selected { get; set; }
+
+        public ICollection<PlanChapterQuestion>? PlansChaptersQuestions { get; } = [];
     }
 }
