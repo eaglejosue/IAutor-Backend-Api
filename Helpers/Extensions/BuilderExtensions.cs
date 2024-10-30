@@ -7,7 +7,6 @@ public static class BuilderExtensions
         var config = builder.Configuration as IConfiguration;
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddCors();
-
         builder.Services.AddControllers().AddJsonOptions(o =>
         {
             o.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
@@ -19,7 +18,7 @@ public static class BuilderExtensions
 
         builder.Services.AddDbContext<IAutorDb>(o => o.UseNpgsql(config.GetConnectionString("IAutorDb")));
         //builder.Services.AddDbContext<IAutorDb>(o => o.UseSqlite("DataSource=IAutor.db;Cache=Shared", b => b.MigrationsAssembly("IAutor.Api")));
-
+        builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options => options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
         builder.AddSwagger();
         builder.AddSecurity(config);
         builder.AddCors(config);
@@ -147,6 +146,7 @@ public static class BuilderExtensions
         builder.Services.AddScoped<IQuestionService, QuestionService>();
         builder.Services.AddScoped<IChapterService, ChapterService>();
         builder.Services.AddScoped<IPlanService, PlanService>();
+        builder.Services.AddScoped<IAiService, AiService>();
 
         builder.Services.Configure<IuguConfig>(config.GetSection("IuguConfig"));
         builder.Services.AddScoped<IIuguIntegrationService, IuguIntegrationService>();

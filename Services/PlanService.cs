@@ -6,9 +6,11 @@ namespace IAutor.Api.Services;
 public interface IPlanService
 {
     Task<Plan?> GetByIdAsync(long id);
+
+    Task<List<PlanChapter>?> GetPlanChapterByIdPlanAsync(long idPlan);
     Task<List<Plan>> GetAllAsync(PlanFilters filters);
     Task<Plan?> CreateAsync(AddNewPlanRequest model);
-    Task<Plan?> UpdateAsync(Plan model, long loggedUserId, string loggedUserName);
+    Task<Plan?> UpdateAsync(AddNewPlanRequest model, long loggedUserId, string loggedUserName);
     Task<Plan?> PatchAsync(Plan model, long loggedUserId, string loggedUserName);
     Task<bool?> DeleteAsync(long id, long loggedUserId, string loggedUserName);
 }
@@ -17,7 +19,7 @@ public sealed class PlanService(
     INotificationService notification,
     IUserService userService) : IPlanService
 {
-    public async Task<Plan?> GetByIdAsync(long id) => await db.Plans.FirstOrDefaultAsync(f => f.Id == id).ConfigureAwait(false);
+    public async Task<Plan?> GetByIdAsync(long id) => await db.Plans.Include(r=>r.PlanChapters).FirstOrDefaultAsync(f => f.Id == id).ConfigureAwait(false);
 
     public async Task<List<Plan>> GetAllAsync(PlanFilters filters)
     {
@@ -80,29 +82,7 @@ public sealed class PlanService(
             Price = model.Price,
             Title = model.Title,
         };
-        if (model.ChapterPlanQuestion.Any())
-        {
-            var chapters = model.ChapterPlanQuestion.GroupBy(r => r.ChapterID);
-            plan.PlanChapters = new List<PlanChapter>();
-            foreach (var chapter in chapters)
-            {
-                var chapterId = chapter.Key;
-                var planChapterQuestion = new List<PlanChapterQuestion>();
-                foreach (var item in chapter)
-                {
-                    var questionId = item.QuestionId;
-                    planChapterQuestion.Add(new PlanChapterQuestion()
-                    {
-                        QuestionId = questionId
-                    });
-                }
-                plan.PlanChapters.Add(new PlanChapter()
-                {
-                    ChapterId = chapterId,
-                    PlanChapterQuestions = planChapterQuestion
-                });
-            }
-        }
+        AddChapterQuestions(model, plan);
 
         var addResult = await db.Plans.AddAsync(plan).ConfigureAwait(false);
         await db.SaveChangesAsync().ConfigureAwait(false);
@@ -110,16 +90,44 @@ public sealed class PlanService(
         return addResult.Entity;
     }
 
-    public async Task<Plan?> UpdateAsync(Plan model, long loggedUserId, string loggedUserName)
-    {
-        var validation = await model.ValidateUpdateAsync();
-        if (!validation.IsValid)
-        {
-            notification.AddNotifications(validation);
-            return default;
-        }
 
-        return await UpdateEntityAsync(model, loggedUserId, loggedUserName, "Updated");
+
+    public async Task<Plan?> UpdateAsync(AddNewPlanRequest model, long loggedUserId, string loggedUserName)
+    {
+        //var validation = await model.ValidateUpdateAsync();
+        //if (!validation.IsValid)
+        //{
+        //    notification.AddNotifications(validation);
+        //    return default;
+        //}
+        var plan = await GetByIdAsync(model.Id).ConfigureAwait(false);
+        if (plan != null)
+        {
+            plan.CaractersLimitFactor = model.CaractersLimitFactor;
+            plan.Currency = model.Currency;
+            plan.Price = model.Price;
+            plan.Title = model.Title;
+            plan.FinalValidityPeriod = model.FinalValidityPeriod;
+            plan.MaxLimitSendDataIA = model.MaxLimitSendDataIA;
+            plan.InitialValidityPeriod = model.InitialValidityPeriod;
+            if (plan.PlanChapters.Any())
+            {
+                foreach (var pc in plan.PlanChapters)
+                {
+                    db.PlansChapters.Remove(pc);
+                }
+               
+            }
+            AddChapterQuestions(model, plan);
+            plan.UpdatedAt = DateTimeBr.Now;
+            plan.UpdatedBy = loggedUserName;
+            plan.IsActive = true;
+            plan.DeletedAt = null;
+            db.Plans.Update(plan);
+            await db.SaveChangesAsync().ConfigureAwait(false);
+            return plan;
+        }
+        return null;
     }
 
     public async Task<Plan?> PatchAsync(Plan model, long loggedUserId, string loggedUserName)
@@ -159,7 +167,7 @@ public sealed class PlanService(
         if (entitie == null) return null;
 
         entitie.IsActive = false;
-        entitie.DeletedAt = DateTimeBr.Now;
+        entitie.DeletedAt = DateTime.UtcNow;
         entitie.UpdatedBy = loggedUserName;
 
         db.Plans.Update(entitie);
@@ -168,5 +176,36 @@ public sealed class PlanService(
         await userService.CreateUserLogAsync(new UserLog(loggedUserId, string.Format("Plan Id {0} Deleted", id)));
 
         return true;
+    }
+
+    public async Task<List<PlanChapter>?> GetPlanChapterByIdPlanAsync(long idPlan)
+    {
+       return await db.PlansChapters.Include(r=>r.Chapter).Where(r=>r.PlanId == idPlan).Include(r=>r.PlanChapterQuestions).ThenInclude(g=>g.Question).ToListAsync().ConfigureAwait(false);
+    }
+    private static void AddChapterQuestions(AddNewPlanRequest model, Plan plan)
+    {
+        if (model.ChapterPlanQuestion.Any())
+        {
+            var chapters = model.ChapterPlanQuestion.GroupBy(r => r.ChapterID);
+            plan.PlanChapters = new List<PlanChapter>();
+            foreach (var chapter in chapters)
+            {
+                var chapterId = chapter.Key;
+                var planChapterQuestion = new List<PlanChapterQuestion>();
+                foreach (var item in chapter)
+                {
+                    var questionId = item.QuestionId;
+                    planChapterQuestion.Add(new PlanChapterQuestion()
+                    {
+                        QuestionId = questionId
+                    });
+                }
+                plan.PlanChapters.Add(new PlanChapter()
+                {
+                    ChapterId = chapterId,
+                    PlanChapterQuestions = planChapterQuestion
+                });
+            }
+        }
     }
 }

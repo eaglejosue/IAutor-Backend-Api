@@ -25,6 +25,7 @@ public static class PlanEndpoint
             Tags = tag
         });
 
+
         app.MapGet("/api/plans",
         async (
             [AsParameters] PlanFilters filters,
@@ -66,7 +67,7 @@ public static class PlanEndpoint
 
         app.MapPut("/api/plans",
         async (
-            Plan model,
+             AddNewPlanRequest model,
             [FromServices] IPlanService service,
             [FromServices] INotificationService notification,
             HttpContext context) =>
