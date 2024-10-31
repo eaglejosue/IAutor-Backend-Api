@@ -31,6 +31,8 @@ public static class AppExtensions
         app.MapQuestionEndpoints();
         app.MapThemeEndpoints();
         app.MapPlanEndpoints();
+        app.MapAiEndpoints();
+        app.MapPlanChapterEndpoints();
     }
 
     public static IApplicationBuilder UseExceptionHandleMiddleware(this IApplicationBuilder builder)
