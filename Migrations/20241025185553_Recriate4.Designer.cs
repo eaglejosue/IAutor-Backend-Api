@@ -3,6 +3,7 @@ using System;
 using IAutor.Api.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace IAutor.Api.Migrations
 {
     [DbContext(typeof(IAutorDb))]
-    partial class IAutorDbModelSnapshot : ModelSnapshot
+    [Migration("20241025185553_Recriate4")]
+    partial class Recriate4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -756,8 +759,7 @@ namespace IAutor.Api.Migrations
 
                     b.Property<string>("Subject")
                         .IsRequired()
-                        .HasColumnType("varchar(100)")
-                        .HasColumnName("subject");
+                        .HasColumnType("text");
 
                     b.Property<string>("Title")
                         .IsRequired()
