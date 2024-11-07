@@ -1,6 +1,6 @@
 ﻿namespace IAutor.Api.Data.Enums;
 
-public enum SignInEnum
+public enum SignIn
 {
     Default,
     Google,

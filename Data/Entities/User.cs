@@ -7,7 +7,7 @@ public sealed class User : Base
     public string Email { get; set; }
     public string? Cpf { get; set; }
     public string SignInWith { get; set; }
-    public UserTypeEnum? Type { get; set; }
+    public UserType Type { get; set; }
     public DateTime? BirthDate { get; set; }
     public string? ProfileImgUrl { get; set; }
     [JsonIgnore] public byte[]? PasswordHash { get; private set; }
@@ -47,26 +47,19 @@ public sealed class User : Base
         if (!string.IsNullOrEmpty(l.BirthDate))
             BirthDate = DateTime.Parse(l.BirthDate);
 
-        Type = UserTypeEnum.Default!;
+        Type = UserType.Default!;
     }
 
     public User(Owner o)
     {
         Email = o.Email!;
         Password = o.Password;
-        SignInWith = o.Email!.Contains("@gmail.com") ? SignInEnum.Google.ToString() : SignInEnum.Default.ToString();
+        SignInWith = o.Email!.Contains("@gmail.com") ? SignIn.Google.ToString() : SignIn.Default.ToString();
         FirstName = o.FirstName;
         LastName = o.LastName;
         Cpf = o?.Cpf ?? o.CnpjRespCpf;
-        ProfileImgUrl = o.ProfileImgUrl;
 
-        Type = UserTypeEnum.Default;
-
-        if (o.Type == OwnerTypeEnum.Influencer)
-            Type = UserTypeEnum.Influencer;
-
-        if (o.Type == OwnerTypeEnum.Agent)
-            Type = UserTypeEnum.Agent;
+        Type = UserType.Default;
     }
 
     internal void NewUser()

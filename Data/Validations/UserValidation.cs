@@ -7,9 +7,9 @@ public sealed class UserCreateValidator : Validation<User>
         RuleFor(p => p.Email).NotEmpty().NotNull().EmailAddress();
         RuleFor(p => p.SignInWith).NotEmpty().NotNull();
         RuleFor(p => p.Type).NotNull();
-        When(p => !string.IsNullOrEmpty(p.SignInWith) && p.SignInWith.Equals(SignInEnum.Default.ToString(), StringComparison.CurrentCultureIgnoreCase),
+        When(p => !string.IsNullOrEmpty(p.SignInWith) && p.SignInWith.Equals(SignIn.Default.ToString(), StringComparison.CurrentCultureIgnoreCase),
             () => RuleFor(p => p.Password).NotEmpty().NotNull());
-        When(p => !string.IsNullOrEmpty(p.SignInWith) && p.SignInWith.Equals(SignInEnum.Default.ToString(), StringComparison.CurrentCultureIgnoreCase),
+        When(p => !string.IsNullOrEmpty(p.SignInWith) && p.SignInWith.Equals(SignIn.Default.ToString(), StringComparison.CurrentCultureIgnoreCase),
             () => RuleFor(p => p.Cpf).NotEmpty().NotNull());
     }
 }

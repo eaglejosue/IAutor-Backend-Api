@@ -1,7 +1,7 @@
 ﻿namespace IAutor.Api.Data.Enums;
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
-public enum PaymentStatusEnum
+public enum PaymentStatus
 {
     [Description("Pendente")] Pending,
     [Description("Efetuado")] Paid,

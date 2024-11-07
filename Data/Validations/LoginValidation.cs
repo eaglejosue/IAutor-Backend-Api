@@ -6,7 +6,7 @@ public sealed class LoginValidation : Validation<Login>
     {
         RuleFor(p => p.Email).NotEmpty().NotNull().EmailAddress().WithMessage("E-mail inválido.");
         RuleFor(p => p.SignInWith).NotEmpty().NotNull();
-        When(p => !string.IsNullOrEmpty(p.SignInWith) && p.SignInWith.Equals(SignInEnum.Default.ToString(), StringComparison.InvariantCultureIgnoreCase),
+        When(p => !string.IsNullOrEmpty(p.SignInWith) && p.SignInWith.Equals(SignIn.Default.ToString(), StringComparison.InvariantCultureIgnoreCase),
             () => RuleFor(p => p.Password).NotEmpty().NotNull());
     }
 }

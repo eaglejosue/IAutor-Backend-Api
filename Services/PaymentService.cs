@@ -161,13 +161,13 @@ public sealed class PaymentService(
         var addResult = await db.Payments.AddAsync(newEntity).ConfigureAwait(false);
         await db.SaveChangesAsync().ConfigureAwait(false);
 
-        if (newEntity.Status == PaymentStatusEnum.Paid)
+        if (newEntity.Status == PaymentStatus.Paid)
         {
             var order = await db.Orders.FirstOrDefaultAsync(f => f.Id == newEntity.OrderId);
 
             var newEmail = await emailService.CreateAsync(new Email(
                 order!.UserId,
-                EmailTypeEnum.BookReleaseSchedule,
+                EmailType.BookReleaseSchedule,
                 null,
                 order!.BookId
             ));

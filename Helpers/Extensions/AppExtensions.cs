@@ -1,7 +1,4 @@
-﻿using IAutor.Api.Endpoints;
-using IAutor.Api.Helpers.Middlewares;
-
-namespace IAutor.Api.Helpers.Extensions;
+﻿namespace IAutor.Api.Helpers.Extensions;
 
 public static class AppExtensions
 {
@@ -20,7 +17,6 @@ public static class AppExtensions
         app.UseExceptionHandleMiddleware();
 
         app.MapEmailEndpoints();
-        app.MapIncomeEndpoints();
         app.MapLoginEndpoints();
         app.MapOrderEndpoints();
         app.MapParamEndpoints();
@@ -31,8 +27,7 @@ public static class AppExtensions
         app.MapQuestionEndpoints();
         app.MapThemeEndpoints();
         app.MapPlanEndpoints();
-        app.MapAiEndpoints();
-        app.MapPlanChapterEndpoints();
+        app.MapIAEndpoints();
     }
 
     public static IApplicationBuilder UseExceptionHandleMiddleware(this IApplicationBuilder builder)

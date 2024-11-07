@@ -18,6 +18,7 @@ public static class BuilderExtensions
 
         builder.Services.AddDbContext<IAutorDb>(o => o.UseNpgsql(config.GetConnectionString("IAutorDb")));
         //builder.Services.AddDbContext<IAutorDb>(o => o.UseSqlite("DataSource=IAutor.db;Cache=Shared", b => b.MigrationsAssembly("IAutor.Api")));
+
         builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options => options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
         builder.AddSwagger();
         builder.AddSecurity(config);
@@ -137,7 +138,6 @@ public static class BuilderExtensions
 
         builder.Services.AddScoped<IBookService, BookService>();
         builder.Services.AddScoped<IEmailService, EmailService>();
-        builder.Services.AddScoped<IIncomeService, IncomeService>();
         builder.Services.AddScoped<IOrderService, OrderService>();
         builder.Services.AddScoped<IOwnerService, OwnerService>();
         builder.Services.AddScoped<IParamService, ParamService>();

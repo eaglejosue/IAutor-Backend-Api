@@ -1,6 +1,4 @@
-﻿using IAutor.Api.Data.Dtos.ViewModel;
-
-namespace IAutor.Api.Endpoints;
+﻿namespace IAutor.Api.Endpoints;
 
 public static class PlanEndpoint
 {
@@ -25,7 +23,6 @@ public static class PlanEndpoint
             Tags = tag
         });
 
-
         app.MapGet("/api/plans",
         async (
             [AsParameters] PlanFilters filters,
@@ -47,7 +44,7 @@ public static class PlanEndpoint
 
         app.MapPost("/api/plans",
         async (
-            AddNewPlanRequest model,
+            Plan model,
             [FromServices] IPlanService service,
             [FromServices] INotificationService notification) =>
         {
@@ -67,7 +64,7 @@ public static class PlanEndpoint
 
         app.MapPut("/api/plans",
         async (
-             AddNewPlanRequest model,
+            Plan model,
             [FromServices] IPlanService service,
             [FromServices] INotificationService notification,
             HttpContext context) =>
@@ -136,5 +133,21 @@ public static class PlanEndpoint
             Tags = tag
         })
         .RequireAuthorization("Delete");
+
+        app.MapGet("/api/planchapter/{planId:long}",
+        async (long planId, [FromServices] IPlanService service) =>
+        {
+            var entitie = await service.GetPlanChapterByIdPlanAsync(planId);
+            if (entitie is null) return Results.NoContent();
+            return Results.Ok(entitie);
+        })
+        .Produces((int)HttpStatusCode.OK, typeof(List<PlanChapter>))
+        .WithName($"PlanChapterById")
+        .WithOpenApi(x => new OpenApiOperation(x)
+        {
+            Summary = "Returns list of PlanChapter",
+            Description = "This endpoint receives an Id from the header and searches for it in the PlanChapter table. It produces a 200 status code.",
+            Tags = tag
+        });
     }
 }

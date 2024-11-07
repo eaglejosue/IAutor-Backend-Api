@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Storage;
-
-namespace IAutor.Api.Data.Dtos;
+﻿namespace IAutor.Api.Data.Dtos;
 
 public sealed class QuestionFilters : BaseFilters
 {

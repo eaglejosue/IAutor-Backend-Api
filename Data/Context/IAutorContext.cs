@@ -3,15 +3,14 @@
 public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbContext(o)
 {
     public DbSet<Email> Emails => Set<Email>();
-    public DbSet<Income> Incomes => Set<Income>();
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<Owner> Owners => Set<Owner>();
     public DbSet<Param> Params => Set<Param>();
     public DbSet<Payment> Payments => Set<Payment>();
     public DbSet<User> Users => Set<User>();
-    public DbSet<UserBookLog> UserBookLogs => Set<UserBookLog>();
     public DbSet<UserLog> UserLogs => Set<UserLog>();
     public DbSet<Book> Books => Set<Book>();
+    public DbSet<UserBookLog> UserBookLogs => Set<UserBookLog>();
     public DbSet<Plan> Plans => Set<Plan>();
     public DbSet<Chapter> Chapters => Set<Chapter>();
     public DbSet<Question> Questions => Set<Question>();
@@ -90,12 +89,7 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
 
             entity.Property(o => o.FirstName).HasColumnType("varchar(50)").HasColumnName("first_name");
             entity.Property(o => o.LastName).HasColumnType("varchar(50)").HasColumnName("last_name");
-            entity.Property(o => o.SocialUserName).IsRequired().HasColumnType("varchar(50)").HasColumnName("social_user_name");
-            entity.Property(o => o.Type).HasColumnType("smallint").HasColumnName("type");
             entity.Property(o => o.UserId).HasColumnType("bigint").HasColumnName("user_id");
-            entity.Property(o => o.ProfileImgUrl).HasColumnType("varchar(1000)").HasColumnName("profile_img_url");
-            entity.Property(o => o.Instagram).HasColumnType("varchar(100)").HasColumnName("instagram");
-            entity.Property(o => o.TikTok).HasColumnType("varchar(100)").HasColumnName("tiktok");
             entity.Property(o => o.PersonType).HasColumnType("varchar(50)").HasColumnName("person_type");
             entity.Property(o => o.Cpf).HasColumnType("varchar(50)").HasColumnName("cpf");
             entity.Property(o => o.Cnpj).HasColumnType("varchar(50)").HasColumnName("cnpj");
@@ -188,22 +182,6 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.HasOne(p => p.Order).WithMany(uv => uv.Payments).HasForeignKey(p => p.OrderId).IsRequired().OnDelete(DeleteBehavior.Restrict);
         });
 
-        b.Entity<Income>(entity =>
-        {
-            entity.ToTable("incomes");
-            entity.Property(i => i.Id).HasColumnName("id");
-            entity.HasKey(i => i.Id);
-            entity.Property(u => u.CreatedAt).IsRequired().HasColumnType("timestamp").HasColumnName("created_at");
-            entity.Property(u => u.UpdatedAt).HasColumnType("timestamp").HasColumnName("updated_at");
-
-            entity.Property(i => i.OwnerId).HasColumnType("bigint").HasColumnName("owner_id");
-            entity.Property(o => o.DateReference).IsRequired().HasColumnType("date").HasColumnName("date_reference");
-            entity.Property(p => p.SumValue).IsRequired().HasColumnType("decimal(10,2)").HasColumnName("sum_value");
-            entity.Property(i => i.SalesAmount).HasColumnType("bigint").HasColumnName("sales_amount");
-
-            entity.HasOne(i => i.Owner).WithMany(i => i.Incomes).HasForeignKey(i => i.OwnerId).OnDelete(DeleteBehavior.Restrict);
-        });
-
         b.Entity<UserBookLog>(entity =>
         {
             entity.ToTable("user_book_logs");
@@ -262,7 +240,6 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.Property(u => u.FinalValidityPeriod).HasColumnType("timestamp").HasColumnName("final_validity_period");
             entity.Property(u => u.MaxLimitSendDataIA).HasColumnType("smallint").HasColumnName("max_limit_send_data_IA");
             entity.Property(u => u.CaractersLimitFactor).HasColumnType("smallint").HasColumnName("caracters_limit_factor");
-
         });
 
         b.Entity<Chapter>(entity =>
@@ -322,8 +299,6 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.Property(u => u.ChapterId).HasColumnType("bigint").HasColumnName("chapter_id");
 
             entity.HasOne(u => u.Plan).WithMany(u => u.PlanChapters).HasForeignKey(u => u.PlanId).IsRequired().OnDelete(DeleteBehavior.Restrict);
-
-
         });
 
         b.Entity<PlanChapterQuestion>(entity =>
@@ -337,9 +312,9 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.Property(u => u.UpdatedBy).HasColumnType("varchar(50)").HasColumnName("updated_by");
 
             entity.Property(u => u.PlanChapterId).HasColumnType("bigint").HasColumnName("plan_chapter_id");
-            
+            entity.Property(u => u.QuestionId).HasColumnType("bigint").HasColumnName("question_id");
+
             //entity.HasOne(u => u.PlanChapter).WithMany(u => u.PlanChapterQuestions).HasForeignKey(u => u.QuestionId).IsRequired().OnDelete(DeleteBehavior.Restrict);
-            // entity.Property(u => u.QuestionId).HasColumnType("bigint").HasColumnName("question_id");
         });
     }
 }

@@ -36,21 +36,17 @@ public sealed class LoginService(
         }
 
         if (!fromActivationCode &&
-            login.SignInWith!.Equals(SignInEnum.Default.ToString(), StringComparison.CurrentCultureIgnoreCase) &&
+            login.SignInWith!.Equals(SignIn.Default.ToString(), StringComparison.CurrentCultureIgnoreCase) &&
             login.Password!.VerifyPassword(user.PasswordHash!) == false)
         {
             var msg = "Verifique se o E-mail e Senha estão corretos e tente novamente!";
 
-            if (user.SignInWith.Equals(SignInEnum.Google.ToString(), StringComparison.CurrentCultureIgnoreCase))
+            if (user.SignInWith.Equals(SignIn.Google.ToString(), StringComparison.CurrentCultureIgnoreCase))
                 msg = "Clique no botão 'Entrar com o Google'!";
 
             notification.AddNotification("Login", msg);
             return default;
         }
-
-        var userOwnerId = user.Type == UserTypeEnum.Admin ? 1L : 0L;
-        if (user.Type == UserTypeEnum.Influencer || user.Type == UserTypeEnum.Agent)
-            userOwnerId = await db.Owners.Where(w => w.UserId == user.Id).Select(s => s.Id).FirstOrDefaultAsync().ConfigureAwait(false);
 
         return new(
             user.Id,
@@ -60,7 +56,6 @@ public sealed class LoginService(
             user.LastName,
             user.Email,
             user.ProfileImgUrl,
-            userOwnerId,
             !string.IsNullOrEmpty(user.Cpf) && user.BirthDate.HasValue,
             tokenService.GenerateToken(user));
     }
@@ -78,7 +73,7 @@ public sealed class LoginService(
         if (user == null)
             user = await userService.CreateAsync(new User(login));
 
-        if (login.SignInWith!.Equals(SignInEnum.Default.ToString(), StringComparison.CurrentCultureIgnoreCase))
+        if (login.SignInWith!.Equals(SignIn.Default.ToString(), StringComparison.CurrentCultureIgnoreCase))
             return default;//Usuário precisará ativar cadastro pelo e-mail recebido
 
         return await LoginAsync(login, user);
@@ -127,7 +122,7 @@ public sealed class LoginService(
         db.Users.Update(user);
         await db.SaveChangesAsync().ConfigureAwait(false);
 
-        var newEmail = await emailService.CreateAsync(new Email(user.Id, EmailTypeEnum.ForgotPassword));
+        var newEmail = await emailService.CreateAsync(new Email(user.Id, EmailType.ForgotPassword));
         await httpEmail.SendForgotPasswordAsync(newEmail!.Id);
     }
 

@@ -21,24 +21,12 @@ public sealed class TokenService(IOptions<Security> security) : ITokenService
         List<string> roles = ["Get", "Create", "Update"];
         claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
 
-        if (user.Type == UserTypeEnum.Admin || user.Type == UserTypeEnum.Operator)
+        if (user.Type == UserType.Admin || user.Type == UserType.Operator)
             claims.Add(new Claim(ClaimTypes.Role, "Delete"));
 
-        if (user.Type == UserTypeEnum.Admin)
+        if (user.Type == UserType.Admin)
         {
             claims.Add(new Claim(ClaimTypes.Role, "Admin"));
-            claims.Add(new Claim(ClaimTypes.Role, "GetIncomes"));
-        }
-
-        if (user.Type == UserTypeEnum.Influencer)
-        {
-            claims.Add(new Claim(ClaimTypes.Role, "Influencer"));
-            claims.Add(new Claim(ClaimTypes.Role, "GetIncomes"));
-        }
-
-        if (user.Type == UserTypeEnum.Agent)
-        {
-            claims.Add(new Claim(ClaimTypes.Role, "Agent"));
             claims.Add(new Claim(ClaimTypes.Role, "GetIncomes"));
         }
 

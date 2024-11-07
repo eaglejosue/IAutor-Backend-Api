@@ -55,20 +55,8 @@ public sealed class OwnerService(
         if (!string.IsNullOrEmpty(filters.LastName))
             predicate.And(a => a.LastName != null && EF.Functions.Like(a.LastName, filters.LastName.LikeConcat()));
 
-        if (!string.IsNullOrEmpty(filters.SocialUserName))
-            predicate.And(a => a.SocialUserName != null && EF.Functions.Like(a.SocialUserName, filters.SocialUserName.LikeConcat()));
-
-        if (!string.IsNullOrEmpty(filters.SocialMedia))
-            predicate.And(a => a.Instagram != null && a.TikTok != null && (
-                EF.Functions.Like(a.Instagram, filters.SocialMedia.LikeConcat()) ||
-                EF.Functions.Like(a.TikTok, filters.SocialMedia.LikeConcat())
-            ));
-
         if (filters?.IuguAccountVerified ?? false)
             predicate.And(a => a.IuguAccountVerified == true);
-
-        if ((filters?.GetMainOwner ?? false) == false)
-            predicate.And(a => a.Id > 1);
 
         #endregion
 
@@ -115,11 +103,6 @@ public sealed class OwnerService(
                 UserId = s.UserId,
                 FirstName = s.FirstName,
                 LastName = s.LastName,
-                SocialUserName = s.SocialUserName,
-                Type = s.Type,
-                ProfileImgUrl = s.ProfileImgUrl,
-                Instagram = s.Instagram,
-                TikTok = s.TikTok,
                 PersonType = s.PersonType,
                 Cpf = s.Cpf,
                 Cnpj = s.Cnpj,
@@ -162,13 +145,6 @@ public sealed class OwnerService(
         if (!validation.IsValid)
         {
             notification.AddNotifications(validation);
-            return default;
-        }
-
-        var ownerWithSocialUserName = await db.Owners.AnyAsync(a => a.SocialUserName == model.SocialUserName).ConfigureAwait(false);
-        if (ownerWithSocialUserName)
-        {
-            notification.AddNotification("Owner", string.Concat("Já existe um perfil com o @", model.SocialUserName, "."));
             return default;
         }
 

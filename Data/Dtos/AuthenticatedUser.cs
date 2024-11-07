@@ -8,7 +8,6 @@ public record AuthenticatedUser(
     string Lastname,
     string Email,
     string? ProfileImgUrl,
-    long? OwnerId,
     bool IsValid,
     string Token
 );

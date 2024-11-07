@@ -6,8 +6,6 @@ public sealed class OwnerCreateValidator : Validation<Owner>
     {
         RuleFor(p => p.FirstName).NotEmpty().NotNull();
         RuleFor(p => p.LastName).NotEmpty().NotNull();
-        RuleFor(p => p.SocialUserName).NotEmpty().NotNull();
-        RuleFor(p => p.Type).NotNull();
         RuleFor(p => p.Email).NotEmpty().NotNull().EmailAddress();
         RuleFor(p => p.Password).NotEmpty().NotNull();
         RuleFor(p => p.PersonType).Must(p => p == PersonType.PF || p == PersonType.PJ).NotEmpty().NotNull();

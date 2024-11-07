@@ -63,7 +63,7 @@ public sealed class BookService(
 
         if (filters?.PaymentsApproved ?? false)
             predicate.And(a => a.Orders.Any(order =>
-                order.Payments.Any(a => a.Status == PaymentStatusEnum.Paid) &&
+                order.Payments.Any(a => a.Status == PaymentStatus.Paid) &&
                 order.UserId == loggedUserId
             ));
 
@@ -85,8 +85,8 @@ public sealed class BookService(
 
         if ((filters?.PaymentsApproved ?? false) || (filters?.IncludePayments ?? false))
             query = query
-                .Include(i => i.Orders.Where(w => w.UserId == loggedUserId && w.Payments.Any(a => a.Status == PaymentStatusEnum.Paid)).Take(1))
-                .ThenInclude(t => t.Payments.Where(w => w.Status == PaymentStatusEnum.Paid).Take(1));
+                .Include(i => i.Orders.Where(w => w.UserId == loggedUserId && w.Payments.Any(a => a.Status == PaymentStatus.Paid)).Take(1))
+                .ThenInclude(t => t.Payments.Where(w => w.Status == PaymentStatus.Paid).Take(1));
 
         #endregion
 

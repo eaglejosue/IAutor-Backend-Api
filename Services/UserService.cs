@@ -111,7 +111,7 @@ public sealed class UserService(
         model.NewUser();
         model.EncryptPassword();
 
-        if (model.SignInWith.Equals(SignInEnum.Google.ToString(), StringComparison.CurrentCultureIgnoreCase))
+        if (model.SignInWith.Equals(SignIn.Google.ToString(), StringComparison.CurrentCultureIgnoreCase))
             model.ActivateUser();
 
         var addResult = await db.Users.AddAsync(model).ConfigureAwait(false);
@@ -119,9 +119,9 @@ public sealed class UserService(
 
         var newEntitie = addResult.Entity;
 
-        if (model.SignInWith.Equals(SignInEnum.Default.ToString(), StringComparison.CurrentCultureIgnoreCase))
+        if (model.SignInWith.Equals(SignIn.Default.ToString(), StringComparison.CurrentCultureIgnoreCase))
         {
-            var newEmail = await emailService.CreateAsync(new Email(newEntitie.Id, EmailTypeEnum.UserActivation));
+            var newEmail = await emailService.CreateAsync(new Email(newEntitie.Id, EmailType.UserActivation));
             await httpEmail.SendActivateAccountAsync(newEmail!.Id);
         }
 

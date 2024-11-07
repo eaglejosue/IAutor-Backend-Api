@@ -4,7 +4,7 @@ public sealed class Payment : Base
 {
     public long OrderId { get; set; }
     public decimal PricePaid { get; set; }
-    public PaymentStatusEnum? Status { get; set; }
+    public PaymentStatus? Status { get; set; }
     public string? IuguEvent { get; set; }
     public string? IuguFaturaId { get; set; }
     public string? IuguOrderId { get; set; }
@@ -27,7 +27,7 @@ public sealed class Payment : Base
         OrderId = o.Id;
         CreatedAt = DateTimeBr.Now;
         PricePaid = pricePaid;
-        Status = PaymentStatusEnum.Pending;
+        Status = PaymentStatus.Pending;
         IuguFaturaId = fatura.FaturaId;
         IuguOrderId = o.Id.ToString();
         IuguStatus = fatura.Status;
@@ -57,17 +57,17 @@ public sealed class Payment : Base
         IuguJsonResult = JsonSerializer.Serialize(model);
     }
 
-    private static readonly FrozenDictionary<string, PaymentStatusEnum> _dictionaryStatus = new Dictionary<string, PaymentStatusEnum>
+    private static readonly FrozenDictionary<string, PaymentStatus> _dictionaryStatus = new Dictionary<string, PaymentStatus>
     {
-        { "pending", PaymentStatusEnum.Pending },
-        { "paid", PaymentStatusEnum.Paid },
-        { "canceled", PaymentStatusEnum.Canceled },
-        { "partially_paid", PaymentStatusEnum.PartiallyPaid },
-        { "refunded", PaymentStatusEnum.Refunded },
-        { "expired", PaymentStatusEnum.Expired },
-        { "authorized", PaymentStatusEnum.Authorized },
-        { "externally_paid", PaymentStatusEnum.ExternallyPaid },
-        { "in_protest", PaymentStatusEnum.InProtest },
-        { "chargeback", PaymentStatusEnum.Chargeback }
+        { "pending", PaymentStatus.Pending },
+        { "paid", PaymentStatus.Paid },
+        { "canceled", PaymentStatus.Canceled },
+        { "partially_paid", PaymentStatus.PartiallyPaid },
+        { "refunded", PaymentStatus.Refunded },
+        { "expired", PaymentStatus.Expired },
+        { "authorized", PaymentStatus.Authorized },
+        { "externally_paid", PaymentStatus.ExternallyPaid },
+        { "in_protest", PaymentStatus.InProtest },
+        { "chargeback", PaymentStatus.Chargeback }
     }.ToFrozenDictionary();
 }
