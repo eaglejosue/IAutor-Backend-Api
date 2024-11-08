@@ -145,10 +145,16 @@ public sealed class PlanService(
     }
 
 
-    public async Task<List<PlanChapter>?> GetPlanChapterByIdPlanAsync(long planId) =>
-        await db.PlansChapters.Where(r => r.PlanId == planId)
-            .Include(r => r.Chapter).Include(r => r.PlanChapterQuestions).ThenInclude(g => g.Question)
-            .ToListAsync().ConfigureAwait(false);
+    public async Task<List<PlanChapter>?> GetPlanChapterByIdPlanAsync(long planId)
+    {
+        var query = db.PlansChapters.Where(r => r.PlanId == planId).Include(r => r.Chapter).Include(r => r.PlanChapterQuestions).ThenInclude(g => g.Question);
+
+#if DEBUG
+        var queryString = query.ToQueryString();
+#endif
+
+        return await query.ToListAsync().ConfigureAwait(false);
+    }
 
 
     private static void AddChapterQuestions(Plan model)

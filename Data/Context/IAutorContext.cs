@@ -314,7 +314,7 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.Property(u => u.PlanChapterId).HasColumnType("bigint").HasColumnName("plan_chapter_id");
             entity.Property(u => u.QuestionId).HasColumnType("bigint").HasColumnName("question_id");
 
-            //entity.HasOne(u => u.PlanChapter).WithMany(u => u.PlanChapterQuestions).HasForeignKey(u => u.QuestionId).IsRequired().OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(u => u.PlanChapter).WithMany(u => u.PlanChapterQuestions).HasForeignKey(u => u.PlanChapterId).IsRequired().OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

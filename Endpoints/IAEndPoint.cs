@@ -11,9 +11,12 @@ public static class IAEndpoints
         async (
             AiTextRequest model,
             [FromServices] IAiService service,
-            [FromServices] INotificationService notification) =>
+            [FromServices] INotificationService notification,
+            HttpContext context) =>
         {
-            var response = await service.GenerateIAResponse(model);
+            var loggedUserId = TokenExtension.GetUserIdFromToken(context);
+            var loggedUserName = TokenExtension.GetUserNameFromToken(context);
+            var response = await service.GenerateIAResponse(model, loggedUserId, loggedUserName);
             if (notification.HasNotifications) return Results.BadRequest(notification.Notifications);
             return Results.Ok(response);
         })
