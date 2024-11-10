@@ -134,10 +134,10 @@ public static class PlanEndpoint
         })
         .RequireAuthorization("Delete");
 
-        app.MapGet("/api/planchapter/{planId:long}",
+        app.MapGet("/api/plans/planchapter/{planId:long}",
         async (long planId, [FromServices] IPlanService service) =>
         {
-            var entitie = await service.GetPlanChapterByIdPlanAsync(planId);
+            var entitie = await service.GetPlanChapterByPlanIdAsync(planId);
             if (entitie is null) return Results.NoContent();
             return Results.Ok(entitie);
         })
@@ -147,6 +147,22 @@ public static class PlanEndpoint
         {
             Summary = "Returns list of PlanChapter",
             Description = "This endpoint receives an Id from the header and searches for it in the PlanChapter table. It produces a 200 status code.",
+            Tags = tag
+        });
+
+        app.MapGet("/api/plans/chapters-and-questions/{planId:long}",
+        async (long planId, [FromServices] IPlanService service) =>
+        {
+            var entitie = await service.GetPlanChaptersAndQuestionsByPlanIdAsync(planId);
+            if (entitie is null) return Results.NoContent();
+            return Results.Ok(entitie);
+        })
+        .Produces((int)HttpStatusCode.OK, typeof(List<Plan>))
+        .WithName($"PlanChaptersAndQuestionsByPlanId")
+        .WithOpenApi(x => new OpenApiOperation(x)
+        {
+            Summary = "Returns Plan with Chapters and Questions",
+            Description = "This endpoint receives an Id from the header and searches for it in the Plan table. It produces a 200 status code.",
             Tags = tag
         });
     }

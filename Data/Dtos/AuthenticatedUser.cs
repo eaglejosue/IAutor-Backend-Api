@@ -8,6 +8,7 @@ public record AuthenticatedUser(
     string Lastname,
     string Email,
     string? ProfileImgUrl,
+    long PlanId,
     bool IsValid,
     string Token
 );

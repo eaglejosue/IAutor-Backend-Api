@@ -9,7 +9,8 @@ public interface IPlanService
     Task<Plan?> PatchAsync(Plan model, long loggedUserId, string loggedUserName);
     Task<bool?> DeleteAsync(long id, long loggedUserId, string loggedUserName);
 
-    Task<List<PlanChapter>?> GetPlanChapterByIdPlanAsync(long planId);
+    Task<List<PlanChapter>?> GetPlanChapterByPlanIdAsync(long planId);
+    Task<Plan?> GetPlanChaptersAndQuestionsByPlanIdAsync(long planId);
 }
 
 public sealed class PlanService(
@@ -145,9 +146,13 @@ public sealed class PlanService(
     }
 
 
-    public async Task<List<PlanChapter>?> GetPlanChapterByIdPlanAsync(long planId)
+    public async Task<List<PlanChapter>?> GetPlanChapterByPlanIdAsync(long planId)
     {
-        var query = db.PlansChapters.Where(r => r.PlanId == planId).Include(r => r.Chapter).Include(r => r.PlanChapterQuestions).ThenInclude(g => g.Question);
+        var query = db.PlansChapters
+            .Where(w => w.PlanId == planId)
+            .Include(pc => pc.Chapter)
+            .Include(pc => pc.PlanChapterQuestions)
+                .ThenInclude(g => g.Question);
 
 #if DEBUG
         var queryString = query.ToQueryString();
@@ -156,13 +161,51 @@ public sealed class PlanService(
         return await query.ToListAsync().ConfigureAwait(false);
     }
 
+    public async Task<Plan?> GetPlanChaptersAndQuestionsByPlanIdAsync(long planId)
+    {
+        var query = db.PlansChapters
+            .Where(w => w.PlanId == planId)
+            .Include(pc => pc.Plan)
+            .Include(pc => pc.Chapter)
+            .Include(pc => pc.PlanChapterQuestions)
+                .ThenInclude(g => g.Question);
+
+        var result = await query
+            .GroupBy(pc => pc.Plan) // Agrupa por plano
+            .Select(g => new Plan
+            {
+                Id = g.Key.Id,
+                Title = g.Key.Title,
+                MaxLimitSendDataIA = g.Key.MaxLimitSendDataIA,
+                Chapters = g.Select(pc => new Chapter
+                {
+                    Id = pc.Chapter.Id,
+                    Title = pc.Chapter.Title,
+                    ChapterNumber = pc.Chapter.ChapterNumber,
+                    Questions = pc.PlanChapterQuestions.Select(pcq => new Question
+                    {
+                        Id = pcq.Question.Id,
+                        Title = pcq.Question.Title
+                    }).ToList()
+                }).ToList()
+            })
+            .FirstOrDefaultAsync()
+            .ConfigureAwait(false);
+
+#if DEBUG
+        var queryString = query.ToQueryString();
+#endif
+
+        return result;
+    }
+
 
     private static void AddChapterQuestions(Plan model)
     {
-        if (model.ChapterPlanQuestion.Count == 0)
+        if (model.ChapterQuestions.Count == 0)
             return;
 
-        model.PlanChapters = model.ChapterPlanQuestion
+        model.PlanChapters = model.ChapterQuestions
             .GroupBy(r => r.ChapterId)
             .Select(ch => new PlanChapter
             {

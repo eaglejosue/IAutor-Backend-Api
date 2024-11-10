@@ -10,12 +10,14 @@ public class Plan : Base
     public DateTime? FinalValidityPeriod { get; set; }
     public decimal CaractersLimitFactor { get; set; }
 
-    public ICollection<PlanChapter> PlanChapters { get; set; } = [];
+    public ICollection<PlanChapter>? PlanChapters { get; set; }
 
-    [NotMapped] public IList<AddNewPlanQuestionRequest> ChapterPlanQuestion { get; set; }
+    //Used on front
+    [NotMapped] public IList<ChapterIdQuestionId> ChapterQuestions { get; set; }
+    [NotMapped] public IList<Chapter> Chapters { get; set; }
 }
 
-public class AddNewPlanQuestionRequest
+public class ChapterIdQuestionId
 {
     public long ChapterId { get; set; }
     public long QuestionId { get; set; }

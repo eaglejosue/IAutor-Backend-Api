@@ -7,5 +7,7 @@ public class Chapter : Base
 
     [JsonIgnore] public ICollection<PlanChapter>? PlansChapters { get; }
 
+    //Used on front
     [NotMapped] public bool Selected { get; set; }
+    [NotMapped] public IList<Question> Questions { get; set; }
 }
