@@ -201,7 +201,7 @@ public sealed class PlanService(
                         Title = pcq.Question.Title,
                         MaxLimitCharacters = pcq.Question.MaxLimitCharacters,
                         MinLimitCharacters = pcq.Question.MinLimitCharacters,
-                        QuestionUserAnswers = pcq.Question.QuestionUserAnswers.ToList(),
+                        QuestionUserAnswers = pcq.Question.QuestionUserAnswers.Where(w => w.UserId == loggedUserId).ToList(),
                     }).ToList()
                 }).ToList()
             })
