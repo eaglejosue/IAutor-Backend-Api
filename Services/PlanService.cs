@@ -69,7 +69,19 @@ public sealed class PlanService(
 
     public async Task<Plan?> CreateAsync(Plan model)
     {
+        var validation = await model.ValidateCreateAsync();
+        if (!validation.IsValid)
+        {
+            notification.AddNotifications(validation);
+            return default;
+        }
+
         AddChapterQuestions(model);
+
+        model.CreatedAt = DateTimeBr.Now;
+
+        if (string.IsNullOrEmpty(model.Currency))
+            model.Currency = "R$";
 
         var addResult = await db.Plans.AddAsync(model).ConfigureAwait(false);
         await db.SaveChangesAsync().ConfigureAwait(false);

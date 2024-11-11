@@ -3,8 +3,8 @@
 public sealed class Question : Base
 {
     public string Title { get; set; }
-    public int MaxLimitCharacters { get; set; } = 10000;
-    public int MinLimitCharacters { get; set; } = 1;
+    public int MaxLimitCharacters { get; set; }
+    public int MinLimitCharacters { get; set; }
     public string Subject { get; set; }
 
     [JsonIgnore] public ICollection<PlanChapterQuestion>? PlansChaptersQuestions { get; set; }
