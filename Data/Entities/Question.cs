@@ -8,7 +8,7 @@ public sealed class Question : Base
     public string Subject { get; set; }
 
     [JsonIgnore] public ICollection<PlanChapterQuestion>? PlansChaptersQuestions { get; set; }
-    public ICollection<QuestionUserAnswer>? QuestionUserAnswers { get; set; }
+    [JsonIgnore] public ICollection<QuestionUserAnswer>? QuestionUserAnswers { get; set; }
 
     [NotMapped] public bool Selected { get; set; }
     [NotMapped] public QuestionUserAnswer? QuestionUserAnswer => QuestionUserAnswers?.FirstOrDefault() ?? new();
