@@ -199,6 +199,8 @@ public sealed class PlanService(
                     {
                         Id = pcq.Question.Id,
                         Title = pcq.Question.Title,
+                        MaxLimitCharacters = pcq.Question.MaxLimitCharacters,
+                        MinLimitCharacters = pcq.Question.MinLimitCharacters,
                         QuestionUserAnswers = pcq.Question.QuestionUserAnswers.ToList(),
                     }).ToList()
                 }).ToList()
