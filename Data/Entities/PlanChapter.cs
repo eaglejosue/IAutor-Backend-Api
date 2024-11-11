@@ -1,7 +1,9 @@
 ﻿namespace IAutor.Api.Data.Entities;
 
-public class PlanChapter : Base
+public class PlanChapter
 {
+    public long Id { get; set; }
+    public DateTime CreatedAt { get; set; }
     public long PlanId { get; set; }
     public long ChapterId { get; set; }
 

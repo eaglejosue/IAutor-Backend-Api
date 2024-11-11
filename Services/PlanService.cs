@@ -10,7 +10,7 @@ public interface IPlanService
     Task<bool?> DeleteAsync(long id, long loggedUserId, string loggedUserName);
 
     Task<List<PlanChapter>?> GetPlanChapterByPlanIdAsync(long planId);
-    Task<Plan?> GetPlanChaptersAndQuestionsByPlanIdAsync(long planId);
+    Task<Plan?> GetPlanChaptersAndQuestionsByPlanIdAsync(long planId, long loggedUserId);
 }
 
 public sealed class PlanService(
@@ -161,14 +161,15 @@ public sealed class PlanService(
         return await query.ToListAsync().ConfigureAwait(false);
     }
 
-    public async Task<Plan?> GetPlanChaptersAndQuestionsByPlanIdAsync(long planId)
+    public async Task<Plan?> GetPlanChaptersAndQuestionsByPlanIdAsync(long planId, long loggedUserId)
     {
         var query = db.PlansChapters
             .Where(w => w.PlanId == planId)
             .Include(pc => pc.Plan)
             .Include(pc => pc.Chapter)
             .Include(pc => pc.PlanChapterQuestions)
-                .ThenInclude(g => g.Question);
+                .ThenInclude(g => g.Question)
+                    .ThenInclude(q => q.QuestionUserAnswers.Where(w => w.UserId == loggedUserId));
 
         var result = await query
             .GroupBy(pc => pc.Plan) // Agrupa por plano
@@ -176,7 +177,7 @@ public sealed class PlanService(
             {
                 Id = g.Key.Id,
                 Title = g.Key.Title,
-                MaxLimitSendDataIA = g.Key.MaxLimitSendDataIA,
+                MaxQtdCallIASugestions = g.Key.MaxQtdCallIASugestions,
                 Chapters = g.Select(pc => new Chapter
                 {
                     Id = pc.Chapter.Id,
@@ -185,7 +186,8 @@ public sealed class PlanService(
                     Questions = pc.PlanChapterQuestions.Select(pcq => new Question
                     {
                         Id = pcq.Question.Id,
-                        Title = pcq.Question.Title
+                        Title = pcq.Question.Title,
+                        QuestionUserAnswers = pcq.Question.QuestionUserAnswers.ToList(),
                     }).ToList()
                 }).ToList()
             })

@@ -21,6 +21,7 @@ public sealed class User : Base
     public ICollection<Order>? Orders { get; set; }
     public ICollection<UserBookLog>? UserBookLogs { get; set; }
     public ICollection<UserLog>? UserLogs { get; set; }
+    public ICollection<QuestionUserAnswer>? QuestionUserAnswers { get; set; }
 
     [JsonIgnore] public Owner? Owner { get; set; }
 

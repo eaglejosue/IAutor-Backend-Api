@@ -25,10 +25,21 @@ public sealed class QuestionPatchValidator : Validation<Question>
     }
 }
 
+public sealed class QuestionUserAnswerValidator : Validation<QuestionUserAnswer>
+{
+    public QuestionUserAnswerValidator()
+    {
+        RuleFor(r => r.QuestionId).NotNull().NotEmpty();
+        RuleFor(r => r.UserId).NotNull().NotEmpty();
+        RuleFor(p => p.Answer).NotEmpty().NotNull();
+        RuleFor(p => p.QtdCallIASugestionsUsed).NotNull();
+    }
+}
 
 public static class QuestionValidationExtension
 {
     public static Task<ValidationResult> ValidateCreateAsync(this Question u) => new QuestionCreateValidator().ValidateCustomAsync(u);
     public static Task<ValidationResult> ValidateUpdateAsync(this Question u) => new QuestionUpdateValidator().ValidateCustomAsync(u);
     public static Task<ValidationResult> ValidatePatchAsync(this Question u) => new QuestionPatchValidator().ValidateCustomAsync(u);
+    public static Task<ValidationResult> ValidateAsync(this QuestionUserAnswer qua) => new QuestionUserAnswerValidator().ValidateCustomAsync(qua);
 }

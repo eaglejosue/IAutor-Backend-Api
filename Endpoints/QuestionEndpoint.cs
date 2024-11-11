@@ -133,5 +133,29 @@ public static class QuestionEndpoint
             Tags = tag
         })
         .RequireAuthorization("Delete");
+
+        //QuestionUserAnswer
+        app.MapPost("/api/questions/user-answer",
+        async (
+            QuestionUserAnswer model,
+            [FromServices] IQuestionService service,
+            [FromServices] INotificationService notification,
+            HttpContext context) =>
+        {
+            var loggedUserId = TokenExtension.GetUserIdFromToken(context);
+            var loggedUserName = TokenExtension.GetUserNameFromToken(context);
+            await service.UpsertQuestionUserAnswerAsync(model, loggedUserId, loggedUserName);
+            if (notification.HasNotifications) return Results.BadRequest(notification.Notifications);
+            return Results.Ok();
+        })
+        .Produces((int)HttpStatusCode.OK)
+        .WithName("CreateQuestionUserAnswer")
+        .WithOpenApi(x => new OpenApiOperation(x)
+        {
+            Summary = "Create a new QuestionUserAnswer",
+            Description = "This endpoint receives a QuestionUserAnswer object as the request body and add it in the QuestionUserAnswers table. It produces a 200 status code.",
+            Tags = tag
+        })
+        .RequireAuthorization("Create");
     }
 }

@@ -8,6 +8,7 @@ public interface IQuestionService
     Task<Question?> UpdateAsync(Question model, long loggedUserId, string loggedUserName);
     Task<Question?> PatchAsync(Question model, long loggedUserId, string loggedUserName);
     Task<bool?> DeleteAsync(long id, long loggedUserId, string loggedUserName);
+    Task UpsertQuestionUserAnswerAsync(QuestionUserAnswer model, long loggedUserId, string loggedUserName);
 }
 public sealed class QuestionService(
     IAutorDb db,
@@ -37,12 +38,14 @@ public sealed class QuestionService(
         if (filters.DeletedAt.HasValue && filters.DeletedAt > DateTime.MinValue)
             predicate.And(a => a.DeletedAt == filters.DeletedAt.Value.Date);
 
-        if (!string.IsNullOrEmpty(filters.Title) )
-        {
-            predicate.And(a => EF.Functions.Like(a.Title, filters.Title.LikeConcat()));    
-        }
+        if (!string.IsNullOrEmpty(filters.Title))
+            predicate.And(a => EF.Functions.Like(a.Title, filters.Title.LikeConcat()));
 
-    
+        if (!string.IsNullOrEmpty(filters.Subject))
+            predicate.And(a => EF.Functions.Like(a.Subject, filters.Subject.LikeConcat()));
+
+        if ((filters?.ChapterId ?? 0) > 0)
+            predicate.And(a => a.PlansChaptersQuestions.Any(a => a.PlanChapter.ChapterId == filters.ChapterId));
 
         #endregion
 
@@ -140,5 +143,29 @@ public sealed class QuestionService(
         await userService.CreateUserLogAsync(new UserLog(loggedUserId, string.Format("Question Id {0} Deleted", id)));
 
         return true;
+    }
+
+    public async Task UpsertQuestionUserAnswerAsync(QuestionUserAnswer model, long loggedUserId, string loggedUserName)
+    {
+        var validation = await model.ValidateAsync();
+        if (!validation.IsValid)
+        {
+            notification.AddNotifications(validation);
+            return;
+        }
+
+        if (model.Id == 0)
+        {
+            model.CreatedAt = DateTimeBr.Now;
+            await db.QuestionUserAnswers.AddAsync(model).ConfigureAwait(false);
+        }
+        else
+        {
+            model.UpdatedAt = DateTimeBr.Now;
+            model.UpdatedBy = loggedUserName;
+            db.QuestionUserAnswers.Update(model);
+        }
+
+        await db.SaveChangesAsync().ConfigureAwait(false);
     }
 }
