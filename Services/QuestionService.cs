@@ -154,7 +154,7 @@ public sealed class QuestionService(
             return;
         }
 
-        var entitie = await db.QuestionUserAnswers.FirstOrDefaultAsync(f => f.QuestionId == model.QuestionId && f.UserId == model.UserId).ConfigureAwait(false);
+        var entitie = await db.QuestionUserAnswers.AsNoTracking().FirstOrDefaultAsync(f => f.QuestionId == model.QuestionId && f.UserId == model.UserId).ConfigureAwait(false);
 
         if (entitie == null)
         {
