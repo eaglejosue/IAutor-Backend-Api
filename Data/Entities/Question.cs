@@ -7,7 +7,7 @@ public sealed class Question : Base
     public int MinLimitCharacters { get; set; }
     public string Subject { get; set; }
 
-    [JsonIgnore] public ICollection<PlanChapterQuestion>? PlansChaptersQuestions { get; set; }
+    [JsonIgnore] public ICollection<PlanChapterQuestion>? PlanChapterQuestions { get; set; }
     [JsonIgnore] public ICollection<QuestionUserAnswer>? QuestionUserAnswers { get; set; }
 
     [NotMapped] public bool Selected { get; set; }

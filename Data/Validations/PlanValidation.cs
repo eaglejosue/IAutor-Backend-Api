@@ -5,6 +5,8 @@ public sealed class PlanCreateValidator : Validation<Plan>
     public PlanCreateValidator()
     {
         RuleFor(p => p.Title).NotEmpty().NotNull().MaximumLength(500);
+        RuleFor(p => p.Price).NotEmpty().NotNull();
+        RuleFor(p => p.MaxQtdCallIASugestions).NotEmpty().NotNull();
     }
 }
 
@@ -12,8 +14,8 @@ public sealed class PlanUpdateValidator : Validation<Plan>
 {
     public PlanUpdateValidator()
     {
-        RuleFor(p => p.Title).NotEmpty().NotNull().MaximumLength(500);
         RuleFor(p => p.Id).NotEmpty().NotNull();
+        RuleFor(p => p.Title).NotEmpty().NotNull().MaximumLength(500);
     }
 }
 

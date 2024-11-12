@@ -7,7 +7,7 @@ public sealed class BookCreateValidator : Validation<Book>
         RuleFor(p => p.Title).NotEmpty().NotNull().MaximumLength(80);
         RuleFor(p => p.Description).NotEmpty().NotNull().MaximumLength(100);
         RuleFor(p => p.Price).NotEmpty().NotNull().GreaterThan(0.99M).WithMessage("Preço deve ser no mínimo R$ 1,00.");
-        RuleFor(p => p.PublicId).NotEmpty().NotNull();
+        RuleFor(p => p.PlanId).NotEmpty().NotNull();
     }
 }
 
@@ -19,7 +19,7 @@ public sealed class BookUpdateValidator : Validation<Book>
         RuleFor(p => p.Title).NotEmpty().NotNull().MaximumLength(80);
         RuleFor(p => p.Description).NotEmpty().NotNull().MaximumLength(100);
         RuleFor(p => p.Price).NotEmpty().NotNull().GreaterThan(0.99M).WithMessage("Preço deve ser no mínimo R$ 1,00.");
-        RuleFor(p => p.PublicId).NotEmpty().NotNull();
+        RuleFor(p => p.PlanId).NotEmpty().NotNull();
     }
 }
 

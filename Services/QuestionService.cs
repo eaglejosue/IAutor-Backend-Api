@@ -45,7 +45,7 @@ public sealed class QuestionService(
             predicate.And(a => EF.Functions.Like(a.Subject, filters.Subject.LikeConcat()));
 
         if ((filters?.ChapterId ?? 0) > 0)
-            predicate.And(a => a.PlansChaptersQuestions.Any(a => a.PlanChapter.ChapterId == filters.ChapterId));
+            predicate.And(a => a.PlanChapterQuestions.Any(a => a.PlanChapter.ChapterId == filters.ChapterId));
 
         #endregion
 
@@ -154,15 +154,18 @@ public sealed class QuestionService(
             return;
         }
 
-        if (model.Id == 0)
+        var entitie = await db.QuestionUserAnswers.FirstOrDefaultAsync(f => f.QuestionId == model.QuestionId && f.UserId == model.UserId).ConfigureAwait(false);
+
+        if (entitie == null)
         {
             model.CreatedAt = DateTimeBr.Now;
             await db.QuestionUserAnswers.AddAsync(model).ConfigureAwait(false);
         }
         else
         {
-            model.UpdatedAt = DateTimeBr.Now;
-            model.UpdatedBy = loggedUserName;
+            entitie.UpdatedAt = DateTimeBr.Now;
+            entitie.UpdatedBy = loggedUserName;
+            entitie.Answer = model.Answer;
             db.QuestionUserAnswers.Update(model);
         }
 

@@ -11,6 +11,7 @@ public class Plan : Base
     public decimal CaractersLimitFactor { get; set; }
 
     public ICollection<PlanChapter>? PlanChapters { get; set; }
+    [JsonIgnore] public ICollection<Book>? Books { get; set; }
 
     //Used on front
     [NotMapped] public IList<ChapterIdQuestionId> ChapterQuestions { get; set; }

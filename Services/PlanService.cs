@@ -181,7 +181,7 @@ public sealed class PlanService(
             .Include(pc => pc.Chapter)
             .Include(pc => pc.PlanChapterQuestions)
                 .ThenInclude(g => g.Question)
-                    .ThenInclude(q => q.QuestionUserAnswers.Where(w => w.UserId == loggedUserId));
+                    .ThenInclude(q => q.QuestionUserAnswers);
 
         var result = await query
             .GroupBy(pc => pc.Plan) // Agrupa por plano

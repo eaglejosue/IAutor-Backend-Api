@@ -128,12 +128,15 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.Property(v => v.Title).IsRequired().HasColumnType("varchar(100)").HasColumnName("title");
             entity.Property(v => v.Description).HasColumnType("varchar(100)").HasColumnName("description");
             entity.Property(v => v.Price).HasColumnType("decimal(10,2)").HasColumnName("price");
-            entity.Property(v => v.PublicId).IsRequired().HasColumnType("varchar(1000)").HasColumnName("cloudinary_public_id");
+            entity.Property(v => v.PublicId).HasColumnType("varchar(1000)").HasColumnName("public_id");
             entity.Property(v => v.ThumbImgUrl).HasColumnType("varchar(1000)").HasColumnName("thumb_img_url");
             entity.Property(v => v.SaleExpirationDate).HasColumnType("timestamp").HasColumnName("sale_expiration_date");
             entity.Property(v => v.PromotionPrice).HasColumnType("decimal(10,2)").HasColumnName("promotion_price");
             entity.Property(v => v.PromotionExpirationDate).HasColumnType("timestamp").HasColumnName("promotion_expiration_date");
             entity.Property(v => v.DownloadExpirationDate).HasColumnType("timestamp").HasColumnName("download_expiration_date");
+
+            entity.Property(o => o.PlanId).HasColumnType("bigint").HasColumnName("plan_id");
+            entity.HasOne(u => u.Plan).WithMany(u => u.Books).HasForeignKey(u => u.PlanId).IsRequired().OnDelete(DeleteBehavior.Restrict);
         });
 
         b.Entity<Order>(entity =>
@@ -192,7 +195,7 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.Property(u => u.CreatedAt).IsRequired().HasColumnType("timestamp").HasColumnName("created_at");
 
             entity.Property(u => u.UserId).HasColumnType("bigint").HasColumnName("user_id");
-            entity.Property(u => u.BookId).HasColumnType("bigint").HasColumnName("Book_id");
+            entity.Property(u => u.BookId).HasColumnType("bigint").HasColumnName("book_id");
             entity.Property(u => u.Log).IsRequired().HasColumnType("varchar(100)").HasColumnName("log");
 
             entity.HasOne(u => u.User).WithMany(u => u.UserBookLogs).HasForeignKey(u => u.UserId).IsRequired().OnDelete(DeleteBehavior.Restrict);
@@ -304,6 +307,7 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.Property(u => u.ChapterId).HasColumnType("bigint").HasColumnName("chapter_id");
 
             entity.HasOne(u => u.Plan).WithMany(u => u.PlanChapters).HasForeignKey(u => u.PlanId).IsRequired().OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(u => u.Chapter).WithMany(u => u.PlanChapters).HasForeignKey(u => u.ChapterId).IsRequired().OnDelete(DeleteBehavior.Restrict);
         });
 
         b.Entity<PlanChapterQuestion>(entity =>
@@ -317,6 +321,7 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.Property(u => u.QuestionId).HasColumnType("bigint").HasColumnName("question_id");
 
             entity.HasOne(u => u.PlanChapter).WithMany(u => u.PlanChapterQuestions).HasForeignKey(u => u.PlanChapterId).IsRequired().OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(u => u.Question).WithMany(u => u.PlanChapterQuestions).HasForeignKey(u => u.QuestionId).IsRequired().OnDelete(DeleteBehavior.Restrict);
         });
 
         b.Entity<QuestionUserAnswer>(entity =>
@@ -333,9 +338,11 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
 
             entity.Property(u => u.QuestionId).HasColumnType("bigint").HasColumnName("question_id");
             entity.Property(u => u.UserId).HasColumnType("bigint").HasColumnName("user_id");
+            //entity.Property(u => u.BookId).HasColumnType("bigint").HasColumnName("book_id");
 
             entity.HasOne(v => v.Question).WithMany(u => u.QuestionUserAnswers).HasForeignKey(v => v.QuestionId).IsRequired().OnDelete(DeleteBehavior.Restrict);
             entity.HasOne(v => v.User).WithMany(u => u.QuestionUserAnswers).HasForeignKey(v => v.UserId).IsRequired().OnDelete(DeleteBehavior.Restrict);
+            //entity.HasOne(v => v.Book).WithMany(u => u.QuestionUserAnswers).HasForeignKey(v => v.BookId).IsRequired().OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

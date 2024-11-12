@@ -5,7 +5,7 @@ public class Chapter : Base
     public string Title { get; set; }
     public int? ChapterNumber { get; set; }
 
-    [JsonIgnore] public ICollection<PlanChapter>? PlansChapters { get; }
+    [JsonIgnore] public ICollection<PlanChapter>? PlanChapters { get; }
 
     //Used on front
     [NotMapped] public bool Selected { get; set; }
