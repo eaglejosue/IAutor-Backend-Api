@@ -69,7 +69,7 @@ public sealed class BookService(
 
         var dateTimeNow = DateTimeBr.Now;
 
-        if ((filters?.ListToWatch ?? false) == true)
+        if ((filters?.ListToDownload ?? false) == true)
             predicate.And(a => a.DownloadExpirationDate.HasValue && a.DownloadExpirationDate >= dateTimeNow || a.DownloadExpirationDate == null);
         else if ((filters?.ListToCrud ?? false) == false)
             predicate.And(a => a.SaleExpirationDate.HasValue && a.SaleExpirationDate >= dateTimeNow || a.SaleExpirationDate == null);

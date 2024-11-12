@@ -10,5 +10,6 @@ public record AuthenticatedUser(
     string? ProfileImgUrl,
     long PlanId,
     bool IsValid,
-    string Token
+    string Token,
+    long LastBookId = 1
 );

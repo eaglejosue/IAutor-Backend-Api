@@ -12,5 +12,5 @@ public sealed class BookFilters : BaseFilters
     public bool? IncludePayments { get; set; }
     public bool? IncludeUserBookLogs { get; set; }
     public bool? ListToCrud { get; set; }
-    public bool? ListToWatch { get; set; }
+    public bool? ListToDownload { get; set; }
 }
