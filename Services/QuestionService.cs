@@ -10,6 +10,7 @@ public interface IQuestionService
     Task<bool?> DeleteAsync(long id, long loggedUserId, string loggedUserName);
     Task UpsertQuestionUserAnswerAsync(QuestionUserAnswer model, long loggedUserId, string loggedUserName);
 }
+
 public sealed class QuestionService(
     IAutorDb db,
     INotificationService notification,

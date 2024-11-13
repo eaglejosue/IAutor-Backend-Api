@@ -8,8 +8,8 @@ public record AuthenticatedUser(
     string Lastname,
     string Email,
     string? ProfileImgUrl,
+    long LastBookId,
     long PlanId,
     bool IsValid,
-    string Token,
-    long LastBookId = 1
+    string Token
 );

@@ -136,7 +136,10 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.Property(v => v.DownloadExpirationDate).HasColumnType("timestamp").HasColumnName("download_expiration_date");
 
             entity.Property(o => o.PlanId).HasColumnType("bigint").HasColumnName("plan_id");
+            entity.Property(o => o.UserId).HasColumnType("bigint").HasColumnName("user_id");
+
             entity.HasOne(u => u.Plan).WithMany(u => u.Books).HasForeignKey(u => u.PlanId).IsRequired().OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(u => u.User).WithMany(u => u.Books).HasForeignKey(u => u.UserId).IsRequired().OnDelete(DeleteBehavior.Restrict);
         });
 
         b.Entity<Order>(entity =>

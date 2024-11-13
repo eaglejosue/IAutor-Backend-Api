@@ -13,4 +13,6 @@ public sealed class BookFilters : BaseFilters
     public bool? IncludeUserBookLogs { get; set; }
     public bool? ListToCrud { get; set; }
     public bool? ListToDownload { get; set; }
+    public long? PlanId { get; set; }
+    public long? UserId { get; set; }
 }

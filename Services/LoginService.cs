@@ -48,7 +48,7 @@ public sealed class LoginService(
             return default;
         }
 
-        var plan = await db.Plans.FirstOrDefaultAsync(f => EF.Functions.Like(f.Title, "Degust".LikeConcat())).ConfigureAwait(false);
+        var book = await db.Books.LastOrDefaultAsync(f => f.UserId == user.Id).ConfigureAwait(false);
 
         return new(
             user.Id,
@@ -58,7 +58,8 @@ public sealed class LoginService(
             user.LastName,
             user.Email,
             user.ProfileImgUrl,
-            plan?.Id ?? 4,
+            book.Id,
+            book.PlanId,
             !string.IsNullOrEmpty(user.Cpf) && user.BirthDate.HasValue,
             tokenService.GenerateToken(user));
     }

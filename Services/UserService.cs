@@ -125,6 +125,10 @@ public sealed class UserService(
             await httpEmail.SendActivateAccountAsync(newEmail!.Id);
         }
 
+        //Get Plan and create new Book
+        //var degustPlan = await db.Plans.FirstOrDefaultAsync(f => EF.Functions.Like(f.Title, "Degust".LikeConcat())).ConfigureAwait(false);
+        //
+
         return newEntitie;
     }
 

@@ -12,8 +12,10 @@ public sealed class Book : Base
     public decimal? PromotionPrice { get; set; }
     public DateTime? PromotionExpirationDate { get; set; }
     public long PlanId { get; set; }
+    public long UserId { get; set; }
 
     [JsonIgnore] public Plan Plan { get; set; }
+    [JsonIgnore] public User User { get; set; }
     public ICollection<Order>? Orders { get; set; }
     public ICollection<UserBookLog>? UserBookLogs { get; set; }
     public ICollection<Email>? Emails { get; set; }

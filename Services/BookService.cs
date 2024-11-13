@@ -74,6 +74,12 @@ public sealed class BookService(
         else if ((filters?.ListToCrud ?? false) == false)
             predicate.And(a => a.SaleExpirationDate.HasValue && a.SaleExpirationDate >= dateTimeNow || a.SaleExpirationDate == null);
 
+        if (filters.PlanId.HasValue)
+            predicate.And(a => a.PlanId == filters.PlanId);
+
+        if (filters.UserId.HasValue)
+            predicate.And(a => a.UserId == filters.UserId);
+
         #endregion
 
         var query = db.Books.Where(predicate);
