@@ -16,7 +16,8 @@ public sealed class UserService(
     IAutorDb db,
     IEmailService emailService,
     IHttpEmail httpEmail,
-    IBookService bookService,
+   // IBookService bookService,
+   
     INotificationService notification) : IUserService
 {
     public async Task<User?> GetByIdAsync(long id) => await db.Users.FirstOrDefaultAsync(f => f.Id == id).ConfigureAwait(false);
@@ -131,7 +132,15 @@ public sealed class UserService(
 
         if (degustPlan != null)
         {
-            await bookService.CreateAsync(new Book
+            //await bookService.CreateAsync(new Book
+            //{
+            //    Title = "Minha História",
+            //    Description = "Minha História",
+            //    Price = degustPlan.Price,
+            //    PlanId = degustPlan.Id,
+            //    UserId = newEntitie.Id
+            //});
+            await db.Books.AddAsync(new Book
             {
                 Title = "Minha História",
                 Description = "Minha História",
