@@ -48,7 +48,12 @@ public sealed class LoginService(
             return default;
         }
 
-        var book = await db.Books.LastOrDefaultAsync(f => f.UserId == user.Id).ConfigureAwait(false);
+        var book = await db.Books
+            .Where(w => w.UserId == user.Id)
+            .OrderByDescending(o => o.UpdatedAt)
+            .ThenByDescending(t => t.Id)
+            .LastOrDefaultAsync()
+            .ConfigureAwait(false);
 
         return new(
             user.Id,
