@@ -155,7 +155,12 @@ public sealed class QuestionService(
             return;
         }
 
-        var entitie = await db.QuestionUserAnswers.AsNoTracking().FirstOrDefaultAsync(f => f.QuestionId == model.QuestionId && f.UserId == model.UserId).ConfigureAwait(false);
+        var entitie = await db.QuestionUserAnswers
+            .FirstOrDefaultAsync(f =>
+                f.QuestionId == model.QuestionId &&
+                f.UserId == model.UserId &&
+                f.BookId == model.BookId
+            ).ConfigureAwait(false);
 
         if (entitie == null)
         {
@@ -167,6 +172,7 @@ public sealed class QuestionService(
             entitie.UpdatedAt = DateTimeBr.Now;
             entitie.UpdatedBy = loggedUserName;
             entitie.Answer = model.Answer;
+            entitie.QtdCallIASugestionsUsed = model.QtdCallIASugestionsUsed;
             db.QuestionUserAnswers.Update(model);
         }
 

@@ -341,11 +341,11 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
 
             entity.Property(u => u.QuestionId).HasColumnType("bigint").HasColumnName("question_id");
             entity.Property(u => u.UserId).HasColumnType("bigint").HasColumnName("user_id");
-            //entity.Property(u => u.BookId).HasColumnType("bigint").HasColumnName("book_id");
+            entity.Property(u => u.BookId).HasColumnType("bigint").HasColumnName("book_id");
 
             entity.HasOne(v => v.Question).WithMany(u => u.QuestionUserAnswers).HasForeignKey(v => v.QuestionId).IsRequired().OnDelete(DeleteBehavior.Restrict);
             entity.HasOne(v => v.User).WithMany(u => u.QuestionUserAnswers).HasForeignKey(v => v.UserId).IsRequired().OnDelete(DeleteBehavior.Restrict);
-            //entity.HasOne(v => v.Book).WithMany(u => u.QuestionUserAnswers).HasForeignKey(v => v.BookId).IsRequired().OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(v => v.Book).WithMany(u => u.QuestionUserAnswers).HasForeignKey(v => v.BookId).IsRequired().OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

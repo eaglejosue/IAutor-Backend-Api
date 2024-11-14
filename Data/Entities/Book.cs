@@ -19,7 +19,7 @@ public sealed class Book : Base
     public ICollection<Order>? Orders { get; set; }
     public ICollection<UserBookLog>? UserBookLogs { get; set; }
     public ICollection<Email>? Emails { get; set; }
-    //public ICollection<QuestionUserAnswer>? QuestionUserAnswers { get; set; }
+    public ICollection<QuestionUserAnswer>? QuestionUserAnswers { get; set; }
 
     [NotMapped] public string? PaidDateTime
     {

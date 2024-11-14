@@ -48,12 +48,12 @@ public sealed class LoginService(
             return default;
         }
 
-        var book = await db.Books
-            .Where(w => w.UserId == user.Id)
-            .OrderByDescending(o => o.UpdatedAt)
-            .ThenByDescending(t => t.Id)
-            .LastOrDefaultAsync()
-            .ConfigureAwait(false);
+        var book = await db.Books.OrderByDescending(o => o.UpdatedAt).ThenByDescending(t => t.Id).FirstOrDefaultAsync(w => w.UserId == user.Id).ConfigureAwait(false);
+        if (book == null)
+        {
+            notification.AddNotification("Login", "Erro no cadastro do Usuário, entre em contato conosco.");
+            return default;
+        }
 
         return new(
             user.Id,

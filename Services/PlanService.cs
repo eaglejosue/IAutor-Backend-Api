@@ -10,7 +10,7 @@ public interface IPlanService
     Task<bool?> DeleteAsync(long id, long loggedUserId, string loggedUserName);
 
     Task<List<PlanChapter>?> GetPlanChapterByPlanIdAsync(long planId);
-    Task<Plan?> GetPlanChaptersAndQuestionsByPlanIdAsync(long planId, long loggedUserId);
+    Task<Plan?> GetPlanChaptersAndQuestionsByPlanIdAsync(long planId, long bookId, long loggedUserId);
 }
 
 public sealed class PlanService(
@@ -173,7 +173,7 @@ public sealed class PlanService(
         return await query.ToListAsync().ConfigureAwait(false);
     }
 
-    public async Task<Plan?> GetPlanChaptersAndQuestionsByPlanIdAsync(long planId, long loggedUserId)
+    public async Task<Plan?> GetPlanChaptersAndQuestionsByPlanIdAsync(long planId, long bookId, long loggedUserId)
     {
         var query = db.PlansChapters
             .Where(w => w.PlanId == planId)
@@ -201,7 +201,11 @@ public sealed class PlanService(
                         Title = pcq.Question.Title,
                         MaxLimitCharacters = pcq.Question.MaxLimitCharacters,
                         MinLimitCharacters = pcq.Question.MinLimitCharacters,
-                        QuestionUserAnswers = pcq.Question.QuestionUserAnswers.Where(w => w.UserId == loggedUserId).ToList(),
+                        QuestionUserAnswers = pcq.Question.QuestionUserAnswers
+                            .Where(w =>
+                                w.UserId == loggedUserId &&
+                                w.BookId == bookId)
+                            .ToList(),
                     }).ToList()
                 }).ToList()
             })

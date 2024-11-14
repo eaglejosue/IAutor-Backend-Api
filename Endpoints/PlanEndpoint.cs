@@ -150,14 +150,15 @@ public static class PlanEndpoint
             Tags = tag
         });
 
-        app.MapGet("/api/plans/chapters-and-questions/{planId:long}",
+        app.MapGet("/api/plans/chapters-and-questions/{planId:long}/{bookId:long}",
         async (
             long planId,
+            long bookId,
             [FromServices] IPlanService service,
             HttpContext context) =>
         {
             var loggedUserId = TokenExtension.GetUserIdFromToken(context);
-            var entitie = await service.GetPlanChaptersAndQuestionsByPlanIdAsync(planId, loggedUserId);
+            var entitie = await service.GetPlanChaptersAndQuestionsByPlanIdAsync(planId, bookId, loggedUserId);
             if (entitie is null) return Results.NoContent();
             return Results.Ok(entitie);
         })
