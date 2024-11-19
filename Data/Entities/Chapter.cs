@@ -6,6 +6,7 @@ public class Chapter : Base
     public int? ChapterNumber { get; set; }
 
     [JsonIgnore] public ICollection<PlanChapter>? PlanChapters { get; }
+    [JsonIgnore] public ICollection<QuestionUserAnswer>? QuestionUserAnswers { get; set; }
 
     //Used on front
     [NotMapped] public bool Selected { get; set; }

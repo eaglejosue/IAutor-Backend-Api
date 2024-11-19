@@ -134,7 +134,9 @@ public static class PlanEndpoint
         })
         .RequireAuthorization("Delete");
 
-        app.MapGet("/api/plans/planchapter/{planId:long}",
+        //Plan - Chapter - Questions
+
+        app.MapGet("/api/plans/{planId:long}/planchapter",
         async (long planId, [FromServices] IPlanService service) =>
         {
             var entitie = await service.GetPlanChapterByPlanIdAsync(planId);
@@ -150,15 +152,10 @@ public static class PlanEndpoint
             Tags = tag
         });
 
-        app.MapGet("/api/plans/chapters-and-questions/{planId:long}/{bookId:long}",
-        async (
-            long planId,
-            long bookId,
-            [FromServices] IPlanService service,
-            HttpContext context) =>
+        app.MapGet("/api/plans/{planId:long}/chapters-and-questions",
+        async (long planId, [FromServices] IPlanService service) =>
         {
-            var loggedUserId = TokenExtension.GetUserIdFromToken(context);
-            var entitie = await service.GetPlanChaptersAndQuestionsByPlanIdAsync(planId, bookId, loggedUserId);
+            var entitie = await service.GetPlanChaptersAndQuestionsByPlanIdAsync(planId);
             if (entitie is null) return Results.NoContent();
             return Results.Ok(entitie);
         })

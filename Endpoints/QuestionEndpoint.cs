@@ -135,7 +135,28 @@ public static class QuestionEndpoint
         .RequireAuthorization("Delete");
 
         //QuestionUserAnswer
-        app.MapPost("/api/questions/user-answer",
+
+        app.MapGet("/api/questions/user-answers-by-book/{bookId:long}",
+        async (
+            long bookId,
+            [FromServices] IQuestionService service,
+            HttpContext context) =>
+        {
+            var loggedUserId = TokenExtension.GetUserIdFromToken(context);
+            var entities = await service.GetQuestionUserAnswersAsync(loggedUserId, bookId);
+            if (entities.Count == 0) return Results.NoContent();
+            return Results.Ok(entities);
+        })
+        .Produces((int)HttpStatusCode.OK, typeof(List<Question>))
+        .WithName($"AllQuestionUserAnswersByBookId")
+        .WithOpenApi(x => new OpenApiOperation(x)
+        {
+            Summary = "Get all QuestionUserAnswers",
+            Description = "This endpoint searches for all records in the QuestionUserAnswers table. It produces a 200 status code.",
+            Tags = tag
+        });
+
+        app.MapPost("/api/questions/user-answers",
         async (
             QuestionUserAnswer model,
             [FromServices] IQuestionService service,

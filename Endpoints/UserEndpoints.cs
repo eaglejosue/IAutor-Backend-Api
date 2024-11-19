@@ -133,7 +133,7 @@ public static class UserEndpoints
         })
         .RequireAuthorization("Admin");
 
-        app.MapPost("/api/users/Book-log",
+        app.MapPost("/api/users/book-log",
         async (
             UserBookLog model,
             [FromServices] IUserService service,

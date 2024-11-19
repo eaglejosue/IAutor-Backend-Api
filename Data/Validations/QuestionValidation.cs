@@ -31,6 +31,8 @@ public sealed class QuestionUserAnswerValidator : Validation<QuestionUserAnswer>
     {
         RuleFor(r => r.QuestionId).NotNull().NotEmpty();
         RuleFor(r => r.UserId).NotNull().NotEmpty();
+        RuleFor(r => r.BookId).NotNull().NotEmpty();
+        RuleFor(r => r.ChapterId).NotNull().NotEmpty();
         RuleFor(p => p.Answer).NotEmpty().NotNull();
         RuleFor(p => p.QtdCallIASugestionsUsed).NotNull();
     }

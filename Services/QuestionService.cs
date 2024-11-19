@@ -9,6 +9,7 @@ public interface IQuestionService
     Task<Question?> PatchAsync(Question model, long loggedUserId, string loggedUserName);
     Task<bool?> DeleteAsync(long id, long loggedUserId, string loggedUserName);
     Task UpsertQuestionUserAnswerAsync(QuestionUserAnswer model, long loggedUserId, string loggedUserName);
+    Task<List<QuestionUserAnswer>> GetQuestionUserAnswersAsync(long loggedUserId, long bookId);
 }
 
 public sealed class QuestionService(
@@ -68,7 +69,7 @@ public sealed class QuestionService(
         var queryString = query.ToQueryString();
 #endif
 
-        return await query.AsNoTracking().ToListAsync().ConfigureAwait(false);
+        return await query.ToListAsync().ConfigureAwait(false);
     }
 
     public async Task<Question?> CreateAsync(Question model)
@@ -157,6 +158,7 @@ public sealed class QuestionService(
 
         var entitie = await db.QuestionUserAnswers
             .FirstOrDefaultAsync(f =>
+                f.ChapterId == model.ChapterId &&
                 f.QuestionId == model.QuestionId &&
                 f.UserId == model.UserId &&
                 f.BookId == model.BookId
@@ -178,4 +180,7 @@ public sealed class QuestionService(
 
         await db.SaveChangesAsync().ConfigureAwait(false);
     }
+
+    public async Task<List<QuestionUserAnswer>> GetQuestionUserAnswersAsync(long loggedUserId, long bookId) =>
+        await db.QuestionUserAnswers.Where(w => w.UserId == loggedUserId && w.BookId == bookId).ToListAsync().ConfigureAwait(false);
 }

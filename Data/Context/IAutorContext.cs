@@ -339,10 +339,12 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.Property(v => v.Answer).IsRequired().HasColumnType("text").HasColumnName("answer");
             entity.Property(u => u.QtdCallIASugestionsUsed).HasColumnType("smallint").HasColumnName("qtd_call_ia_sugestions_used");
 
+            entity.Property(u => u.ChapterId).HasColumnType("bigint").HasColumnName("chapter_id");
             entity.Property(u => u.QuestionId).HasColumnType("bigint").HasColumnName("question_id");
             entity.Property(u => u.UserId).HasColumnType("bigint").HasColumnName("user_id");
             entity.Property(u => u.BookId).HasColumnType("bigint").HasColumnName("book_id");
 
+            entity.HasOne(v => v.Chapter).WithMany(u => u.QuestionUserAnswers).HasForeignKey(v => v.ChapterId).IsRequired().OnDelete(DeleteBehavior.Restrict);
             entity.HasOne(v => v.Question).WithMany(u => u.QuestionUserAnswers).HasForeignKey(v => v.QuestionId).IsRequired().OnDelete(DeleteBehavior.Restrict);
             entity.HasOne(v => v.User).WithMany(u => u.QuestionUserAnswers).HasForeignKey(v => v.UserId).IsRequired().OnDelete(DeleteBehavior.Restrict);
             entity.HasOne(v => v.Book).WithMany(u => u.QuestionUserAnswers).HasForeignKey(v => v.BookId).IsRequired().OnDelete(DeleteBehavior.Restrict);
