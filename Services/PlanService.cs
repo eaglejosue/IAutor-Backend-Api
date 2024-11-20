@@ -10,7 +10,7 @@ public interface IPlanService
     Task<bool?> DeleteAsync(long id, long loggedUserId, string loggedUserName);
 
     Task<List<PlanChapter>?> GetPlanChapterByPlanIdAsync(long planId);
-    Task<Plan?> GetPlanChaptersAndQuestionsByPlanIdAsync(long planId);
+    Task<Plan?> GetPlanChaptersAndQuestionsByPlanIdAsync(long planId, long bookId, long loggedUserId);
 }
 
 public sealed class PlanService(
@@ -173,14 +173,15 @@ public sealed class PlanService(
         return await query.ToListAsync().ConfigureAwait(false);
     }
 
-    public async Task<Plan?> GetPlanChaptersAndQuestionsByPlanIdAsync(long planId)
+    public async Task<Plan?> GetPlanChaptersAndQuestionsByPlanIdAsync(long planId, long bookId, long loggedUserId)
     {
         var query = db.PlansChapters
             .Where(w => w.PlanId == planId)
             .Include(pc => pc.Plan)
             .Include(pc => pc.Chapter)
             .Include(pc => pc.PlanChapterQuestions)
-                .ThenInclude(g => g.Question);
+                .ThenInclude(pcq => pcq.Question)
+                    .ThenInclude(q => q.QuestionUserAnswers);
 
         var result = await query
             .GroupBy(pc => pc.Plan) // Agrupa por plano
@@ -199,7 +200,9 @@ public sealed class PlanService(
                         Id = pcq.Question.Id,
                         Title = pcq.Question.Title,
                         MaxLimitCharacters = pcq.Question.MaxLimitCharacters,
-                        MinLimitCharacters = pcq.Question.MinLimitCharacters
+                        MinLimitCharacters = pcq.Question.MinLimitCharacters,
+                        QuestionUserAnswers = pcq.Question.QuestionUserAnswers
+                            .Where(w => w.BookId == bookId && w.UserId == loggedUserId).ToList()
                     }).ToList()
                 }).ToList()
             })

@@ -140,10 +140,12 @@ public static class QuestionEndpoint
         async (
             long bookId,
             [FromServices] IQuestionService service,
+            [FromServices] INotificationService notification,
             HttpContext context) =>
         {
             var loggedUserId = TokenExtension.GetUserIdFromToken(context);
             var entities = await service.GetQuestionUserAnswersAsync(loggedUserId, bookId);
+            if (notification.HasNotifications) return Results.BadRequest(notification.Notifications);
             if (entities.Count == 0) return Results.NoContent();
             return Results.Ok(entities);
         })

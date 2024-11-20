@@ -157,6 +157,7 @@ public sealed class QuestionService(
         }
 
         var entitie = await db.QuestionUserAnswers
+            .AsNoTracking()
             .FirstOrDefaultAsync(f =>
                 f.ChapterId == model.ChapterId &&
                 f.QuestionId == model.QuestionId &&
@@ -175,12 +176,21 @@ public sealed class QuestionService(
             entitie.UpdatedBy = loggedUserName;
             entitie.Answer = model.Answer;
             entitie.QtdCallIASugestionsUsed = model.QtdCallIASugestionsUsed;
-            db.QuestionUserAnswers.Update(model);
+            db.QuestionUserAnswers.Update(entitie);
         }
 
         await db.SaveChangesAsync().ConfigureAwait(false);
     }
 
-    public async Task<List<QuestionUserAnswer>> GetQuestionUserAnswersAsync(long loggedUserId, long bookId) =>
-        await db.QuestionUserAnswers.Where(w => w.UserId == loggedUserId && w.BookId == bookId).ToListAsync().ConfigureAwait(false);
+    public async Task<List<QuestionUserAnswer>> GetQuestionUserAnswersAsync(long loggedUserId, long bookId)
+    {
+        var bookExistsForUser = await db.Books.AnyAsync(a => a.Id == bookId && a.UserId == loggedUserId);
+        if (!bookExistsForUser)
+        {
+            notification.AddNotification("QuestionUserAnswer", "Book not found.");
+            return [];
+        }
+
+        return await db.QuestionUserAnswers.Where(w => w.BookId == bookId && w.UserId == loggedUserId).ToListAsync().ConfigureAwait(false);
+    }
 }

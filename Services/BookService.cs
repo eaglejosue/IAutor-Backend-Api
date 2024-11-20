@@ -15,7 +15,7 @@ public sealed class BookService(
     INotificationService notification,
     IUserService userService) : IBookService
 {
-    public async Task<Book?> GetByIdAsync(long id) => await db.Books.FirstOrDefaultAsync(f => f.Id == id).ConfigureAwait(false);
+    public async Task<Book?> GetByIdAsync(long id) => await db.Books.Where(w => w.Id == id).Include(i => i.QuestionUserAnswers).FirstOrDefaultAsync().ConfigureAwait(false);
 
     public async Task<List<Book>> GetAllAsync(BookFilters filters, long? loggedUserId = null)
     {
