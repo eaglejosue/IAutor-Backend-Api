@@ -339,6 +339,11 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.Property(v => v.Answer).IsRequired().HasColumnType("text").HasColumnName("answer");
             entity.Property(u => u.QtdCallIASugestionsUsed).HasColumnType("smallint").HasColumnName("qtd_call_ia_sugestions_used");
 
+            entity.Property(u => u.ImagePhotoLabel).HasColumnType("varchar(200)").HasColumnName("image_photo_label");
+            entity.Property(u => u.ImagePhotoThumbUrl).HasColumnType("varchar(1000)").HasColumnName("image_photo_thumb_url");
+            entity.Property(u => u.ImagePhotoUrl).HasColumnType("varchar(1000)").HasColumnName("image_photo_url");
+            entity.Property(u => u.ImagePhotoUploadDate).HasColumnType("timestamp").HasColumnName("image_photo_upload_date");
+
             entity.Property(u => u.ChapterId).HasColumnType("bigint").HasColumnName("chapter_id");
             entity.Property(u => u.QuestionId).HasColumnType("bigint").HasColumnName("question_id");
             entity.Property(u => u.UserId).HasColumnType("bigint").HasColumnName("user_id");
