@@ -119,7 +119,7 @@ public sealed class PlanService(
 
         if (entitie == null) return null;
 
-        if (model.PlanChapters.Count > 0)
+        if (model.PlanChapters!=null && model.PlanChapters.Count > 0)
         {
             foreach (var pc in model.PlanChapters)
                 db.PlansChapters.Remove(pc);
