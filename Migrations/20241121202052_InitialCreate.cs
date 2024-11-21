@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
@@ -6,38 +7,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace IAutor.Api.Migrations
 {
     /// <inheritdoc />
-    public partial class Recriate4 : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "books",
-                columns: table => new
-                {
-                    id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    title = table.Column<string>(type: "varchar(100)", nullable: false),
-                    description = table.Column<string>(type: "varchar(100)", nullable: false),
-                    ReleaseDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    price = table.Column<decimal>(type: "numeric(10,2)", nullable: false),
-                    cloudinary_public_id = table.Column<string>(type: "varchar(1000)", nullable: false),
-                    thumb_img_url = table.Column<string>(type: "varchar(1000)", nullable: true),
-                    sale_expiration_date = table.Column<DateTime>(type: "timestamp", nullable: true),
-                    download_expiration_date = table.Column<DateTime>(type: "timestamp", nullable: true),
-                    promotion_price = table.Column<decimal>(type: "numeric(10,2)", nullable: true),
-                    promotion_expiration_date = table.Column<DateTime>(type: "timestamp", nullable: true),
-                    is_active = table.Column<bool>(type: "boolean", nullable: false),
-                    created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp", nullable: true),
-                    deleted_at = table.Column<DateTime>(type: "timestamp", nullable: true),
-                    updated_by = table.Column<string>(type: "varchar(50)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_books", x => x.id);
-                });
-
             migrationBuilder.CreateTable(
                 name: "chapters",
                 columns: table => new
@@ -46,7 +20,7 @@ namespace IAutor.Api.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     title = table.Column<string>(type: "varchar(100)", nullable: false),
                     chapter_number = table.Column<int>(type: "integer", nullable: true),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    is_active = table.Column<bool>(type: "boolean", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp", nullable: true),
                     deleted_at = table.Column<DateTime>(type: "timestamp", nullable: true),
@@ -69,7 +43,7 @@ namespace IAutor.Api.Migrations
                     created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp", nullable: true),
                     deleted_at = table.Column<DateTime>(type: "timestamp", nullable: true),
-                    UpdatedBy = table.Column<string>(type: "text", nullable: true)
+                    updated_by = table.Column<string>(type: "varchar(50)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -85,14 +59,14 @@ namespace IAutor.Api.Migrations
                     title = table.Column<string>(type: "varchar(100)", nullable: false),
                     price = table.Column<decimal>(type: "numeric(10,2)", nullable: false),
                     currency = table.Column<string>(type: "varchar(10)", nullable: false),
-                    max_limit_send_data_IA = table.Column<short>(type: "smallint", nullable: false),
+                    max_qtd_call_ia_sugestions = table.Column<short>(type: "smallint", nullable: false),
                     initial_validity_period = table.Column<DateTime>(type: "timestamp", nullable: false),
                     final_validity_period = table.Column<DateTime>(type: "timestamp", nullable: true),
                     caracters_limit_factor = table.Column<short>(type: "smallint", nullable: false),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    is_active = table.Column<bool>(type: "boolean", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp", nullable: true),
-                    DeletedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    deleted_at = table.Column<DateTime>(type: "timestamp", nullable: true),
                     updated_by = table.Column<string>(type: "varchar(50)", nullable: true)
                 },
                 constraints: table =>
@@ -109,8 +83,8 @@ namespace IAutor.Api.Migrations
                     title = table.Column<string>(type: "varchar(500)", nullable: false),
                     max_limit_characters = table.Column<short>(type: "smallint", nullable: false),
                     min_limit_characters = table.Column<short>(type: "smallint", nullable: false),
-                    Subject = table.Column<string>(type: "text", nullable: false),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    subject = table.Column<string>(type: "varchar(100)", nullable: false),
+                    is_active = table.Column<bool>(type: "boolean", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp", nullable: true),
                     deleted_at = table.Column<DateTime>(type: "timestamp", nullable: true),
@@ -128,7 +102,7 @@ namespace IAutor.Api.Migrations
                     id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     title = table.Column<string>(type: "varchar(100)", nullable: false),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    is_active = table.Column<bool>(type: "boolean", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp", nullable: true),
                     deleted_at = table.Column<DateTime>(type: "timestamp", nullable: true),
@@ -150,7 +124,7 @@ namespace IAutor.Api.Migrations
                     email = table.Column<string>(type: "varchar(100)", nullable: false),
                     cpf = table.Column<string>(type: "varchar(50)", nullable: true),
                     sign_in_with = table.Column<string>(type: "varchar(10)", nullable: false),
-                    type = table.Column<short>(type: "smallint", nullable: true),
+                    type = table.Column<short>(type: "smallint", nullable: false),
                     birth_date = table.Column<DateTime>(type: "date", nullable: true),
                     ProfileImgUrl = table.Column<string>(type: "text", nullable: true),
                     password_hash = table.Column<byte[]>(type: "bytea", nullable: true),
@@ -171,30 +145,26 @@ namespace IAutor.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "plan_chapter",
+                name: "plan_chapters",
                 columns: table => new
                 {
                     id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    plan_id = table.Column<long>(type: "bigint", nullable: false),
-                    chapter_id = table.Column<long>(type: "bigint", nullable: false),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp", nullable: true),
-                    deleted_at = table.Column<DateTime>(type: "timestamp", nullable: true),
-                    updated_by = table.Column<string>(type: "varchar(50)", nullable: true)
+                    plan_id = table.Column<long>(type: "bigint", nullable: false),
+                    chapter_id = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_plan_chapter", x => x.id);
+                    table.PrimaryKey("PK_plan_chapters", x => x.id);
                     table.ForeignKey(
-                        name: "FK_plan_chapter_chapters_chapter_id",
+                        name: "FK_plan_chapters_chapters_chapter_id",
                         column: x => x.chapter_id,
                         principalTable: "chapters",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_plan_chapter_plans_plan_id",
+                        name: "FK_plan_chapters_plans_plan_id",
                         column: x => x.plan_id,
                         principalTable: "plans",
                         principalColumn: "id",
@@ -202,65 +172,39 @@ namespace IAutor.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "emails",
+                name: "books",
                 columns: table => new
                 {
                     id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    title = table.Column<string>(type: "varchar(100)", nullable: false),
+                    description = table.Column<string>(type: "varchar(100)", nullable: true),
+                    price = table.Column<decimal>(type: "numeric(10,2)", nullable: false),
+                    public_id = table.Column<string>(type: "varchar(1000)", nullable: true),
+                    thumb_img_url = table.Column<string>(type: "varchar(1000)", nullable: true),
+                    sale_expiration_date = table.Column<DateTime>(type: "timestamp", nullable: true),
+                    download_expiration_date = table.Column<DateTime>(type: "timestamp", nullable: true),
+                    promotion_price = table.Column<decimal>(type: "numeric(10,2)", nullable: true),
+                    promotion_expiration_date = table.Column<DateTime>(type: "timestamp", nullable: true),
+                    plan_id = table.Column<long>(type: "bigint", nullable: false),
                     user_id = table.Column<long>(type: "bigint", nullable: false),
-                    Book_id = table.Column<long>(type: "bigint", nullable: true),
-                    email_type = table.Column<short>(type: "smallint", nullable: true),
-                    schedule_date = table.Column<DateTime>(type: "timestamp", nullable: true),
-                    date_sent = table.Column<DateTime>(type: "timestamp", nullable: true),
-                    send_attempts = table.Column<short>(type: "smallint", nullable: true),
                     is_active = table.Column<bool>(type: "boolean", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp", nullable: true),
                     deleted_at = table.Column<DateTime>(type: "timestamp", nullable: true),
-                    UpdatedBy = table.Column<string>(type: "text", nullable: true)
+                    updated_by = table.Column<string>(type: "varchar(50)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_emails", x => x.id);
+                    table.PrimaryKey("PK_books", x => x.id);
                     table.ForeignKey(
-                        name: "FK_emails_books_Book_id",
-                        column: x => x.Book_id,
-                        principalTable: "books",
+                        name: "FK_books_plans_plan_id",
+                        column: x => x.plan_id,
+                        principalTable: "plans",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_emails_users_user_id",
-                        column: x => x.user_id,
-                        principalTable: "users",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "orders",
-                columns: table => new
-                {
-                    id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    user_id = table.Column<long>(type: "bigint", nullable: false),
-                    Book_id = table.Column<long>(type: "bigint", nullable: false),
-                    is_active = table.Column<bool>(type: "boolean", nullable: false),
-                    created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp", nullable: true),
-                    deleted_at = table.Column<DateTime>(type: "timestamp", nullable: true),
-                    UpdatedBy = table.Column<string>(type: "text", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_orders", x => x.id);
-                    table.ForeignKey(
-                        name: "FK_orders_books_Book_id",
-                        column: x => x.Book_id,
-                        principalTable: "books",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_orders_users_user_id",
+                        name: "FK_books_users_user_id",
                         column: x => x.user_id,
                         principalTable: "users",
                         principalColumn: "id",
@@ -275,12 +219,7 @@ namespace IAutor.Api.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     first_name = table.Column<string>(type: "varchar(50)", nullable: true),
                     last_name = table.Column<string>(type: "varchar(50)", nullable: true),
-                    social_user_name = table.Column<string>(type: "varchar(50)", nullable: false),
-                    type = table.Column<short>(type: "smallint", nullable: true),
                     user_id = table.Column<long>(type: "bigint", nullable: false),
-                    profile_img_url = table.Column<string>(type: "varchar(1000)", nullable: true),
-                    instagram = table.Column<string>(type: "varchar(100)", nullable: true),
-                    tiktok = table.Column<string>(type: "varchar(100)", nullable: true),
                     person_type = table.Column<string>(type: "varchar(50)", nullable: true),
                     cpf = table.Column<string>(type: "varchar(50)", nullable: true),
                     cnpj = table.Column<string>(type: "varchar(50)", nullable: true),
@@ -319,34 +258,6 @@ namespace IAutor.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "user_book_logs",
-                columns: table => new
-                {
-                    id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
-                    user_id = table.Column<long>(type: "bigint", nullable: false),
-                    Book_id = table.Column<long>(type: "bigint", nullable: false),
-                    log = table.Column<string>(type: "varchar(100)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_user_book_logs", x => x.id);
-                    table.ForeignKey(
-                        name: "FK_user_book_logs_books_Book_id",
-                        column: x => x.Book_id,
-                        principalTable: "books",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_user_book_logs_users_user_id",
-                        column: x => x.user_id,
-                        principalTable: "users",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "user_logs",
                 columns: table => new
                 {
@@ -368,14 +279,45 @@ namespace IAutor.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "plan_chapter_question",
+                name: "plan_chapter_questions",
                 columns: table => new
                 {
                     id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
                     plan_chapter_id = table.Column<long>(type: "bigint", nullable: false),
-                    QuestionId = table.Column<long>(type: "bigint", nullable: false),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    question_id = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_plan_chapter_questions", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_plan_chapter_questions_plan_chapters_plan_chapter_id",
+                        column: x => x.plan_chapter_id,
+                        principalTable: "plan_chapters",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_plan_chapter_questions_questions_question_id",
+                        column: x => x.question_id,
+                        principalTable: "questions",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "emails",
+                columns: table => new
+                {
+                    id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    user_id = table.Column<long>(type: "bigint", nullable: false),
+                    book_id = table.Column<long>(type: "bigint", nullable: true),
+                    email_type = table.Column<short>(type: "smallint", nullable: true),
+                    schedule_date = table.Column<DateTime>(type: "timestamp", nullable: true),
+                    date_sent = table.Column<DateTime>(type: "timestamp", nullable: true),
+                    send_attempts = table.Column<short>(type: "smallint", nullable: true),
+                    is_active = table.Column<bool>(type: "boolean", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp", nullable: true),
                     deleted_at = table.Column<DateTime>(type: "timestamp", nullable: true),
@@ -383,19 +325,127 @@ namespace IAutor.Api.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_plan_chapter_question", x => x.id);
+                    table.PrimaryKey("PK_emails", x => x.id);
                     table.ForeignKey(
-                        name: "FK_plan_chapter_question_plan_chapter_plan_chapter_id",
-                        column: x => x.plan_chapter_id,
-                        principalTable: "plan_chapter",
+                        name: "FK_emails_books_book_id",
+                        column: x => x.book_id,
+                        principalTable: "books",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_plan_chapter_question_questions_QuestionId",
-                        column: x => x.QuestionId,
+                        name: "FK_emails_users_user_id",
+                        column: x => x.user_id,
+                        principalTable: "users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "orders",
+                columns: table => new
+                {
+                    id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    user_id = table.Column<long>(type: "bigint", nullable: false),
+                    book_id = table.Column<long>(type: "bigint", nullable: false),
+                    is_active = table.Column<bool>(type: "boolean", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp", nullable: true),
+                    deleted_at = table.Column<DateTime>(type: "timestamp", nullable: true),
+                    updated_by = table.Column<string>(type: "varchar(50)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_orders", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_orders_books_book_id",
+                        column: x => x.book_id,
+                        principalTable: "books",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_orders_users_user_id",
+                        column: x => x.user_id,
+                        principalTable: "users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "question_user_answers",
+                columns: table => new
+                {
+                    id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp", nullable: true),
+                    updated_by = table.Column<string>(type: "varchar(50)", nullable: true),
+                    chapter_id = table.Column<long>(type: "bigint", nullable: false),
+                    question_id = table.Column<long>(type: "bigint", nullable: false),
+                    user_id = table.Column<long>(type: "bigint", nullable: false),
+                    book_id = table.Column<long>(type: "bigint", nullable: false),
+                    answer = table.Column<string>(type: "text", nullable: false),
+                    qtd_call_ia_sugestions_used = table.Column<short>(type: "smallint", nullable: false),
+                    image_photo_url = table.Column<string>(type: "varchar(1000)", nullable: true),
+                    image_photo_thumb_url = table.Column<string>(type: "varchar(1000)", nullable: true),
+                    image_photo_label = table.Column<string>(type: "varchar(200)", nullable: true),
+                    ImagePhotoUploadDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_question_user_answers", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_question_user_answers_books_book_id",
+                        column: x => x.book_id,
+                        principalTable: "books",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_question_user_answers_chapters_chapter_id",
+                        column: x => x.chapter_id,
+                        principalTable: "chapters",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_question_user_answers_questions_question_id",
+                        column: x => x.question_id,
                         principalTable: "questions",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_question_user_answers_users_user_id",
+                        column: x => x.user_id,
+                        principalTable: "users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "user_book_logs",
+                columns: table => new
+                {
+                    id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
+                    user_id = table.Column<long>(type: "bigint", nullable: false),
+                    book_id = table.Column<long>(type: "bigint", nullable: false),
+                    log = table.Column<string>(type: "varchar(100)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_user_book_logs", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_user_book_logs_books_book_id",
+                        column: x => x.book_id,
+                        principalTable: "books",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_user_book_logs_users_user_id",
+                        column: x => x.user_id,
+                        principalTable: "users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -423,7 +473,7 @@ namespace IAutor.Api.Migrations
                     created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp", nullable: true),
                     deleted_at = table.Column<DateTime>(type: "timestamp", nullable: true),
-                    UpdatedBy = table.Column<string>(type: "text", nullable: true)
+                    updated_by = table.Column<string>(type: "varchar(50)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -436,34 +486,20 @@ namespace IAutor.Api.Migrations
                         onDelete: ReferentialAction.Restrict);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "incomes",
-                columns: table => new
-                {
-                    id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp", nullable: true),
-                    owner_id = table.Column<long>(type: "bigint", nullable: false),
-                    date_reference = table.Column<DateTime>(type: "date", nullable: false),
-                    sum_value = table.Column<decimal>(type: "numeric(10,2)", nullable: false),
-                    sales_amount = table.Column<long>(type: "bigint", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_incomes", x => x.id);
-                    table.ForeignKey(
-                        name: "FK_incomes_owners_owner_id",
-                        column: x => x.owner_id,
-                        principalTable: "owners",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
-                });
+            migrationBuilder.CreateIndex(
+                name: "IX_books_plan_id",
+                table: "books",
+                column: "plan_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_emails_Book_id",
+                name: "IX_books_user_id",
+                table: "books",
+                column: "user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_emails_book_id",
                 table: "emails",
-                column: "Book_id");
+                column: "book_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_emails_user_id",
@@ -471,14 +507,9 @@ namespace IAutor.Api.Migrations
                 column: "user_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_incomes_owner_id",
-                table: "incomes",
-                column: "owner_id");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_orders_Book_id",
+                name: "IX_orders_book_id",
                 table: "orders",
-                column: "Book_id");
+                column: "book_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_orders_user_id",
@@ -497,29 +528,49 @@ namespace IAutor.Api.Migrations
                 column: "order_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_plan_chapter_chapter_id",
-                table: "plan_chapter",
-                column: "chapter_id");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_plan_chapter_plan_id",
-                table: "plan_chapter",
-                column: "plan_id");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_plan_chapter_question_QuestionId",
-                table: "plan_chapter_question",
-                column: "QuestionId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_plan_chapter_question_plan_chapter_id",
-                table: "plan_chapter_question",
+                name: "IX_plan_chapter_questions_plan_chapter_id",
+                table: "plan_chapter_questions",
                 column: "plan_chapter_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_user_book_logs_Book_id",
+                name: "IX_plan_chapter_questions_question_id",
+                table: "plan_chapter_questions",
+                column: "question_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_plan_chapters_chapter_id",
+                table: "plan_chapters",
+                column: "chapter_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_plan_chapters_plan_id",
+                table: "plan_chapters",
+                column: "plan_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_question_user_answers_book_id",
+                table: "question_user_answers",
+                column: "book_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_question_user_answers_chapter_id",
+                table: "question_user_answers",
+                column: "chapter_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_question_user_answers_question_id",
+                table: "question_user_answers",
+                column: "question_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_question_user_answers_user_id",
+                table: "question_user_answers",
+                column: "user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_user_book_logs_book_id",
                 table: "user_book_logs",
-                column: "Book_id");
+                column: "book_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_user_book_logs_user_id",
@@ -545,7 +596,7 @@ namespace IAutor.Api.Migrations
                 name: "emails");
 
             migrationBuilder.DropTable(
-                name: "incomes");
+                name: "owners");
 
             migrationBuilder.DropTable(
                 name: "params");
@@ -554,7 +605,10 @@ namespace IAutor.Api.Migrations
                 name: "payments");
 
             migrationBuilder.DropTable(
-                name: "plan_chapter_question");
+                name: "plan_chapter_questions");
+
+            migrationBuilder.DropTable(
+                name: "question_user_answers");
 
             migrationBuilder.DropTable(
                 name: "themes");
@@ -566,13 +620,10 @@ namespace IAutor.Api.Migrations
                 name: "user_logs");
 
             migrationBuilder.DropTable(
-                name: "owners");
-
-            migrationBuilder.DropTable(
                 name: "orders");
 
             migrationBuilder.DropTable(
-                name: "plan_chapter");
+                name: "plan_chapters");
 
             migrationBuilder.DropTable(
                 name: "questions");
@@ -581,13 +632,13 @@ namespace IAutor.Api.Migrations
                 name: "books");
 
             migrationBuilder.DropTable(
-                name: "users");
-
-            migrationBuilder.DropTable(
                 name: "chapters");
 
             migrationBuilder.DropTable(
                 name: "plans");
+
+            migrationBuilder.DropTable(
+                name: "users");
         }
     }
 }

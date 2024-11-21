@@ -13,6 +13,11 @@ public class QuestionUserAnswer
     public string Answer { get; set; }
     public long QtdCallIASugestionsUsed { get; set; }
 
+    public string? ImagePhotoUrl { get; set; }
+    public string? ImagePhotoThumbUrl { get; set; }
+    public string? ImagePhotoLabel { get; set; }
+    public DateTime? ImagePhotoUploadDate { get; set; }
+
     [JsonIgnore] public Chapter? Chapter { get; set; }
     [JsonIgnore] public Question? Question { get; set; }
     [JsonIgnore] public User? User { get; set; }

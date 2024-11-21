@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace IAutor.Api.Migrations
 {
     [DbContext(typeof(IAutorDb))]
-    [Migration("20241025205157_AlterQuesdtionTable")]
-    partial class AlterQuesdtionTable
+    [Migration("20241121202052_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -43,7 +43,6 @@ namespace IAutor.Api.Migrations
                         .HasColumnName("deleted_at");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("varchar(100)")
                         .HasColumnName("description");
 
@@ -54,6 +53,10 @@ namespace IAutor.Api.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean")
                         .HasColumnName("is_active");
+
+                    b.Property<long>("PlanId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("plan_id");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(10,2)")
@@ -68,12 +71,8 @@ namespace IAutor.Api.Migrations
                         .HasColumnName("promotion_price");
 
                     b.Property<string>("PublicId")
-                        .IsRequired()
                         .HasColumnType("varchar(1000)")
-                        .HasColumnName("cloudinary_public_id");
-
-                    b.Property<DateTime>("ReleaseDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnName("public_id");
 
                     b.Property<DateTime?>("SaleExpirationDate")
                         .HasColumnType("timestamp")
@@ -96,7 +95,15 @@ namespace IAutor.Api.Migrations
                         .HasColumnType("varchar(50)")
                         .HasColumnName("updated_by");
 
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("user_id");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("PlanId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("books", (string)null);
                 });
@@ -123,7 +130,8 @@ namespace IAutor.Api.Migrations
                         .HasColumnName("deleted_at");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -154,7 +162,7 @@ namespace IAutor.Api.Migrations
 
                     b.Property<long?>("BookId")
                         .HasColumnType("bigint")
-                        .HasColumnName("Book_id");
+                        .HasColumnName("book_id");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp")
@@ -189,7 +197,8 @@ namespace IAutor.Api.Migrations
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
-                        .HasColumnType("text");
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("updated_by");
 
                     b.Property<long>("UserId")
                         .HasColumnType("bigint")
@@ -204,47 +213,6 @@ namespace IAutor.Api.Migrations
                     b.ToTable("emails", (string)null);
                 });
 
-            modelBuilder.Entity("IAutor.Api.Data.Entities.Income", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .IsRequired()
-                        .HasColumnType("timestamp")
-                        .HasColumnName("created_at");
-
-                    b.Property<DateTime>("DateReference")
-                        .HasColumnType("date")
-                        .HasColumnName("date_reference");
-
-                    b.Property<long>("OwnerId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("owner_id");
-
-                    b.Property<long>("SalesAmount")
-                        .HasColumnType("bigint")
-                        .HasColumnName("sales_amount");
-
-                    b.Property<decimal>("SumValue")
-                        .HasColumnType("decimal(10,2)")
-                        .HasColumnName("sum_value");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OwnerId");
-
-                    b.ToTable("incomes", (string)null);
-                });
-
             modelBuilder.Entity("IAutor.Api.Data.Entities.Order", b =>
                 {
                     b.Property<long>("Id")
@@ -256,7 +224,7 @@ namespace IAutor.Api.Migrations
 
                     b.Property<long>("BookId")
                         .HasColumnType("bigint")
-                        .HasColumnName("Book_id");
+                        .HasColumnName("book_id");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp")
@@ -275,7 +243,8 @@ namespace IAutor.Api.Migrations
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
-                        .HasColumnType("text");
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("updated_by");
 
                     b.Property<long>("UserId")
                         .HasColumnType("bigint")
@@ -359,10 +328,6 @@ namespace IAutor.Api.Migrations
                         .HasColumnType("varchar(50)")
                         .HasColumnName("first_name");
 
-                    b.Property<string>("Instagram")
-                        .HasColumnType("varchar(100)")
-                        .HasColumnName("instagram");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean")
                         .HasColumnName("is_active");
@@ -395,15 +360,6 @@ namespace IAutor.Api.Migrations
                         .HasColumnType("varchar(50)")
                         .HasColumnName("person_type");
 
-                    b.Property<string>("ProfileImgUrl")
-                        .HasColumnType("varchar(1000)")
-                        .HasColumnName("profile_img_url");
-
-                    b.Property<string>("SocialUserName")
-                        .IsRequired()
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("social_user_name");
-
                     b.Property<string>("State")
                         .HasColumnType("varchar(50)")
                         .HasColumnName("state");
@@ -411,14 +367,6 @@ namespace IAutor.Api.Migrations
                     b.Property<string>("Telephone")
                         .HasColumnType("varchar(50)")
                         .HasColumnName("telephone");
-
-                    b.Property<string>("TikTok")
-                        .HasColumnType("varchar(100)")
-                        .HasColumnName("tiktok");
-
-                    b.Property<short?>("Type")
-                        .HasColumnType("smallint")
-                        .HasColumnName("type");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp")
@@ -471,7 +419,8 @@ namespace IAutor.Api.Migrations
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
-                        .HasColumnType("text");
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("updated_by");
 
                     b.Property<string>("Value")
                         .IsRequired()
@@ -569,7 +518,8 @@ namespace IAutor.Api.Migrations
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
-                        .HasColumnType("text");
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("updated_by");
 
                     b.HasKey("Id");
 
@@ -601,7 +551,8 @@ namespace IAutor.Api.Migrations
                         .HasColumnName("currency");
 
                     b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp")
+                        .HasColumnName("deleted_at");
 
                     b.Property<DateTime?>("FinalValidityPeriod")
                         .HasColumnType("timestamp")
@@ -612,11 +563,12 @@ namespace IAutor.Api.Migrations
                         .HasColumnName("initial_validity_period");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
 
-                    b.Property<short>("MaxLimitSendDataIA")
+                    b.Property<short>("MaxQtdCallIASugestions")
                         .HasColumnType("smallint")
-                        .HasColumnName("max_limit_send_data_IA");
+                        .HasColumnName("max_qtd_call_ia_sugestions");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(10,2)")
@@ -657,24 +609,9 @@ namespace IAutor.Api.Migrations
                         .HasColumnType("timestamp")
                         .HasColumnName("created_at");
 
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp")
-                        .HasColumnName("deleted_at");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
                     b.Property<long>("PlanId")
                         .HasColumnType("bigint")
                         .HasColumnName("plan_id");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp")
-                        .HasColumnName("updated_at");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("updated_by");
 
                     b.HasKey("Id");
 
@@ -682,7 +619,7 @@ namespace IAutor.Api.Migrations
 
                     b.HasIndex("PlanId");
 
-                    b.ToTable("plan_chapter", (string)null);
+                    b.ToTable("plan_chapters", (string)null);
                 });
 
             modelBuilder.Entity("IAutor.Api.Data.Entities.PlanChapterQuestion", b =>
@@ -698,27 +635,13 @@ namespace IAutor.Api.Migrations
                         .HasColumnType("timestamp")
                         .HasColumnName("created_at");
 
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp")
-                        .HasColumnName("deleted_at");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
                     b.Property<long>("PlanChapterId")
                         .HasColumnType("bigint")
                         .HasColumnName("plan_chapter_id");
 
                     b.Property<long>("QuestionId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp")
-                        .HasColumnName("updated_at");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("updated_by");
+                        .HasColumnType("bigint")
+                        .HasColumnName("question_id");
 
                     b.HasKey("Id");
 
@@ -726,7 +649,7 @@ namespace IAutor.Api.Migrations
 
                     b.HasIndex("QuestionId");
 
-                    b.ToTable("plan_chapter_question", (string)null);
+                    b.ToTable("plan_chapter_questions", (string)null);
                 });
 
             modelBuilder.Entity("IAutor.Api.Data.Entities.Question", b =>
@@ -747,7 +670,8 @@ namespace IAutor.Api.Migrations
                         .HasColumnName("deleted_at");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
 
                     b.Property<short>("MaxLimitCharacters")
                         .HasColumnType("smallint")
@@ -780,6 +704,80 @@ namespace IAutor.Api.Migrations
                     b.ToTable("questions", (string)null);
                 });
 
+            modelBuilder.Entity("IAutor.Api.Data.Entities.QuestionUserAnswer", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Answer")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("answer");
+
+                    b.Property<long>("BookId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("book_id");
+
+                    b.Property<long>("ChapterId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("chapter_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("ImagePhotoLabel")
+                        .HasColumnType("varchar(200)")
+                        .HasColumnName("image_photo_label");
+
+                    b.Property<string>("ImagePhotoThumbUrl")
+                        .HasColumnType("varchar(1000)")
+                        .HasColumnName("image_photo_thumb_url");
+
+                    b.Property<DateTime?>("ImagePhotoUploadDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ImagePhotoUrl")
+                        .HasColumnType("varchar(1000)")
+                        .HasColumnName("image_photo_url");
+
+                    b.Property<short>("QtdCallIASugestionsUsed")
+                        .HasColumnType("smallint")
+                        .HasColumnName("qtd_call_ia_sugestions_used");
+
+                    b.Property<long>("QuestionId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("question_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookId");
+
+                    b.HasIndex("ChapterId");
+
+                    b.HasIndex("QuestionId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("question_user_answers", (string)null);
+                });
+
             modelBuilder.Entity("IAutor.Api.Data.Entities.Theme", b =>
                 {
                     b.Property<long>("Id")
@@ -798,7 +796,8 @@ namespace IAutor.Api.Migrations
                         .HasColumnName("deleted_at");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -894,7 +893,7 @@ namespace IAutor.Api.Migrations
                         .HasColumnType("varchar(10)")
                         .HasColumnName("sign_in_with");
 
-                    b.Property<short?>("Type")
+                    b.Property<short>("Type")
                         .HasColumnType("smallint")
                         .HasColumnName("type");
 
@@ -925,7 +924,7 @@ namespace IAutor.Api.Migrations
 
                     b.Property<long>("BookId")
                         .HasColumnType("bigint")
-                        .HasColumnName("Book_id");
+                        .HasColumnName("book_id");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp")
@@ -978,6 +977,25 @@ namespace IAutor.Api.Migrations
                     b.ToTable("user_logs", (string)null);
                 });
 
+            modelBuilder.Entity("IAutor.Api.Data.Entities.Book", b =>
+                {
+                    b.HasOne("IAutor.Api.Data.Entities.Plan", "Plan")
+                        .WithMany("Books")
+                        .HasForeignKey("PlanId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("IAutor.Api.Data.Entities.User", "User")
+                        .WithMany("Books")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Plan");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("IAutor.Api.Data.Entities.Email", b =>
                 {
                     b.HasOne("IAutor.Api.Data.Entities.Book", "Book")
@@ -994,17 +1012,6 @@ namespace IAutor.Api.Migrations
                     b.Navigation("Book");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("IAutor.Api.Data.Entities.Income", b =>
-                {
-                    b.HasOne("IAutor.Api.Data.Entities.Owner", "Owner")
-                        .WithMany("Incomes")
-                        .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Owner");
                 });
 
             modelBuilder.Entity("IAutor.Api.Data.Entities.Order", b =>
@@ -1051,9 +1058,9 @@ namespace IAutor.Api.Migrations
             modelBuilder.Entity("IAutor.Api.Data.Entities.PlanChapter", b =>
                 {
                     b.HasOne("IAutor.Api.Data.Entities.Chapter", "Chapter")
-                        .WithMany("PlansChapters")
+                        .WithMany("PlanChapters")
                         .HasForeignKey("ChapterId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("IAutor.Api.Data.Entities.Plan", "Plan")
@@ -1072,18 +1079,53 @@ namespace IAutor.Api.Migrations
                     b.HasOne("IAutor.Api.Data.Entities.PlanChapter", "PlanChapter")
                         .WithMany("PlanChapterQuestions")
                         .HasForeignKey("PlanChapterId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("IAutor.Api.Data.Entities.Question", "Question")
-                        .WithMany("PlansChaptersQuestions")
+                        .WithMany("PlanChapterQuestions")
                         .HasForeignKey("QuestionId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("PlanChapter");
 
                     b.Navigation("Question");
+                });
+
+            modelBuilder.Entity("IAutor.Api.Data.Entities.QuestionUserAnswer", b =>
+                {
+                    b.HasOne("IAutor.Api.Data.Entities.Book", "Book")
+                        .WithMany("QuestionUserAnswers")
+                        .HasForeignKey("BookId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("IAutor.Api.Data.Entities.Chapter", "Chapter")
+                        .WithMany("QuestionUserAnswers")
+                        .HasForeignKey("ChapterId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("IAutor.Api.Data.Entities.Question", "Question")
+                        .WithMany("QuestionUserAnswers")
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("IAutor.Api.Data.Entities.User", "User")
+                        .WithMany("QuestionUserAnswers")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Book");
+
+                    b.Navigation("Chapter");
+
+                    b.Navigation("Question");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("IAutor.Api.Data.Entities.UserBookLog", b =>
@@ -1122,12 +1164,16 @@ namespace IAutor.Api.Migrations
 
                     b.Navigation("Orders");
 
+                    b.Navigation("QuestionUserAnswers");
+
                     b.Navigation("UserBookLogs");
                 });
 
             modelBuilder.Entity("IAutor.Api.Data.Entities.Chapter", b =>
                 {
-                    b.Navigation("PlansChapters");
+                    b.Navigation("PlanChapters");
+
+                    b.Navigation("QuestionUserAnswers");
                 });
 
             modelBuilder.Entity("IAutor.Api.Data.Entities.Order", b =>
@@ -1135,13 +1181,10 @@ namespace IAutor.Api.Migrations
                     b.Navigation("Payments");
                 });
 
-            modelBuilder.Entity("IAutor.Api.Data.Entities.Owner", b =>
-                {
-                    b.Navigation("Incomes");
-                });
-
             modelBuilder.Entity("IAutor.Api.Data.Entities.Plan", b =>
                 {
+                    b.Navigation("Books");
+
                     b.Navigation("PlanChapters");
                 });
 
@@ -1152,16 +1195,22 @@ namespace IAutor.Api.Migrations
 
             modelBuilder.Entity("IAutor.Api.Data.Entities.Question", b =>
                 {
-                    b.Navigation("PlansChaptersQuestions");
+                    b.Navigation("PlanChapterQuestions");
+
+                    b.Navigation("QuestionUserAnswers");
                 });
 
             modelBuilder.Entity("IAutor.Api.Data.Entities.User", b =>
                 {
+                    b.Navigation("Books");
+
                     b.Navigation("Emails");
 
                     b.Navigation("Orders");
 
                     b.Navigation("Owner");
+
+                    b.Navigation("QuestionUserAnswers");
 
                     b.Navigation("UserBookLogs");
 
