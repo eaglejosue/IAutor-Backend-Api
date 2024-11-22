@@ -12,7 +12,6 @@ public class QuestionUserAnswer
     public long BookId { get; set; }
     public string Answer { get; set; }
     public long QtdCallIASugestionsUsed { get; set; }
-
     public string? ImagePhotoUrl { get; set; }
     public string? ImagePhotoThumbUrl { get; set; }
     public string? ImagePhotoLabel { get; set; }
