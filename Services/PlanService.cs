@@ -46,7 +46,7 @@ public sealed class PlanService(
 
         #endregion
 
-        var query = db.Plans.Where(predicate);
+        var query = db.Plans.Include(r=>r.PlanChapters).Where(predicate);
 
         #region OrderBy
 
@@ -200,6 +200,7 @@ public sealed class PlanService(
                         Id = pcq.Question.Id,
                         Title = pcq.Question.Title,
                         MaxLimitCharacters = pcq.Question.MaxLimitCharacters,
+                        Subject = pcq.Question.Subject,
                         MinLimitCharacters = pcq.Question.MinLimitCharacters,
                         QuestionUserAnswers = pcq.Question.QuestionUserAnswers
                             .Where(w => w.BookId == bookId && w.UserId == loggedUserId).ToList()
