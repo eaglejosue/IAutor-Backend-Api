@@ -16,6 +16,7 @@ public sealed class User : Base
     public bool? ResetPassword { get; private set; }
     public Guid? ResetPasswordCode { get; private set; }
     public DateTime? ResetPasswordAt { get; private set; }
+    public DateTime? AcceptedTermsAt { get; set; }
 
     public ICollection<Email>? Emails { get; set; }
     public ICollection<Order>? Orders { get; set; }

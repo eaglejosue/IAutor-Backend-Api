@@ -52,6 +52,7 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.Property(u => u.ResetPassword).HasColumnType("boolean").HasColumnName("reset_password");
             entity.Property(u => u.ResetPasswordCode).HasColumnType("varchar(50)").HasColumnName("reset_password_code");
             entity.Property(u => u.ResetPasswordAt).HasColumnType("timestamp").HasColumnName("reset_password_at");
+            entity.Property(u => u.AcceptedTermsAt).HasColumnType("timestamp").HasColumnName("accepted_terms_at");
         });
 
         b.Entity<Email>(entity =>

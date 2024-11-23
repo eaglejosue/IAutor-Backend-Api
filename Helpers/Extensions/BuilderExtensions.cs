@@ -134,7 +134,6 @@ public static class BuilderExtensions
         builder.Services.AddScoped<INotificationService, NotificationService>();
         builder.Services.AddScoped<ILoginService, LoginService>();
         builder.Services.AddScoped<ITokenService, TokenService>();
-        builder.Services.AddScoped<IHttpEmail, HttpEmail>();
 
         builder.Services.AddScoped<IBookService, BookService>();
         builder.Services.AddScoped<IEmailService, EmailService>();
@@ -150,5 +149,9 @@ public static class BuilderExtensions
 
         builder.Services.Configure<IuguConfig>(config.GetSection("IuguConfig"));
         builder.Services.AddScoped<IIuguIntegrationService, IuguIntegrationService>();
+
+        builder.Services.Configure<Smtp>(config.GetSection("Smtp"));
+        builder.Services.Configure<Config>(config.GetSection("Config"));
+        builder.Services.AddScoped<IEmailSender, EmailSender>();
     }
 }

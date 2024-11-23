@@ -11,5 +11,6 @@ public record AuthenticatedUser(
     long LastBookId,
     long PlanId,
     bool IsValid,
+    bool TermsAccepted,
     string Token
 );

@@ -66,6 +66,7 @@ public sealed class LoginService(
             book.Id,
             book.PlanId,
             !string.IsNullOrEmpty(user.Cpf) && user.BirthDate.HasValue,
+            user.AcceptedTermsAt.HasValue,
             tokenService.GenerateToken(user));
     }
 

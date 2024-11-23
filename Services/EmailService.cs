@@ -8,11 +8,17 @@ public interface IEmailService
     Task<Email?> UpdateAsync(Email model);
     Task<Email?> PatchAsync(Email model);
     Task<bool?> DeleteAsync(long id);
+
+    Task SendEmailActivateAccountByIdAsync(long id);
+    Task SendEmailForgotPasswordByIdAsync(long id);
 }
 
 public sealed class EmailService(
     IAutorDb db,
-    INotificationService notification) : IEmailService
+    INotificationService notification,
+    IOptions<Config> config,
+    IEmailSender emailSender,
+    ILogger<EmailService> logger) : IEmailService
 {
     public async Task<Email?> GetByIdAsync(long id) => await db.Emails.FirstOrDefaultAsync(f => f.Id == id).ConfigureAwait(false);
 
@@ -126,5 +132,64 @@ public sealed class EmailService(
         await db.SaveChangesAsync().ConfigureAwait(false);
 
         return true;
+    }
+
+
+    public async Task SendEmailActivateAccountByIdAsync(long id)
+    {
+        logger.LogInformation("{DT} | SendEmailActivateAccountByIdAsync | E-mail Id: {I}", DateTimeBr.Now.ToString("dd/MM/yyyy HH:mm:ss"), id);
+
+        await SendAsync(PredicateBuilder.New<Email>(p => p.Id == id && p.DateSent == null), config.Value.Subject.ActivateAccount, email =>
+        {
+            return Templates.ActivateAccount
+                .Replace("{UrlLogo}", config.Value.UrlLogo)
+                .Replace("{UrlButton}", string.Concat(config.Value.UrlLogo, "/login?code=", email.User!.ActivationCode.ToString()))
+                .Replace("{Name}", email.User.ToString());
+        });
+    }
+
+    public async Task SendEmailForgotPasswordByIdAsync(long id)
+    {
+        logger.LogInformation("{DT} | SendEmailForgotPasswordByIdAsync | E-mail Id: {I}", DateTimeBr.Now.ToString("dd/MM/yyyy HH:mm:ss"), id);
+
+        await SendAsync(PredicateBuilder.New<Email>(p => p.Id == id && p.DateSent == null), config.Value.Subject.ForgotPassword, email =>
+        {
+            return Templates.ForgotPassword
+                .Replace("{UrlLogo}", config.Value.UrlLogo)
+                .Replace("{UrlButton}", string.Concat(config.Value.UrlLogo, "/reset-password?code=", email.User!.ResetPasswordCode.ToString()))
+                .Replace("{Name}", email.User.ToString());
+        });
+    }
+
+    private async Task SendAsync(ExpressionStarter<Email> predicate, string subject, Func<Email, string> getTemplate)
+    {
+        logger.LogInformation("{DT} | Send e-mail | Predicate: {P} | Subject: {S}", DateTimeBr.Now.ToString("dd/MM/yyyy HH:mm:ss"), predicate.ToString(), subject);
+
+        var query = db.Emails.AsQueryable();
+        query = query.Include(i => i.User);
+
+        var emails = await query
+        .Where(predicate)
+            .Take(10)
+            .ToListAsync()
+            .ConfigureAwait(false);
+
+        logger.LogInformation("{DT} | Send e-mail | E-mails found: {C}", DateTimeBr.Now.ToString("dd/MM/yyyy HH:mm:ss"), emails.Count);
+
+        if (emails.Count == 0)
+            return;
+
+        await Parallel.ForEachAsync(emails, async (email, _) =>
+        {
+            await emailSender.SendAsync(
+                recipient: email.User!.Email,
+                subject: subject,
+                message: getTemplate.Invoke(email),
+                onSuccess: email.SendSuccess,
+                onError: email.SendError);
+        });
+
+        db.Emails.UpdateRange(emails);
+        await db.SaveChangesAsync().ConfigureAwait(false);
     }
 }

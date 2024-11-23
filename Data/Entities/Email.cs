@@ -18,11 +18,26 @@ public sealed class Email : Base
         long userId,
         EmailType emailType,
         DateTime? scheduleDate = null,
-        long? BookId = null)
+        long? bookId = null)
     {
         UserId = userId;
         EmailType = emailType;
         ScheduleDate = scheduleDate;
-        BookId = BookId;
+        BookId = bookId;
+    }
+
+    public void SendSuccess()
+    {
+        DateSent = DateTimeBr.Now;
+        UpdatedAt = DateTimeBr.Now;
+        SendAttempts ??= 0;
+        SendAttempts++;
+    }
+
+    public void SendError()
+    {
+        UpdatedAt = DateTimeBr.Now;
+        SendAttempts ??= 0;
+        SendAttempts++;
     }
 }
