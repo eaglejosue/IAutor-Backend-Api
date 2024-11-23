@@ -8,6 +8,7 @@ public interface IUserService
     Task<User?> UpdateAsync(User model, long loggedUserId, string loggedUserName);
     Task<User?> PatchAsync(User model, long loggedUserId, string loggedUserName);
     Task<bool?> DeleteAsync(long id, long loggedUserId, string loggedUserName);
+    Task SetAcceptedTermsAt(long id);
     Task<UserBookLog?> CreateUserBookLogAsync(UserBookLog model);
     Task<UserLog?> CreateUserLogAsync(UserLog model);
 }
@@ -15,7 +16,6 @@ public interface IUserService
 public sealed class UserService(
     IAutorDb db,
     IEmailService emailService,
-    IHttpEmail httpEmail,
     INotificationService notification) : IUserService
 {
     public async Task<User?> GetByIdAsync(long id) => await db.Users.FirstOrDefaultAsync(f => f.Id == id).ConfigureAwait(false);
@@ -122,7 +122,7 @@ public sealed class UserService(
         if (model.SignInWith.Equals(SignIn.Default.ToString(), StringComparison.CurrentCultureIgnoreCase))
         {
             var newEmail = await emailService.CreateAsync(new Email(newEntitie.Id, EmailType.UserActivation));
-            await httpEmail.SendActivateAccountAsync(newEmail!.Id);
+            await emailService.SendEmailActivateAccountByIdAsync(newEmail!.Id);
         }
 
         //Get Plan and create new Book
@@ -241,6 +241,16 @@ public sealed class UserService(
         await CreateUserLogAsync(new UserLog(loggedUserId, string.Format("User Id {0} Deleted", id)));
 
         return true;
+    }
+
+    public async Task SetAcceptedTermsAt(long id)
+    {
+        var entitie = await GetByIdAsync(id);
+        if (entitie == null) return;
+
+        entitie.AcceptedTermsAt = DateTimeBr.Now;
+        db.Users.Update(entitie);
+        await db.SaveChangesAsync().ConfigureAwait(false);
     }
 
     public async Task<UserBookLog?> CreateUserBookLogAsync(UserBookLog model)

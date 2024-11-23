@@ -15,7 +15,6 @@ public sealed class LoginService(
     IUserService userService,
     ITokenService tokenService,
     IEmailService emailService,
-    IHttpEmail httpEmail,
     INotificationService notification) : ILoginService
 {
     public async Task<AuthenticatedUser?> LoginAsync(Login login, User? user = null, bool fromActivationCode = false)
@@ -133,7 +132,7 @@ public sealed class LoginService(
         await db.SaveChangesAsync().ConfigureAwait(false);
 
         var newEmail = await emailService.CreateAsync(new Email(user.Id, EmailType.ForgotPassword));
-        await httpEmail.SendForgotPasswordAsync(newEmail!.Id);
+        await emailService.SendEmailForgotPasswordByIdAsync(newEmail!.Id);
     }
 
     public async Task<bool> CheckResetPasswordCodeAsync(Guid resetPasswordCode) =>

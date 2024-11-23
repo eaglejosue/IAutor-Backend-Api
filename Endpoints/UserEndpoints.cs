@@ -133,6 +133,27 @@ public static class UserEndpoints
         })
         .RequireAuthorization("Admin");
 
+        app.MapPut("/api/users/accepted-terms/{id:long}",
+        async (
+            long id,
+            [FromServices] IUserService service,
+            [FromServices] INotificationService notification,
+            HttpContext context) =>
+        {
+            await service.SetAcceptedTermsAt(id);
+            if (notification.HasNotifications) return Results.BadRequest(notification.Notifications);
+            return Results.Ok();
+        })
+        .Produces((int)HttpStatusCode.OK)
+        .WithName("SetAcceptedTermsAt")
+        .WithOpenApi(x => new OpenApiOperation(x)
+        {
+            Summary = $"Set {ModelName} AcceptedTermsAt.",
+            Description = $"This endpoint receives an Id through the header and set the AcceptedTermsAt Datetime in {ModelName}. It produces a 200 status code.",
+            Tags = tag
+        })
+        .RequireAuthorization("Update");
+
         app.MapPost("/api/users/book-log",
         async (
             UserBookLog model,

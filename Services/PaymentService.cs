@@ -14,7 +14,6 @@ public interface IPaymentService
 public sealed class PaymentService(
     IAutorDb db,
     IEmailService emailService,
-    IHttpEmail httpEmail,
     INotificationService notification,
     ILogger<PaymentService> logger) : IPaymentService
 {
@@ -173,7 +172,7 @@ public sealed class PaymentService(
             ));
 
             logger.LogInformation("Payment - UpdateStatusAsync | Book Released, calling Email API");
-            await httpEmail.SendBookReleaseAsync(newEmail!.Id);
+            //await emailService.SendBookReleaseAsync(newEmail!.Id);
         }
 
         return addResult.Entity;
