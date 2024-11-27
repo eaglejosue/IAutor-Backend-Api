@@ -190,7 +190,7 @@ public sealed class PlanService(
                 Id = g.Key.Id,
                 Title = g.Key.Title,
                 MaxQtdCallIASugestions = g.Key.MaxQtdCallIASugestions,
-                Chapters = g.Select(pc => new Chapter
+                Chapters = g.OrderBy(pc => pc.Chapter.ChapterNumber).Select(pc => new Chapter
                 {
                     Id = pc.Chapter.Id,
                     Title = pc.Chapter.Title,

@@ -28,9 +28,15 @@ public sealed class LoginService(
 
         user ??= await db.Users.FirstOrDefaultAsync(f => f.Email == login.Email).ConfigureAwait(false);
 
-        if (user == null || (user?.IsActive ?? false) == false)
+        if (user == null)
         {
             notification.AddNotification("Login", "Verifique se o E-mail e Senha estão corretos e tente novamente!");
+            return default;
+        }
+
+        if ((user?.IsActive ?? false) == false)
+        {
+            notification.AddNotification("Login", "Verifique seu E-mail para ativar a conta e tente novamente!");
             return default;
         }
 
