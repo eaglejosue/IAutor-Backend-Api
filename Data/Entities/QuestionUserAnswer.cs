@@ -17,6 +17,8 @@ public class QuestionUserAnswer
     public string? ImagePhotoLabel { get; set; }
     public DateTime? ImagePhotoUploadDate { get; set; }
 
+    public string? ImagePhotoOriginalFileName { get; set; }
+
     [JsonIgnore] public Chapter? Chapter { get; set; }
     [JsonIgnore] public Question? Question { get; set; }
     [JsonIgnore] public User? User { get; set; }

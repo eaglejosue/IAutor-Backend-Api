@@ -1,4 +1,7 @@
-﻿namespace IAutor.Api.Helpers.Extensions;
+﻿using Azure.Storage.Blobs;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace IAutor.Api.Helpers.Extensions;
 
 public static class BuilderExtensions
 {
@@ -20,6 +23,11 @@ public static class BuilderExtensions
         //builder.Services.AddDbContext<IAutorDb>(o => o.UseSqlite("DataSource=IAutor.db;Cache=Shared", b => b.MigrationsAssembly("IAutor.Api")));
 
         builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options => options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+        builder.Services.AddSingleton<IAzureBlobServiceClient>(x =>
+        {
+            var blobServiceClient = new AzureBlobServiceClient(new BlobServiceClient(config.GetSection("AzureBlobStorageConnString").Value));
+            return blobServiceClient;
+        });
         builder.AddSwagger();
         builder.AddSecurity(config);
         builder.AddCors(config);

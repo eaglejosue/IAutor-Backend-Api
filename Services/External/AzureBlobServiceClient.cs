@@ -46,9 +46,11 @@ public class AzureBlobServiceClient(BlobServiceClient blobServiceClient) : IAzur
 
     public async Task DeleteFileAsync(string containerName, string fileNameOrUrl)
     {
-        var container = await GetContainerReferenceAsync(containerName).ConfigureAwait(false);
-        var blob = container.GetBlobClient(fileNameOrUrl);
-        await blob.DeleteIfExistsAsync().ConfigureAwait(false);
+       
+            var container = await GetContainerReferenceAsync(containerName).ConfigureAwait(false);
+            var blob = container.GetBlobClient(fileNameOrUrl);
+            await blob.DeleteIfExistsAsync().ConfigureAwait(false);
+  
     }
 
     private async Task<BlobDownloadResult> DownloadContentAsync(string containerName, string fileNameOrUrl)
