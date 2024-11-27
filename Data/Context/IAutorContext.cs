@@ -343,6 +343,7 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.Property(u => u.ImagePhotoThumbUrl).HasColumnType("varchar(1000)").HasColumnName("image_photo_thumb_url");
             entity.Property(u => u.ImagePhotoUrl).HasColumnType("varchar(1000)").HasColumnName("image_photo_url");
             entity.Property(u => u.ImagePhotoUploadDate).HasColumnType("timestamp").HasColumnName("image_photo_upload_date");
+            entity.Property(u => u.ImagePhotoOriginalFileName).HasColumnType("varchar(200)").HasColumnName("image_photo_original_file_name");
 
             entity.Property(u => u.ChapterId).HasColumnType("bigint").HasColumnName("chapter_id");
             entity.Property(u => u.QuestionId).HasColumnType("bigint").HasColumnName("question_id");

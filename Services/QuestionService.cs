@@ -1,4 +1,7 @@
-﻿namespace IAutor.Api.Services;
+﻿
+using System.Reflection.Emit;
+
+namespace IAutor.Api.Services;
 
 public interface IQuestionService
 {
@@ -10,12 +13,16 @@ public interface IQuestionService
     Task<bool?> DeleteAsync(long id, long loggedUserId, string loggedUserName);
     Task UpsertQuestionUserAnswerAsync(QuestionUserAnswer model, long loggedUserId, string loggedUserName);
     Task<List<QuestionUserAnswer>> GetQuestionUserAnswersAsync(long loggedUserId, long bookId);
+    Task UploadPhotoQuestionUserAnswer(long idQuestionUserAnwser, IFormFile file,string label, long loggedUserId, string loggedUserName);
+
+    Task UpdateQuestionUserPhotoAnswerAsync(QuestionUserAnswer model, long loggedUserId, string loggedUserName);
 }
 
 public sealed class QuestionService(
     IAutorDb db,
     INotificationService notification,
-    IUserService userService) : IQuestionService
+    IUserService userService,
+    IAzureBlobServiceClient azureBlobServiceClient) : IQuestionService
 {
     public async Task<Question?> GetByIdAsync(long id) => await db.Questions.FirstOrDefaultAsync(f => f.Id == id).ConfigureAwait(false);
 
@@ -193,4 +200,54 @@ public sealed class QuestionService(
 
         return await db.QuestionUserAnswers.Where(w => w.BookId == bookId && w.UserId == loggedUserId).ToListAsync().ConfigureAwait(false);
     }
+
+    public async Task UploadPhotoQuestionUserAnswer(long idQuestionUserAnwser, IFormFile file,string label, long loggedUserId, string loggedUserName)
+    {
+        var questionUserAnwers = await db.QuestionUserAnswers.FirstOrDefaultAsync(r => r.Id == idQuestionUserAnwser);
+        if(questionUserAnwers == null)
+        {
+            notification.AddNotification("QuestionUserAnswer", "QuestionUserAnswer not found.");
+            return;
+        }
+        questionUserAnwers.ImagePhotoOriginalFileName = file.FileName;
+        questionUserAnwers.ImagePhotoUploadDate = DateTime.Now;
+        questionUserAnwers.ImagePhotoLabel = label;
+        questionUserAnwers.UpdatedAt = DateTimeBr.Now;
+        questionUserAnwers.UpdatedBy = loggedUserName;
+        var nameFile = Guid.NewGuid().ToString()+ "."+ file.FileName.Substring(file.FileName.LastIndexOf(".")+1);
+        using var stream = file.OpenReadStream();
+        var uploaded = await azureBlobServiceClient.UploadFileFromStreamAsync("photos", nameFile, stream);
+        questionUserAnwers.ImagePhotoUrl = uploaded;
+        db.QuestionUserAnswers.Update(questionUserAnwers);
+        await db.SaveChangesAsync().ConfigureAwait(false);
+    }
+
+    public async Task UpdateQuestionUserPhotoAnswerAsync(QuestionUserAnswer model, long loggedUserId, string loggedUserName)
+    {
+        var questionUserAnwers = await db.QuestionUserAnswers.FirstOrDefaultAsync(r => r.Id == model.Id);
+        if (questionUserAnwers == null)
+        {
+            notification.AddNotification("QuestionUserAnswer", "QuestionUserAnswer not found.");
+            return;
+        }
+        questionUserAnwers.ImagePhotoLabel = null;
+        questionUserAnwers.UpdatedAt = DateTimeBr.Now;
+        questionUserAnwers.UpdatedBy = loggedUserName;
+        questionUserAnwers.ImagePhotoOriginalFileName = null;
+        await RemovePhotoStorage(questionUserAnwers, model);
+        questionUserAnwers.ImagePhotoUrl = null;
+        questionUserAnwers.ImagePhotoUploadDate = null;
+       
+        await db.SaveChangesAsync().ConfigureAwait(false);
+    }
+
+    private async Task RemovePhotoStorage(QuestionUserAnswer questionUserAnswer, QuestionUserAnswer model)
+    {
+        if (questionUserAnswer.ImagePhotoUrl !=null && (model.ImagePhotoUrl==null || string.IsNullOrEmpty(model.ImagePhotoUrl)))  //removendo a foto 
+        {
+            await azureBlobServiceClient.DeleteFileAsync("photos", questionUserAnswer.ImagePhotoUrl);
+        }
+    }
+
+   
 }
