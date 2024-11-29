@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-
-namespace IAutor.Api.Endpoints;
+﻿namespace IAutor.Api.Endpoints;
 
 public static class QuestionEndpoint
 {
@@ -184,11 +182,14 @@ public static class QuestionEndpoint
         .RequireAuthorization("Create");
 
 
-       app.MapPost("/api/questions/uploadPhotoQuestionUserAnswer/{idQuestionUserAnwser:long}/{label}", 
-            async (long idQuestionUserAnwser, string label,  IFormFile file,
-             [FromServices] IQuestionService service,
+        app.MapPost("/api/questions/uploadPhotoQuestionUserAnswer/{idQuestionUserAnwser:long}/{label}", 
+        async (
+            long idQuestionUserAnwser,
+            string label, 
+            IFormFile file,
+            [FromServices] IQuestionService service,
             [FromServices] INotificationService notification,
-             HttpContext context) =>
+            HttpContext context) =>
         {
             // File upload logic here
             var loggedUserId = TokenExtension.GetUserIdFromToken(context);
@@ -209,26 +210,26 @@ public static class QuestionEndpoint
         .RequireAuthorization("Create");
 
         app.MapPut("/api/questions/user-answers-edit-photos",
-      async (
-          QuestionUserAnswer model,
-          [FromServices] IQuestionService service,
-          [FromServices] INotificationService notification,
-          HttpContext context) =>
-      {
-          var loggedUserId = TokenExtension.GetUserIdFromToken(context);
-          var loggedUserName = TokenExtension.GetUserNameFromToken(context);
-          await service.UpdateQuestionUserPhotoAnswerAsync(model, loggedUserId, loggedUserName);
-          if (notification.HasNotifications) return Results.BadRequest(notification.Notifications);
-          return Results.Ok();
-      })
-      .Produces((int)HttpStatusCode.OK)
-      .WithName("UpdateQuestionUserAnswerPhotos")
-      .WithOpenApi(x => new OpenApiOperation(x)
-      {
-          Summary = "Update a Photo from QuestionUserAnswer",
-          Description = "This endpoint receives a QuestionUserAnswer object as the request body and edit it in the QuestionUserAnswers table. It produces a 200 status code.",
-          Tags = tag
-      })
-      .RequireAuthorization("Update");
+        async (
+            QuestionUserAnswer model,
+            [FromServices] IQuestionService service,
+            [FromServices] INotificationService notification,
+            HttpContext context) =>
+        {
+            var loggedUserId = TokenExtension.GetUserIdFromToken(context);
+            var loggedUserName = TokenExtension.GetUserNameFromToken(context);
+            await service.UpdateQuestionUserPhotoAnswerAsync(model, loggedUserId, loggedUserName);
+            if (notification.HasNotifications) return Results.BadRequest(notification.Notifications);
+            return Results.Ok();
+        })
+        .Produces((int)HttpStatusCode.OK)
+        .WithName("UpdateQuestionUserAnswerPhotos")
+        .WithOpenApi(x => new OpenApiOperation(x)
+        {
+            Summary = "Update a Photo from QuestionUserAnswer",
+            Description = "This endpoint receives a QuestionUserAnswer object as the request body and edit it in the QuestionUserAnswers table. It produces a 200 status code.",
+            Tags = tag
+        })
+        .RequireAuthorization("Update");
     }
 }

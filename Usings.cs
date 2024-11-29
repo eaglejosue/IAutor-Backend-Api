@@ -1,4 +1,5 @@
-﻿global using FluentValidation;
+﻿global using Azure.Storage.Blobs;
+global using FluentValidation;
 global using FluentValidation.Results;
 global using IAutor.Api.Data.Context;
 global using IAutor.Api.Data.Dtos;

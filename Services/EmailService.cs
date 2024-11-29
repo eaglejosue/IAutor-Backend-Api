@@ -143,7 +143,7 @@ public sealed class EmailService(
         {
             return Templates.ActivateAccount
                 .Replace("{UrlLogo}", config.Value.UrlLogo)
-                .Replace("{UrlButton}", string.Concat(config.Value.UrlLogo, "/login?code=", email.User!.ActivationCode.ToString()))
+                .Replace("{UrlButton}", string.Concat(config.Value.UrlApi, "/login?code=", email.User!.ActivationCode.ToString()))
                 .Replace("{Name}", email.User.ToString());
         });
     }
@@ -156,7 +156,7 @@ public sealed class EmailService(
         {
             return Templates.ForgotPassword
                 .Replace("{UrlLogo}", config.Value.UrlLogo)
-                .Replace("{UrlButton}", string.Concat(config.Value.UrlLogo, "/reset-password?code=", email.User!.ResetPasswordCode.ToString()))
+                .Replace("{UrlButton}", string.Concat(config.Value.UrlApi, "/reset-password?code=", email.User!.ResetPasswordCode.ToString()))
                 .Replace("{Name}", email.User.ToString());
         });
     }

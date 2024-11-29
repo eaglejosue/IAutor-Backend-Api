@@ -1,7 +1,4 @@
-﻿using Azure.Storage.Blobs;
-using Microsoft.Extensions.DependencyInjection;
-
-namespace IAutor.Api.Helpers.Extensions;
+﻿namespace IAutor.Api.Helpers.Extensions;
 
 public static class BuilderExtensions
 {
@@ -28,6 +25,7 @@ public static class BuilderExtensions
             var blobServiceClient = new AzureBlobServiceClient(new BlobServiceClient(config.GetSection("AzureBlobStorageConnString").Value));
             return blobServiceClient;
         });
+
         builder.AddSwagger();
         builder.AddSecurity(config);
         builder.AddCors(config);
