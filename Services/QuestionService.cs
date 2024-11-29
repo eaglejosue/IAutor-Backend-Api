@@ -1,4 +1,6 @@
-﻿namespace IAutor.Api.Services;
+﻿using System.Drawing;
+
+namespace IAutor.Api.Services;
 
 public interface IQuestionService
 {
@@ -11,7 +13,6 @@ public interface IQuestionService
     Task UpsertQuestionUserAnswerAsync(QuestionUserAnswer model, long loggedUserId, string loggedUserName);
     Task<List<QuestionUserAnswer>> GetQuestionUserAnswersAsync(long loggedUserId, long bookId);
     Task UploadPhotoQuestionUserAnswer(long idQuestionUserAnwser, IFormFile file, string label, long loggedUserId, string loggedUserName);
-
     Task UpdateQuestionUserPhotoAnswerAsync(QuestionUserAnswer model, long loggedUserId, string loggedUserName);
 }
 
@@ -213,8 +214,9 @@ public sealed class QuestionService(
         questionUserAnwers.UpdatedAt = DateTimeBr.Now;
         questionUserAnwers.UpdatedBy = loggedUserName;
 
-        using var stream = file.OpenReadStream();
         var nameFile = string.Concat(Guid.NewGuid().ToString(), ".", file.FileName.AsSpan(file.FileName.LastIndexOf('.') + 1));
+        var stream = ResizeImage(file, 540, 330);
+
         var uploaded = await azureBlobServiceClient.UploadFileFromStreamAsync("photos", nameFile, stream);
         questionUserAnwers.ImagePhotoUrl = uploaded;
 
@@ -249,5 +251,36 @@ public sealed class QuestionService(
     {
         if (questionUserAnswer.ImagePhotoUrl != null && string.IsNullOrEmpty(model.ImagePhotoUrl))
             await azureBlobServiceClient.DeleteFileAsync("photos", questionUserAnswer.ImagePhotoUrl);
+    }
+
+    private Stream ResizeImage(IFormFile file, int maxWidth, int maxHeight)
+    {
+        using var stream = file.OpenReadStream();
+        byte[] imageBytes;
+        using (Image img = Image.FromStream(stream))
+        {
+            var size = ResizeKeepAspect(new Size(img.Width, img.Height), img.Width > maxWidth ? maxWidth : img.Width, img.Height > maxHeight ? maxHeight : img.Height);
+            using (Bitmap b = new Bitmap(img, size))
+            {
+                using (MemoryStream ms2 = new MemoryStream())
+                {
+                    b.Save(ms2, System.Drawing.Imaging.ImageFormat.Jpeg);
+                    imageBytes = ms2.ToArray();
+
+                    Stream streamRet = new MemoryStream(imageBytes);
+                    return streamRet;
+
+                }
+            }
+        }
+    }
+
+    private static Size ResizeKeepAspect(Size src, int maxWidth, int maxHeight, bool enlarge = false)
+    {
+        maxWidth = enlarge ? maxWidth : Math.Min(maxWidth, src.Width);
+        maxHeight = enlarge ? maxHeight : Math.Min(maxHeight, src.Height);
+
+        decimal rnd = Math.Min(maxWidth / (decimal)src.Width, maxHeight / (decimal)src.Height);
+        return new Size((int)Math.Round(src.Width * rnd), (int)Math.Round(src.Height * rnd));
     }
 }
