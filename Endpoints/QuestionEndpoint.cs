@@ -182,19 +182,16 @@ public static class QuestionEndpoint
         .RequireAuthorization("Create");
 
 
-        app.MapPost("/api/questions/uploadPhotoQuestionUserAnswer/{idQuestionUserAnwser:long}/{label}", 
-        async (
-            long idQuestionUserAnwser,
-            string label, 
-            IFormFile file,
-            [FromServices] IQuestionService service,
+       app.MapPost("/api/questions/uploadPhotoQuestionUserAnswer/{idQuestionUserAnwser:long}", 
+            async (long idQuestionUserAnwser,  IFormFile file,
+             [FromServices] IQuestionService service,
             [FromServices] INotificationService notification,
             HttpContext context) =>
         {
             // File upload logic here
             var loggedUserId = TokenExtension.GetUserIdFromToken(context);
             var loggedUserName = TokenExtension.GetUserNameFromToken(context);
-            await service.UploadPhotoQuestionUserAnswer(idQuestionUserAnwser,  file, label, loggedUserId, loggedUserName);
+            await service.UploadPhotoQuestionUserAnswer(idQuestionUserAnwser,  file, "", loggedUserId, loggedUserName);
             if (notification.HasNotifications) return Results.BadRequest(notification.Notifications);
             return Results.Created();
 
@@ -210,26 +207,43 @@ public static class QuestionEndpoint
         .RequireAuthorization("Create");
 
         app.MapPut("/api/questions/user-answers-edit-photos",
-        async (
-            QuestionUserAnswer model,
-            [FromServices] IQuestionService service,
-            [FromServices] INotificationService notification,
-            HttpContext context) =>
-        {
-            var loggedUserId = TokenExtension.GetUserIdFromToken(context);
-            var loggedUserName = TokenExtension.GetUserNameFromToken(context);
-            await service.UpdateQuestionUserPhotoAnswerAsync(model, loggedUserId, loggedUserName);
-            if (notification.HasNotifications) return Results.BadRequest(notification.Notifications);
-            return Results.Ok();
-        })
-        .Produces((int)HttpStatusCode.OK)
-        .WithName("UpdateQuestionUserAnswerPhotos")
-        .WithOpenApi(x => new OpenApiOperation(x)
-        {
-            Summary = "Update a Photo from QuestionUserAnswer",
-            Description = "This endpoint receives a QuestionUserAnswer object as the request body and edit it in the QuestionUserAnswers table. It produces a 200 status code.",
-            Tags = tag
-        })
-        .RequireAuthorization("Update");
+      async (
+          QuestionUserAnswer model,
+          [FromServices] IQuestionService service,
+          [FromServices] INotificationService notification,
+          HttpContext context) =>
+      {
+          var loggedUserId = TokenExtension.GetUserIdFromToken(context);
+          var loggedUserName = TokenExtension.GetUserNameFromToken(context);
+          await service.UpdateQuestionUserPhotoAnswerAsync(model, loggedUserId, loggedUserName);
+          if (notification.HasNotifications) return Results.BadRequest(notification.Notifications);
+          return Results.Ok();
+      })
+      .Produces((int)HttpStatusCode.OK)
+      .WithName("UpdateQuestionUserAnswerPhotos")
+      .WithOpenApi(x => new OpenApiOperation(x)
+      {
+          Summary = "Update a Photo from QuestionUserAnswer",
+          Description = "This endpoint receives a QuestionUserAnswer object as the request body and edit it in the QuestionUserAnswers table. It produces a 200 status code.",
+          Tags = tag
+      })
+      .RequireAuthorization("Update");
+
+
+        app.MapGet("/api/questions/questions-user-answers/{idUserAnwers:long}",
+      async (long idUserAnwers, [FromServices] IQuestionService service) =>
+      {
+          var entitie = await service.GetQuestionUserAnswersByIdAsync(idUserAnwers);
+          if (entitie is null) return Results.NoContent();
+          return Results.Ok(entitie);
+      })
+      .Produces((int)HttpStatusCode.OK, typeof(Question))
+      .WithName($"QuestionUserAnwerById")
+      .WithOpenApi(x => new OpenApiOperation(x)
+      {
+          Summary = $"Returns oneQuestionUserAnwerById",
+          Description = $"This endpoint receives an Id from the header and searches for it in the QuestionUserAnwerByIds table. It produces a 200 status code.",
+          Tags = tag
+      });
     }
 }

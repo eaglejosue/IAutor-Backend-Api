@@ -12,8 +12,10 @@ public interface IQuestionService
     Task<bool?> DeleteAsync(long id, long loggedUserId, string loggedUserName);
     Task UpsertQuestionUserAnswerAsync(QuestionUserAnswer model, long loggedUserId, string loggedUserName);
     Task<List<QuestionUserAnswer>> GetQuestionUserAnswersAsync(long loggedUserId, long bookId);
-    Task UploadPhotoQuestionUserAnswer(long idQuestionUserAnwser, IFormFile file, string label, long loggedUserId, string loggedUserName);
+    Task UploadPhotoQuestionUserAnswer(long idQuestionUserAnwser, IFormFile file,string label, long loggedUserId, string loggedUserName);
     Task UpdateQuestionUserPhotoAnswerAsync(QuestionUserAnswer model, long loggedUserId, string loggedUserName);
+
+    Task<QuestionUserAnswer> GetQuestionUserAnswersByIdAsync(long idUserQuestionAnswer);
 }
 
 public sealed class QuestionService(
@@ -233,24 +235,23 @@ public sealed class QuestionService(
             notification.AddNotification("QuestionUserAnswer", "QuestionUserAnswer not found.");
             return;
         }
-
-        questionUserAnwers.ImagePhotoLabel = null;
+        questionUserAnwers.ImagePhotoLabel = model.ImagePhotoLabel;
         questionUserAnwers.UpdatedAt = DateTimeBr.Now;
         questionUserAnwers.UpdatedBy = loggedUserName;
-        questionUserAnwers.ImagePhotoOriginalFileName = null;
-
+        questionUserAnwers.ImagePhotoOriginalFileName = model.ImagePhotoOriginalFileName;
         await RemovePhotoStorage(questionUserAnwers, model);
-
-        questionUserAnwers.ImagePhotoUrl = null;
-        questionUserAnwers.ImagePhotoUploadDate = null;
-
+        questionUserAnwers.ImagePhotoUrl = string.IsNullOrWhiteSpace(model.ImagePhotoUrl)? null: model.ImagePhotoUrl;
+        
+       
         await db.SaveChangesAsync().ConfigureAwait(false);
     }
 
     private async Task RemovePhotoStorage(QuestionUserAnswer questionUserAnswer, QuestionUserAnswer model)
     {
-        if (questionUserAnswer.ImagePhotoUrl != null && string.IsNullOrEmpty(model.ImagePhotoUrl))
+        if (questionUserAnswer.ImagePhotoUrl != null && string.IsNullOrEmpty(model.ImagePhotoUrl)) 
+        { 
             await azureBlobServiceClient.DeleteFileAsync("photos", questionUserAnswer.ImagePhotoUrl);
+        }
     }
 
     private static Stream ResizeImage(IFormFile file, int maxWidth, int maxHeight)
@@ -259,7 +260,7 @@ public sealed class QuestionService(
         byte[] imageBytes;
         using (Image img = Image.FromStream(stream))
         {
-            var size = ResizeKeepAspect(new Size(img.Width, img.Height), img.Width > maxWidth ? maxWidth : img.Width, img.Height > maxHeight ? maxHeight : img.Height);
+            var size =  ResizeKeepAspect(new Size(img.Width, img.Height), img.Width > maxWidth ? maxWidth : img.Width, img.Height > maxHeight ? maxHeight : img.Height);
             using (Bitmap b = new Bitmap(img, size))
             {
                 using (MemoryStream ms2 = new MemoryStream())
@@ -282,5 +283,16 @@ public sealed class QuestionService(
 
         decimal rnd = Math.Min(maxWidth / (decimal)src.Width, maxHeight / (decimal)src.Height);
         return new Size((int)Math.Round(src.Width * rnd), (int)Math.Round(src.Height * rnd));
+    }
+
+    public async Task<QuestionUserAnswer> GetQuestionUserAnswersByIdAsync(long idUserQuestionAnswer)
+    {
+        var questionUserAnwers = await db.QuestionUserAnswers.FirstOrDefaultAsync(r => r.Id == idUserQuestionAnswer);
+        if (questionUserAnwers == null)
+        {
+            notification.AddNotification("QuestionUserAnswer", "QuestionUserAnswer not found.");
+            return null;
+        }
+        return questionUserAnwers;
     }
 }
