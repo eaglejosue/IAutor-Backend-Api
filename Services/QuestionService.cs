@@ -253,7 +253,7 @@ public sealed class QuestionService(
             await azureBlobServiceClient.DeleteFileAsync("photos", questionUserAnswer.ImagePhotoUrl);
     }
 
-    private Stream ResizeImage(IFormFile file, int maxWidth, int maxHeight)
+    private static Stream ResizeImage(IFormFile file, int maxWidth, int maxHeight)
     {
         using var stream = file.OpenReadStream();
         byte[] imageBytes;
