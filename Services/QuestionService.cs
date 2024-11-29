@@ -1,4 +1,6 @@
 ﻿
+using System.Collections;
+using System.Drawing;
 using System.Reflection.Emit;
 
 namespace IAutor.Api.Services;
@@ -215,13 +217,17 @@ public sealed class QuestionService(
         questionUserAnwers.UpdatedAt = DateTimeBr.Now;
         questionUserAnwers.UpdatedBy = loggedUserName;
         var nameFile = Guid.NewGuid().ToString()+ "."+ file.FileName.Substring(file.FileName.LastIndexOf(".")+1);
-        using var stream = file.OpenReadStream();
+
+        var stream = resizeImage(file,540,330);
+
         var uploaded = await azureBlobServiceClient.UploadFileFromStreamAsync("photos", nameFile, stream);
         questionUserAnwers.ImagePhotoUrl = uploaded;
         db.QuestionUserAnswers.Update(questionUserAnwers);
         await db.SaveChangesAsync().ConfigureAwait(false);
     }
 
+
+   
     public async Task UpdateQuestionUserPhotoAnswerAsync(QuestionUserAnswer model, long loggedUserId, string loggedUserName)
     {
         var questionUserAnwers = await db.QuestionUserAnswers.FirstOrDefaultAsync(r => r.Id == model.Id);
@@ -249,5 +255,33 @@ public sealed class QuestionService(
         }
     }
 
-   
+    private Stream resizeImage(IFormFile file, int maxWidth, int maxHeight)
+    {
+        using var stream = file.OpenReadStream();
+        byte[] imageBytes;
+        using (Image img = Image.FromStream(stream))
+        {
+            var size = ResizeKeepAspect(new Size(img.Width, img.Height), img.Width > maxWidth ? maxWidth : img.Width, img.Height > maxHeight ? maxHeight : img.Height);
+            using (Bitmap b = new Bitmap(img, size))
+            {
+                using (MemoryStream ms2 = new MemoryStream())
+                {
+                    b.Save(ms2, System.Drawing.Imaging.ImageFormat.Jpeg);
+                    imageBytes = ms2.ToArray();
+
+                    Stream streamRet = new MemoryStream(imageBytes);
+                    return streamRet;
+
+                }
+            }
+        }
+    }
+    public static Size ResizeKeepAspect(Size src, int maxWidth, int maxHeight, bool enlarge = false)
+    {
+        maxWidth = enlarge ? maxWidth : Math.Min(maxWidth, src.Width);
+        maxHeight = enlarge ? maxHeight : Math.Min(maxHeight, src.Height);
+
+        decimal rnd = Math.Min(maxWidth / (decimal)src.Width, maxHeight / (decimal)src.Height);
+        return new Size((int)Math.Round(src.Width * rnd), (int)Math.Round(src.Height * rnd));
+    }
 }
