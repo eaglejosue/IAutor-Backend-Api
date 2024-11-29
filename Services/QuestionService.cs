@@ -248,9 +248,9 @@ public sealed class QuestionService(
 
     private async Task RemovePhotoStorage(QuestionUserAnswer questionUserAnswer, QuestionUserAnswer model)
     {
-        if (questionUserAnswer.ImagePhotoUrl != null && string.IsNullOrEmpty(model.ImagePhotoUrl))
+        if (questionUserAnswer.ImagePhotoUrl != null && string.IsNullOrEmpty(model.ImagePhotoUrl)) 
+        { 
             await azureBlobServiceClient.DeleteFileAsync("photos", questionUserAnswer.ImagePhotoUrl);
-            
         }
     }
 
@@ -260,7 +260,7 @@ public sealed class QuestionService(
         byte[] imageBytes;
         using (Image img = Image.FromStream(stream))
         {
-            var size = ResizeKeepAspect(new Size(img.Width, img.Height), img.Width > maxWidth ? maxWidth : img.Width, img.Height > maxHeight ? maxHeight : img.Height);
+            var size =  ResizeKeepAspect(new Size(img.Width, img.Height), img.Width > maxWidth ? maxWidth : img.Width, img.Height > maxHeight ? maxHeight : img.Height);
             using (Bitmap b = new Bitmap(img, size))
             {
                 using (MemoryStream ms2 = new MemoryStream())
