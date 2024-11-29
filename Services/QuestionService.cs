@@ -1,7 +1,4 @@
-﻿
-using System.Collections;
-using System.Drawing;
-using System.Reflection.Emit;
+﻿using System.Drawing;
 
 namespace IAutor.Api.Services;
 
@@ -204,34 +201,35 @@ public sealed class QuestionService(
         return await db.QuestionUserAnswers.Where(w => w.BookId == bookId && w.UserId == loggedUserId).ToListAsync().ConfigureAwait(false);
     }
 
-    public async Task UploadPhotoQuestionUserAnswer(long idQuestionUserAnwser, IFormFile file,string label, long loggedUserId, string loggedUserName)
+    public async Task UploadPhotoQuestionUserAnswer(long idQuestionUserAnwser, IFormFile file, string label, long loggedUserId, string loggedUserName)
     {
         var questionUserAnwers = await db.QuestionUserAnswers.FirstOrDefaultAsync(r => r.Id == idQuestionUserAnwser);
-        if(questionUserAnwers == null)
+        if (questionUserAnwers == null)
         {
             notification.AddNotification("QuestionUserAnswer", "QuestionUserAnswer not found.");
             return;
         }
+
         questionUserAnwers.ImagePhotoOriginalFileName = file.FileName;
         questionUserAnwers.ImagePhotoUploadDate = DateTime.Now;
         questionUserAnwers.ImagePhotoLabel = label;
         questionUserAnwers.UpdatedAt = DateTimeBr.Now;
         questionUserAnwers.UpdatedBy = loggedUserName;
-        var nameFile = Guid.NewGuid().ToString()+ "."+ file.FileName.Substring(file.FileName.LastIndexOf(".")+1);
 
-        var stream = resizeImage(file,540,330);
+        var nameFile = string.Concat(Guid.NewGuid().ToString(), ".", file.FileName.AsSpan(file.FileName.LastIndexOf('.') + 1));
+        var stream = ResizeImage(file, 540, 330);
 
         var uploaded = await azureBlobServiceClient.UploadFileFromStreamAsync("photos", nameFile, stream);
         questionUserAnwers.ImagePhotoUrl = uploaded;
+
         db.QuestionUserAnswers.Update(questionUserAnwers);
         await db.SaveChangesAsync().ConfigureAwait(false);
     }
 
-
-   
     public async Task UpdateQuestionUserPhotoAnswerAsync(QuestionUserAnswer model, long loggedUserId, string loggedUserName)
     {
         var questionUserAnwers = await db.QuestionUserAnswers.FirstOrDefaultAsync(r => r.Id == model.Id);
+
         if (questionUserAnwers == null)
         {
             notification.AddNotification("QuestionUserAnswer", "QuestionUserAnswer not found.");
@@ -250,14 +248,13 @@ public sealed class QuestionService(
 
     private async Task RemovePhotoStorage(QuestionUserAnswer questionUserAnswer, QuestionUserAnswer model)
     {
-        if (questionUserAnswer.ImagePhotoUrl !=null && (model.ImagePhotoUrl==null || string.IsNullOrEmpty(model.ImagePhotoUrl)))  //removendo a foto 
-        {
+        if (questionUserAnswer.ImagePhotoUrl != null && string.IsNullOrEmpty(model.ImagePhotoUrl))
             await azureBlobServiceClient.DeleteFileAsync("photos", questionUserAnswer.ImagePhotoUrl);
             
         }
     }
 
-    private Stream resizeImage(IFormFile file, int maxWidth, int maxHeight)
+    private static Stream ResizeImage(IFormFile file, int maxWidth, int maxHeight)
     {
         using var stream = file.OpenReadStream();
         byte[] imageBytes;
@@ -278,7 +275,8 @@ public sealed class QuestionService(
             }
         }
     }
-    public static Size ResizeKeepAspect(Size src, int maxWidth, int maxHeight, bool enlarge = false)
+
+    private static Size ResizeKeepAspect(Size src, int maxWidth, int maxHeight, bool enlarge = false)
     {
         maxWidth = enlarge ? maxWidth : Math.Min(maxWidth, src.Width);
         maxHeight = enlarge ? maxHeight : Math.Min(maxHeight, src.Height);

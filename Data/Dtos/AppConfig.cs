@@ -2,6 +2,7 @@
 
 public sealed class Config
 {
+    public required string UrlApi { get; set; }
     public required string UrlLogo { get; set; }
     public required SubjectEmail Subject { get; set; }
 

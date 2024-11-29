@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-
-namespace IAutor.Api.Endpoints;
+﻿namespace IAutor.Api.Endpoints;
 
 public static class QuestionEndpoint
 {
@@ -188,7 +186,7 @@ public static class QuestionEndpoint
             async (long idQuestionUserAnwser,  IFormFile file,
              [FromServices] IQuestionService service,
             [FromServices] INotificationService notification,
-             HttpContext context) =>
+            HttpContext context) =>
         {
             // File upload logic here
             var loggedUserId = TokenExtension.GetUserIdFromToken(context);
