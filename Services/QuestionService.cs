@@ -16,8 +16,9 @@ public interface IQuestionService
     Task UpsertQuestionUserAnswerAsync(QuestionUserAnswer model, long loggedUserId, string loggedUserName);
     Task<List<QuestionUserAnswer>> GetQuestionUserAnswersAsync(long loggedUserId, long bookId);
     Task UploadPhotoQuestionUserAnswer(long idQuestionUserAnwser, IFormFile file,string label, long loggedUserId, string loggedUserName);
-
     Task UpdateQuestionUserPhotoAnswerAsync(QuestionUserAnswer model, long loggedUserId, string loggedUserName);
+
+    Task<QuestionUserAnswer> GetQuestionUserAnswersByIdAsync(long idUserQuestionAnswer);
 }
 
 public sealed class QuestionService(
@@ -236,13 +237,13 @@ public sealed class QuestionService(
             notification.AddNotification("QuestionUserAnswer", "QuestionUserAnswer not found.");
             return;
         }
-        questionUserAnwers.ImagePhotoLabel = null;
+        questionUserAnwers.ImagePhotoLabel = model.ImagePhotoLabel;
         questionUserAnwers.UpdatedAt = DateTimeBr.Now;
         questionUserAnwers.UpdatedBy = loggedUserName;
-        questionUserAnwers.ImagePhotoOriginalFileName = null;
+        questionUserAnwers.ImagePhotoOriginalFileName = model.ImagePhotoOriginalFileName;
         await RemovePhotoStorage(questionUserAnwers, model);
-        questionUserAnwers.ImagePhotoUrl = null;
-        questionUserAnwers.ImagePhotoUploadDate = null;
+        questionUserAnwers.ImagePhotoUrl = string.IsNullOrWhiteSpace(model.ImagePhotoUrl)? null: model.ImagePhotoUrl;
+        
        
         await db.SaveChangesAsync().ConfigureAwait(false);
     }
@@ -252,6 +253,7 @@ public sealed class QuestionService(
         if (questionUserAnswer.ImagePhotoUrl !=null && (model.ImagePhotoUrl==null || string.IsNullOrEmpty(model.ImagePhotoUrl)))  //removendo a foto 
         {
             await azureBlobServiceClient.DeleteFileAsync("photos", questionUserAnswer.ImagePhotoUrl);
+            
         }
     }
 
@@ -283,5 +285,16 @@ public sealed class QuestionService(
 
         decimal rnd = Math.Min(maxWidth / (decimal)src.Width, maxHeight / (decimal)src.Height);
         return new Size((int)Math.Round(src.Width * rnd), (int)Math.Round(src.Height * rnd));
+    }
+
+    public async Task<QuestionUserAnswer> GetQuestionUserAnswersByIdAsync(long idUserQuestionAnswer)
+    {
+        var questionUserAnwers = await db.QuestionUserAnswers.FirstOrDefaultAsync(r => r.Id == idUserQuestionAnswer);
+        if (questionUserAnwers == null)
+        {
+            notification.AddNotification("QuestionUserAnswer", "QuestionUserAnswer not found.");
+            return null;
+        }
+        return questionUserAnwers;
     }
 }
