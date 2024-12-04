@@ -1,4 +1,7 @@
-﻿namespace IAutor.Api.Data.Context;
+﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+
+namespace IAutor.Api.Data.Context;
 
 public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbContext(o)
 {
@@ -18,6 +21,8 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
     public DbSet<PlanChapter> PlansChapters => Set<PlanChapter>();
     public DbSet<PlanChapterQuestion> PlansChapterQuestions => Set<PlanChapterQuestion>();
     public DbSet<QuestionUserAnswer> QuestionUserAnswers => Set<QuestionUserAnswer>();
+
+    public DbSet<ItemPlan> ItensPlan => Set<ItemPlan>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder o)
     {
@@ -234,6 +239,9 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.HasOne(u => u.User).WithMany(u => u.UserLogs).HasForeignKey(u => u.UserId).IsRequired().OnDelete(DeleteBehavior.Restrict);
         });
 
+
+
+
         b.Entity<Plan>(entity =>
         {
             entity.ToTable("plans");
@@ -252,6 +260,24 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.Property(u => u.FinalValidityPeriod).HasColumnType("timestamp").HasColumnName("final_validity_period");
             entity.Property(u => u.MaxQtdCallIASugestions).HasColumnType("smallint").HasColumnName("max_qtd_call_ia_sugestions");
             entity.Property(u => u.CaractersLimitFactor).HasColumnType("smallint").HasColumnName("caracters_limit_factor");
+            entity.Property(v => v.Description).HasColumnType("varchar(500)").HasColumnName("description");
+         
+
+        });
+
+        b.Entity<ItemPlan>(entity =>
+        {
+            entity.ToTable("item_plan");
+            entity.Property(u => u.Id).HasColumnName("id");
+            entity.HasKey(u => u.Id);
+            entity.Property(v => v.IsActive).IsRequired().HasColumnType("boolean").HasColumnName("is_active");
+            entity.Property(u => u.CreatedAt).IsRequired().HasColumnType("timestamp").HasColumnName("created_at");
+            entity.Property(u => u.UpdatedAt).HasColumnType("timestamp").HasColumnName("updated_at");
+            entity.Property(u => u.DeletedAt).HasColumnType("timestamp").HasColumnName("deleted_at");
+            entity.Property(u => u.UpdatedBy).HasColumnType("varchar(50)").HasColumnName("updated_by");
+            entity.Property(v => v.Description).HasColumnType("varchar(500)").HasColumnName("description");
+
+
         });
 
         b.Entity<Chapter>(entity =>

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
@@ -62,6 +63,7 @@ namespace IAutor.Api.Migrations
                     initial_validity_period = table.Column<DateTime>(type: "timestamp", nullable: false),
                     final_validity_period = table.Column<DateTime>(type: "timestamp", nullable: true),
                     caracters_limit_factor = table.Column<short>(type: "smallint", nullable: false),
+                    description = table.Column<string>(type: "varchar(500)", nullable: true),
                     is_active = table.Column<bool>(type: "boolean", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp", nullable: true),
@@ -132,6 +134,7 @@ namespace IAutor.Api.Migrations
                     reset_password = table.Column<bool>(type: "boolean", nullable: true),
                     reset_password_code = table.Column<string>(type: "varchar(50)", nullable: true),
                     reset_password_at = table.Column<DateTime>(type: "timestamp", nullable: true),
+                    accepted_terms_at = table.Column<DateTime>(type: "timestamp", nullable: true),
                     is_active = table.Column<bool>(type: "boolean", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp", nullable: true),
@@ -141,6 +144,30 @@ namespace IAutor.Api.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_users", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "item_plan",
+                columns: table => new
+                {
+                    id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    description = table.Column<string>(type: "varchar(500)", nullable: false),
+                    PlanId = table.Column<long>(type: "bigint", nullable: true),
+                    is_active = table.Column<bool>(type: "boolean", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp", nullable: true),
+                    deleted_at = table.Column<DateTime>(type: "timestamp", nullable: true),
+                    updated_by = table.Column<string>(type: "varchar(50)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_item_plan", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_item_plan_plans_PlanId",
+                        column: x => x.PlanId,
+                        principalTable: "plans",
+                        principalColumn: "id");
                 });
 
             migrationBuilder.CreateTable(
@@ -388,7 +415,8 @@ namespace IAutor.Api.Migrations
                     image_photo_url = table.Column<string>(type: "varchar(1000)", nullable: true),
                     image_photo_thumb_url = table.Column<string>(type: "varchar(1000)", nullable: true),
                     image_photo_label = table.Column<string>(type: "varchar(200)", nullable: true),
-                    ImagePhotoUploadDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    image_photo_upload_date = table.Column<DateTime>(type: "timestamp", nullable: true),
+                    image_photo_original_file_name = table.Column<string>(type: "varchar(200)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -506,6 +534,11 @@ namespace IAutor.Api.Migrations
                 column: "user_id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_item_plan_PlanId",
+                table: "item_plan",
+                column: "PlanId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_orders_book_id",
                 table: "orders",
                 column: "book_id");
@@ -593,6 +626,9 @@ namespace IAutor.Api.Migrations
         {
             migrationBuilder.DropTable(
                 name: "emails");
+
+            migrationBuilder.DropTable(
+                name: "item_plan");
 
             migrationBuilder.DropTable(
                 name: "owners");
