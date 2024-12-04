@@ -46,7 +46,7 @@ public sealed class PlanService(
 
         #endregion
 
-        var query = db.Plans.Include(r=>r.PlanChapters).Where(predicate);
+        var query = db.Plans.Include(r=>r.PlanChapters).Include(f=>f.ItensPlanHome).Where(predicate);
 
         #region OrderBy
 
@@ -115,7 +115,7 @@ public sealed class PlanService(
 
     private async Task<Plan?> UpdateEntityAsync(Plan model, long loggedUserId, string loggedUserName, string changeFrom)
     {
-        var entitie = await db.Plans.FirstOrDefaultAsync(f => f.Id == model.Id).ConfigureAwait(false);
+        var entitie = await db.Plans.Include(r=>r.ItensPlanHome).FirstOrDefaultAsync(f => f.Id == model.Id).ConfigureAwait(false);
 
         if (entitie == null) return null;
 
@@ -123,6 +123,11 @@ public sealed class PlanService(
         {
             foreach (var pc in model.PlanChapters)
                 db.PlansChapters.Remove(pc);
+        }
+        if (entitie.ItensPlanHome != null && entitie.ItensPlanHome.Count > 0)
+        {
+            foreach (var pc in entitie.ItensPlanHome)
+                db.ItensPlan.Remove(pc);
         }
 
         AddChapterQuestions(model);
@@ -146,7 +151,7 @@ public sealed class PlanService(
         if (entitie == null) return null;
 
         entitie.IsActive = false;
-        entitie.DeletedAt = DateTime.UtcNow;
+        entitie.DeletedAt = DateTimeBr.Now;
         entitie.UpdatedBy = loggedUserName;
 
         db.Plans.Update(entitie);
@@ -195,6 +200,7 @@ public sealed class PlanService(
                     Id = pc.Chapter.Id,
                     Title = pc.Chapter.Title,
                     ChapterNumber = pc.Chapter.ChapterNumber,
+
                     Questions = pc.PlanChapterQuestions.Select(pcq => new Question
                     {
                         Id = pcq.Question.Id,

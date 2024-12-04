@@ -10,6 +10,10 @@ public class Plan : Base
     public DateTime? FinalValidityPeriod { get; set; }
     public decimal CaractersLimitFactor { get; set; }
 
+    public string? Description { get; set; }
+
+    public ICollection<ItemPlan>? ItensPlanHome { get; set; }
+
     public ICollection<PlanChapter>? PlanChapters { get; set; }
     [JsonIgnore] public ICollection<Book>? Books { get; set; }
 
@@ -23,3 +27,4 @@ public class ChapterIdQuestionId
     public long ChapterId { get; set; }
     public long QuestionId { get; set; }
 }
+

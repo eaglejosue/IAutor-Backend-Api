@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace IAutor.Api.Migrations
 {
     [DbContext(typeof(IAutorDb))]
-    [Migration("20241121202052_InitialCreate")]
+    [Migration("20241203210101_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -211,6 +211,50 @@ namespace IAutor.Api.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("emails", (string)null);
+                });
+
+            modelBuilder.Entity("IAutor.Api.Data.Entities.ItemPlan", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("varchar(500)")
+                        .HasColumnName("description");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<long?>("PlanId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("updated_by");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlanId");
+
+                    b.ToTable("item_plan", (string)null);
                 });
 
             modelBuilder.Entity("IAutor.Api.Data.Entities.Order", b =>
@@ -554,6 +598,10 @@ namespace IAutor.Api.Migrations
                         .HasColumnType("timestamp")
                         .HasColumnName("deleted_at");
 
+                    b.Property<string>("Description")
+                        .HasColumnType("varchar(500)")
+                        .HasColumnName("description");
+
                     b.Property<DateTime?>("FinalValidityPeriod")
                         .HasColumnType("timestamp")
                         .HasColumnName("final_validity_period");
@@ -734,12 +782,17 @@ namespace IAutor.Api.Migrations
                         .HasColumnType("varchar(200)")
                         .HasColumnName("image_photo_label");
 
+                    b.Property<string>("ImagePhotoOriginalFileName")
+                        .HasColumnType("varchar(200)")
+                        .HasColumnName("image_photo_original_file_name");
+
                     b.Property<string>("ImagePhotoThumbUrl")
                         .HasColumnType("varchar(1000)")
                         .HasColumnName("image_photo_thumb_url");
 
                     b.Property<DateTime?>("ImagePhotoUploadDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp")
+                        .HasColumnName("image_photo_upload_date");
 
                     b.Property<string>("ImagePhotoUrl")
                         .HasColumnType("varchar(1000)")
@@ -825,6 +878,10 @@ namespace IAutor.Api.Migrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime?>("AcceptedTermsAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("accepted_terms_at");
 
                     b.Property<DateTime?>("ActivationAt")
                         .HasColumnType("timestamp")
@@ -1014,6 +1071,13 @@ namespace IAutor.Api.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("IAutor.Api.Data.Entities.ItemPlan", b =>
+                {
+                    b.HasOne("IAutor.Api.Data.Entities.Plan", null)
+                        .WithMany("ItensPlanHome")
+                        .HasForeignKey("PlanId");
+                });
+
             modelBuilder.Entity("IAutor.Api.Data.Entities.Order", b =>
                 {
                     b.HasOne("IAutor.Api.Data.Entities.Book", "Book")
@@ -1184,6 +1248,8 @@ namespace IAutor.Api.Migrations
             modelBuilder.Entity("IAutor.Api.Data.Entities.Plan", b =>
                 {
                     b.Navigation("Books");
+
+                    b.Navigation("ItensPlanHome");
 
                     b.Navigation("PlanChapters");
                 });
