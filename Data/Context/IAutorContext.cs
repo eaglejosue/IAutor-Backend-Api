@@ -1,7 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-
-namespace IAutor.Api.Data.Context;
+﻿namespace IAutor.Api.Data.Context;
 
 public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbContext(o)
 {

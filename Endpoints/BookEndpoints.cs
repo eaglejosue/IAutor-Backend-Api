@@ -136,17 +136,13 @@ public static class BookEndpoints
         .RequireAuthorization("Delete");
 
         app.MapPost("/api/books/{id:long}/pdf",
-        async (
-            long id,
-            [FromServices] IBookService service,
-            HttpContext context) =>
+        async (long id, [FromServices] IBookService service) =>
         {
-            var loggedUserId = TokenExtension.GetUserIdFromToken(context);
-            var file = await service.GenerateBookPDF(id, loggedUserId);
+            var file = await service.GenerateBookPDF(id);
             if (file is null) return Results.NoContent();
             return Results.File(file.ByteArray, file.MimeType, file.FileName);
         })
-        .Produces((int)HttpStatusCode.OK, typeof(Book))
+        .Produces((int)HttpStatusCode.OK)
         .WithName("Book PDF")
         .WithOpenApi(x => new OpenApiOperation(x)
         {

@@ -1,7 +1,6 @@
 ﻿using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
-using System.Linq;
 
 namespace IAutor.Api.Services;
 
@@ -18,18 +17,15 @@ public sealed class PDFService(
     {
         var document = Document.Create(c =>
         {
-            // Capa
-            c.Page(page =>
-            {
-                page.Size(PageSizes.A4);
-                page.Margin(2, Unit.Centimetre);
-                page.PageColor(Colors.Red.Darken4);
-                page.DefaultTextStyle(x => x.FontSize(12));
-
-                page.Content()
-                    .Text(book.Title)
-                    .FontSize(32);
-            });
+            //// Capa
+            //c.Page(page =>
+            //{
+            //    page.Size(PageSizes.A4);
+            //    page.Margin(2, Unit.Centimetre);
+            //    page.MarginTop(10, Unit.Point);
+            //    page.PageColor(Colors.Red.Darken4);
+            //    page.Content().AlignCenter().Text(book.Title).FontSize(32).FontColor(Colors.White);
+            //});
 
             // Capítulos
             foreach (var (chapter, question) in
@@ -48,13 +44,17 @@ public sealed class PDFService(
                     page.PageColor(Colors.White);
                     page.DefaultTextStyle(x => x.FontSize(12));
 
-                    page.Header().AlignCenter().Text(chapter.Title).FontSize(18).FontColor(Colors.Black);
-                    page.Header().AlignCenter().Text(question.Subject).SemiBold().FontSize(24).FontColor(Colors.Black);
+                    page.Header()
+                        .Column(c =>
+                        {
+                            c.Item().AlignCenter().Text(string.Concat("Capítulo", " ", chapter.ChapterNumber)).FontSize(14).FontColor(Colors.Black);
+                            c.Item().AlignCenter().Text(question.Subject).SemiBold().FontSize(24).FontColor(Colors.Black);
+                        });
 
                     //Tratar Img aqui
                     //TODO
 
-                    page.Content().Text(questionUserAnswer).FontSize(14);
+                    page.Content().PaddingTop(20, Unit.Point).Text(questionUserAnswer).FontSize(14);
 
                     page.Footer().AlignCenter()
                         .Text(x =>

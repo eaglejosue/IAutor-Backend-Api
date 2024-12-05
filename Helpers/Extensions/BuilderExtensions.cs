@@ -1,4 +1,6 @@
-﻿namespace IAutor.Api.Helpers.Extensions;
+﻿using QuestPDF.Infrastructure;
+
+namespace IAutor.Api.Helpers.Extensions;
 
 public static class BuilderExtensions
 {
@@ -31,6 +33,8 @@ public static class BuilderExtensions
         builder.AddCors(config);
         builder.Logging.SetMinimumLevel(LogLevel.Error).AddConsole();
         builder.InjectServiceDependencies(config);
+
+        QuestPDF.Settings.License = LicenseType.Community;
     }
 
     private static void AddSwagger(this WebApplicationBuilder builder)
