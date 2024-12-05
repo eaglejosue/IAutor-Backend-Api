@@ -1,4 +1,4 @@
-﻿namespace IAutor.Api.Services;
+﻿namespace IAutor.Api.Services.Crud;
 
 public interface IBookService
 {
@@ -8,12 +8,14 @@ public interface IBookService
     Task<Book?> UpdateAsync(Book model, long loggedUserId, string loggedUserName);
     Task<Book?> PatchAsync(Book model, long loggedUserId, string loggedUserName);
     Task<bool?> DeleteAsync(long id, long loggedUserId, string loggedUserName);
+    Task<PdfFileInfo?> GenerateBookPDF(long id, long loggedUserId);
 }
 
 public sealed class BookService(
     IAutorDb db,
     INotificationService notification,
-    IUserService userService) : IBookService
+    IUserService userService,
+    IPDFService pdfService) : IBookService
 {
     public async Task<Book?> GetByIdAsync(long id) => await db.Books.Where(w => w.Id == id).Include(i => i.QuestionUserAnswers).FirstOrDefaultAsync().ConfigureAwait(false);
 
@@ -113,7 +115,7 @@ public sealed class BookService(
         var queryString = query.ToQueryString();
 #endif
 
-        var items = await query.AsNoTracking().ToListAsync().ConfigureAwait(false);
+        var items = await query.ToListAsync().ConfigureAwait(false);
 
         if (items.Any(a => !string.IsNullOrEmpty(a.PaidDateTime)))
             items = [.. items.OrderBy(o => string.IsNullOrEmpty(o.PaidDateTime))];
@@ -194,5 +196,38 @@ public sealed class BookService(
         await userService.CreateUserLogAsync(new UserLog(loggedUserId, string.Format("Book Id {0} Deleted", id)));
 
         return true;
+    }
+
+    public async Task<PdfFileInfo?> GenerateBookPDF(long id, long loggedUserId)
+    {
+        var book = await db.Books.Where(w => w.Id == id).FirstOrDefaultAsync().ConfigureAwait(false);
+
+        if (book == null) return null;
+
+        var query = db.PlansChapters
+            .Where(w => w.PlanId == book.PlanId)
+            .Include(pc => pc.Chapter)
+            .Include(pc => pc.PlanChapterQuestions)
+                .ThenInclude(pcq => pcq.Question)
+                    .ThenInclude(q => q.QuestionUserAnswers);
+
+        var chapters = await query
+            .OrderBy(o => o.Chapter.ChapterNumber)
+            .Select(s => new Chapter
+            {
+                Id = s.Chapter.Id,
+                Title = s.Chapter.Title,
+                ChapterNumber = s.Chapter.ChapterNumber,
+                Questions = s.PlanChapterQuestions.Select(pcq => new Question
+                {
+                    Id = pcq.Question.Id,
+                    Subject = pcq.Question.Subject,
+                    QuestionUserAnswers = pcq.Question.QuestionUserAnswers.Where(w => w.BookId == book.Id && w.UserId == loggedUserId).ToList()
+                }).ToList(),
+            })
+            .ToListAsync()
+            .ConfigureAwait(false);
+
+        return pdfService.GenerateBookPDF(book, chapters);
     }
 }

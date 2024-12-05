@@ -1,4 +1,4 @@
-﻿namespace IAutor.Api.Services;
+﻿namespace IAutor.Api.Services.Crud;
 
 public interface IThemeService
 {
@@ -61,7 +61,7 @@ public sealed class ThemeService(
         var queryString = query.ToQueryString();
 #endif
 
-        return await query.AsNoTracking().ToListAsync().ConfigureAwait(false);
+        return await query.ToListAsync().ConfigureAwait(false);
     }
 
     public async Task<Theme?> CreateAsync(Theme model)

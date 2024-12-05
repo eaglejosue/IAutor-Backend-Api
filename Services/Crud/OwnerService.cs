@@ -1,4 +1,4 @@
-﻿namespace IAutor.Api.Services;
+﻿namespace IAutor.Api.Services.Crud;
 
 public interface IOwnerService
 {
@@ -84,7 +84,7 @@ public sealed class OwnerService(
 
         #region Projection
 
-        query = (filters?.GetIdAndNameOnly ?? false)
+        query = filters?.GetIdAndNameOnly ?? false
             ?
             query.Select(s => new Owner
             {
@@ -136,7 +136,7 @@ public sealed class OwnerService(
         var queryString = query.ToQueryString();
 #endif
 
-        return await query.AsNoTracking().ToListAsync().ConfigureAwait(false);
+        return await query.ToListAsync().ConfigureAwait(false);
     }
 
     public async Task<Owner?> CreateAsync(Owner model)
@@ -244,7 +244,7 @@ public sealed class OwnerService(
 
         db.Owners.Update(entitie);
         await db.SaveChangesAsync().ConfigureAwait(false);
-        
+
         await userService.CreateUserLogAsync(new UserLog(loggedUserId, string.Format("Owner Id {0} Deleted", id)));
 
         return true;

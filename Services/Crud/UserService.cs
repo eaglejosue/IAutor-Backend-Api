@@ -1,4 +1,4 @@
-﻿namespace IAutor.Api.Services;
+﻿namespace IAutor.Api.Services.Crud;
 
 public interface IUserService
 {
@@ -89,7 +89,7 @@ public sealed class UserService(
         var queryString = query.ToQueryString();
 #endif
 
-        return await query.AsNoTracking().ToListAsync().ConfigureAwait(false);
+        return await query.ToListAsync().ConfigureAwait(false);
     }
 
     public async Task<User?> CreateAsync(User model)
@@ -125,16 +125,16 @@ public sealed class UserService(
             await emailService.SendEmailActivateAccountByIdAsync(newEmail!.Id);
         }
 
-        //Get Plan and create new Book
-        var degustPlan = await db.Plans.FirstOrDefaultAsync(f => EF.Functions.Like(f.Title, "Degust".LikeConcat())).ConfigureAwait(false);
-        if (degustPlan != null)
+        //Get Free Plan and create new Book
+        var freePlan = await db.Plans.FirstOrDefaultAsync(f => f.IsActive && f.Price == decimal.Zero).ConfigureAwait(false);
+        if (freePlan != null)
         {
             await db.Books.AddAsync(new Book
             {
                 Title = "Minha História",
                 Description = "Minha História",
-                Price = degustPlan.Price,
-                PlanId = degustPlan.Id,
+                Price = freePlan.Price,
+                PlanId = freePlan.Id,
                 UserId = newEntitie.Id
             });
         }

@@ -21,8 +21,7 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
     public DbSet<PlanChapter> PlansChapters => Set<PlanChapter>();
     public DbSet<PlanChapterQuestion> PlansChapterQuestions => Set<PlanChapterQuestion>();
     public DbSet<QuestionUserAnswer> QuestionUserAnswers => Set<QuestionUserAnswer>();
-
-    public DbSet<ItemPlan> ItensPlan => Set<ItemPlan>();
+    public DbSet<PlanItem> PlanItems => Set<PlanItem>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder o)
     {
@@ -239,9 +238,6 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.HasOne(u => u.User).WithMany(u => u.UserLogs).HasForeignKey(u => u.UserId).IsRequired().OnDelete(DeleteBehavior.Restrict);
         });
 
-
-
-
         b.Entity<Plan>(entity =>
         {
             entity.ToTable("plans");
@@ -261,23 +257,6 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.Property(u => u.MaxQtdCallIASugestions).HasColumnType("smallint").HasColumnName("max_qtd_call_ia_sugestions");
             entity.Property(u => u.CaractersLimitFactor).HasColumnType("smallint").HasColumnName("caracters_limit_factor");
             entity.Property(v => v.Description).HasColumnType("varchar(500)").HasColumnName("description");
-         
-
-        });
-
-        b.Entity<ItemPlan>(entity =>
-        {
-            entity.ToTable("item_plan");
-            entity.Property(u => u.Id).HasColumnName("id");
-            entity.HasKey(u => u.Id);
-            entity.Property(v => v.IsActive).IsRequired().HasColumnType("boolean").HasColumnName("is_active");
-            entity.Property(u => u.CreatedAt).IsRequired().HasColumnType("timestamp").HasColumnName("created_at");
-            entity.Property(u => u.UpdatedAt).HasColumnType("timestamp").HasColumnName("updated_at");
-            entity.Property(u => u.DeletedAt).HasColumnType("timestamp").HasColumnName("deleted_at");
-            entity.Property(u => u.UpdatedBy).HasColumnType("varchar(50)").HasColumnName("updated_by");
-            entity.Property(v => v.Description).HasColumnType("varchar(500)").HasColumnName("description");
-
-
         });
 
         b.Entity<Chapter>(entity =>
@@ -380,6 +359,20 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.HasOne(v => v.Question).WithMany(u => u.QuestionUserAnswers).HasForeignKey(v => v.QuestionId).IsRequired().OnDelete(DeleteBehavior.Restrict);
             entity.HasOne(v => v.User).WithMany(u => u.QuestionUserAnswers).HasForeignKey(v => v.UserId).IsRequired().OnDelete(DeleteBehavior.Restrict);
             entity.HasOne(v => v.Book).WithMany(u => u.QuestionUserAnswers).HasForeignKey(v => v.BookId).IsRequired().OnDelete(DeleteBehavior.Restrict);
+        });
+
+        b.Entity<PlanItem>(entity =>
+        {
+            entity.ToTable("plan_items");
+            entity.Property(u => u.Id).HasColumnName("id");
+            entity.HasKey(u => u.Id);
+            entity.Property(v => v.IsActive).IsRequired().HasColumnType("boolean").HasColumnName("is_active");
+            entity.Property(u => u.CreatedAt).IsRequired().HasColumnType("timestamp").HasColumnName("created_at");
+            entity.Property(u => u.UpdatedAt).HasColumnType("timestamp").HasColumnName("updated_at");
+            entity.Property(u => u.DeletedAt).HasColumnType("timestamp").HasColumnName("deleted_at");
+            entity.Property(u => u.UpdatedBy).HasColumnType("varchar(50)").HasColumnName("updated_by");
+
+            entity.Property(v => v.Description).HasColumnType("varchar(500)").HasColumnName("description");
         });
     }
 }

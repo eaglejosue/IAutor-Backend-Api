@@ -1,4 +1,4 @@
-﻿namespace IAutor.Api.Services;
+﻿namespace IAutor.Api.Services.Crud;
 
 public interface IPaymentService
 {
@@ -52,7 +52,7 @@ public sealed class PaymentService(
 
         var query = db.Payments.Where(predicate).OrderBy(o => o.Id);
 
-        return await query.AsNoTracking().ToListAsync().ConfigureAwait(false);
+        return await query.ToListAsync().ConfigureAwait(false);
     }
 
     public async Task<Payment?> CreateAsync(Payment model)

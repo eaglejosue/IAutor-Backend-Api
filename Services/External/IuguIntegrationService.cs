@@ -1,4 +1,4 @@
-﻿namespace IAutor.Api.Services.External.Iugu;
+﻿namespace IAutor.Api.Services.External;
 
 public interface IIuguIntegrationService
 {

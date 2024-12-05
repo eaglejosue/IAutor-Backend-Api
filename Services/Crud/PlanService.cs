@@ -1,4 +1,6 @@
-﻿namespace IAutor.Api.Services;
+﻿using IAutor.Api.Data.Entities;
+
+namespace IAutor.Api.Services.Crud;
 
 public interface IPlanService
 {
@@ -9,7 +11,7 @@ public interface IPlanService
     Task<Plan?> PatchAsync(Plan model, long loggedUserId, string loggedUserName);
     Task<bool?> DeleteAsync(long id, long loggedUserId, string loggedUserName);
 
-    Task<List<PlanChapter>?> GetPlanChapterByPlanIdAsync(long planId);
+    Task<List<PlanChapter>?> GetPlanChaptersByPlanIdAsync(long planId);
     Task<Plan?> GetPlanChaptersAndQuestionsByPlanIdAsync(long planId, long bookId, long loggedUserId);
 }
 
@@ -18,7 +20,7 @@ public sealed class PlanService(
     INotificationService notification,
     IUserService userService) : IPlanService
 {
-    public async Task<Plan?> GetByIdAsync(long id) => await db.Plans.Include(i=>i.PlanChapters).FirstOrDefaultAsync(f => f.Id == id).ConfigureAwait(false);
+    public async Task<Plan?> GetByIdAsync(long id) => await db.Plans.Include(i => i.PlanChapters).FirstOrDefaultAsync(f => f.Id == id).ConfigureAwait(false);
 
     public async Task<List<Plan>> GetAllAsync(PlanFilters filters)
     {
@@ -46,7 +48,7 @@ public sealed class PlanService(
 
         #endregion
 
-        var query = db.Plans.Include(r=>r.PlanChapters).Include(f=>f.ItensPlanHome).Where(predicate);
+        var query = db.Plans.Where(predicate);
 
         #region OrderBy
 
@@ -64,7 +66,7 @@ public sealed class PlanService(
         var queryString = query.ToQueryString();
 #endif
 
-        return await query.AsNoTracking().ToListAsync().ConfigureAwait(false);
+        return await query.ToListAsync().ConfigureAwait(false);
     }
 
     public async Task<Plan?> CreateAsync(Plan model)
@@ -115,19 +117,20 @@ public sealed class PlanService(
 
     private async Task<Plan?> UpdateEntityAsync(Plan model, long loggedUserId, string loggedUserName, string changeFrom)
     {
-        var entitie = await db.Plans.Include(r=>r.ItensPlanHome).FirstOrDefaultAsync(f => f.Id == model.Id).ConfigureAwait(false);
+        var entitie = await db.Plans.FirstOrDefaultAsync(f => f.Id == model.Id).ConfigureAwait(false);
 
         if (entitie == null) return null;
 
-        if (model.PlanChapters!=null && model.PlanChapters.Count > 0)
+        if (model.PlanChapters != null && model.PlanChapters.Count > 0)
         {
             foreach (var pc in model.PlanChapters)
                 db.PlansChapters.Remove(pc);
         }
-        if (entitie.ItensPlanHome != null && entitie.ItensPlanHome.Count > 0)
+
+        if (entitie.PlanItems != null && entitie.PlanItems.Count > 0)
         {
-            foreach (var pc in entitie.ItensPlanHome)
-                db.ItensPlan.Remove(pc);
+            foreach (var pc in entitie.PlanItems)
+                db.PlanItems.Remove(pc);
         }
 
         AddChapterQuestions(model);
@@ -151,7 +154,7 @@ public sealed class PlanService(
         if (entitie == null) return null;
 
         entitie.IsActive = false;
-        entitie.DeletedAt = DateTimeBr.Now;
+        entitie.DeletedAt = DateTime.UtcNow;
         entitie.UpdatedBy = loggedUserName;
 
         db.Plans.Update(entitie);
@@ -163,13 +166,12 @@ public sealed class PlanService(
     }
 
 
-    public async Task<List<PlanChapter>?> GetPlanChapterByPlanIdAsync(long planId)
+    public async Task<List<PlanChapter>?> GetPlanChaptersByPlanIdAsync(long planId)
     {
         var query = db.PlansChapters
             .Where(w => w.PlanId == planId)
             .Include(pc => pc.Chapter)
-            .Include(pc => pc.PlanChapterQuestions)
-                .ThenInclude(g => g.Question);
+            .Include(pc => pc.PlanChapterQuestions).ThenInclude(g => g.Question);
 
 #if DEBUG
         var queryString = query.ToQueryString();
@@ -185,31 +187,28 @@ public sealed class PlanService(
             .Include(pc => pc.Plan)
             .Include(pc => pc.Chapter)
             .Include(pc => pc.PlanChapterQuestions)
-                .ThenInclude(pcq => pcq.Question)
-                    .ThenInclude(q => q.QuestionUserAnswers);
+                .ThenInclude(pcq => pcq.Question);
 
         var result = await query
-            .GroupBy(pc => pc.Plan) // Agrupa por plano
-            .Select(g => new Plan
+            .GroupBy(g => g.Plan)
+            .Select(s => new Plan
             {
-                Id = g.Key.Id,
-                Title = g.Key.Title,
-                MaxQtdCallIASugestions = g.Key.MaxQtdCallIASugestions,
-                Chapters = g.OrderBy(pc => pc.Chapter.ChapterNumber).Select(pc => new Chapter
+                Id = s.Key.Id,
+                Title = s.Key.Title,
+                MaxQtdCallIASugestions = s.Key.MaxQtdCallIASugestions,
+                Chapters = s.OrderBy(o => o.Chapter.ChapterNumber).Select(pc => new Chapter
                 {
                     Id = pc.Chapter.Id,
                     Title = pc.Chapter.Title,
                     ChapterNumber = pc.Chapter.ChapterNumber,
-
                     Questions = pc.PlanChapterQuestions.Select(pcq => new Question
                     {
                         Id = pcq.Question.Id,
                         Title = pcq.Question.Title,
-                        MaxLimitCharacters = pcq.Question.MaxLimitCharacters,
                         Subject = pcq.Question.Subject,
+                        MaxLimitCharacters = pcq.Question.MaxLimitCharacters,
                         MinLimitCharacters = pcq.Question.MinLimitCharacters,
-                        QuestionUserAnswers = pcq.Question.QuestionUserAnswers
-                            .Where(w => w.BookId == bookId && w.UserId == loggedUserId).ToList()
+                        QuestionUserAnswers = pcq.Question.QuestionUserAnswers.Where(w => w.BookId == bookId && w.UserId == loggedUserId).ToList()
                     }).ToList()
                 }).ToList()
             })

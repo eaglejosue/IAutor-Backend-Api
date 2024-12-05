@@ -134,5 +134,25 @@ public static class BookEndpoints
             Tags = tag
         })
         .RequireAuthorization("Delete");
+
+        app.MapPost("/api/books/{id:long}/pdf",
+        async (
+            long id,
+            [FromServices] IBookService service,
+            HttpContext context) =>
+        {
+            var loggedUserId = TokenExtension.GetUserIdFromToken(context);
+            var file = await service.GenerateBookPDF(id, loggedUserId);
+            if (file is null) return Results.NoContent();
+            return Results.File(file.ByteArray, file.MimeType, file.FileName);
+        })
+        .Produces((int)HttpStatusCode.OK, typeof(Book))
+        .WithName("Book PDF")
+        .WithOpenApi(x => new OpenApiOperation(x)
+        {
+            Summary = $"Return a {ModelName} PDF",
+            Description = $"This endpoint receives an Id from the body and returns the {ModelName} PDF. It produces a 200 status code.",
+            Tags = tag
+        });
     }
 }

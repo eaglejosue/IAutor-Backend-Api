@@ -210,50 +210,6 @@ namespace IAutor.Api.Migrations
                     b.ToTable("emails", (string)null);
                 });
 
-            modelBuilder.Entity("IAutor.Api.Data.Entities.ItemPlan", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp")
-                        .HasColumnName("created_at");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp")
-                        .HasColumnName("deleted_at");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("varchar(500)")
-                        .HasColumnName("description");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
-
-                    b.Property<long?>("PlanId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp")
-                        .HasColumnName("updated_at");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("updated_by");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PlanId");
-
-                    b.ToTable("item_plan", (string)null);
-                });
-
             modelBuilder.Entity("IAutor.Api.Data.Entities.Order", b =>
                 {
                     b.Property<long>("Id")
@@ -697,6 +653,50 @@ namespace IAutor.Api.Migrations
                     b.ToTable("plan_chapter_questions", (string)null);
                 });
 
+            modelBuilder.Entity("IAutor.Api.Data.Entities.PlanItem", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("varchar(500)")
+                        .HasColumnName("description");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<long?>("PlanId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("updated_by");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlanId");
+
+                    b.ToTable("plan_items", (string)null);
+                });
+
             modelBuilder.Entity("IAutor.Api.Data.Entities.Question", b =>
                 {
                     b.Property<long>("Id")
@@ -1068,13 +1068,6 @@ namespace IAutor.Api.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("IAutor.Api.Data.Entities.ItemPlan", b =>
-                {
-                    b.HasOne("IAutor.Api.Data.Entities.Plan", null)
-                        .WithMany("ItensPlanHome")
-                        .HasForeignKey("PlanId");
-                });
-
             modelBuilder.Entity("IAutor.Api.Data.Entities.Order", b =>
                 {
                     b.HasOne("IAutor.Api.Data.Entities.Book", "Book")
@@ -1152,6 +1145,13 @@ namespace IAutor.Api.Migrations
                     b.Navigation("PlanChapter");
 
                     b.Navigation("Question");
+                });
+
+            modelBuilder.Entity("IAutor.Api.Data.Entities.PlanItem", b =>
+                {
+                    b.HasOne("IAutor.Api.Data.Entities.Plan", null)
+                        .WithMany("PlanItems")
+                        .HasForeignKey("PlanId");
                 });
 
             modelBuilder.Entity("IAutor.Api.Data.Entities.QuestionUserAnswer", b =>
@@ -1246,9 +1246,9 @@ namespace IAutor.Api.Migrations
                 {
                     b.Navigation("Books");
 
-                    b.Navigation("ItensPlanHome");
-
                     b.Navigation("PlanChapters");
+
+                    b.Navigation("PlanItems");
                 });
 
             modelBuilder.Entity("IAutor.Api.Data.Entities.PlanChapter", b =>

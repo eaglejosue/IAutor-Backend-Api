@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-
-namespace IAutor.Api.Services;
+﻿namespace IAutor.Api.Services.Crud;
 
 public interface IQuestionService
 {
@@ -10,12 +8,12 @@ public interface IQuestionService
     Task<Question?> UpdateAsync(Question model, long loggedUserId, string loggedUserName);
     Task<Question?> PatchAsync(Question model, long loggedUserId, string loggedUserName);
     Task<bool?> DeleteAsync(long id, long loggedUserId, string loggedUserName);
+
     Task UpsertQuestionUserAnswerAsync(QuestionUserAnswer model, long loggedUserId, string loggedUserName);
     Task<List<QuestionUserAnswer>> GetQuestionUserAnswersAsync(long loggedUserId, long bookId);
-    Task UploadPhotoQuestionUserAnswer(long idQuestionUserAnwser, IFormFile file,string label, long loggedUserId, string loggedUserName);
+    Task UploadPhotoQuestionUserAnswer(long idQuestionUserAnwser, IFormFile file, string label, long loggedUserId, string loggedUserName);
     Task UpdateQuestionUserPhotoAnswerAsync(QuestionUserAnswer model, long loggedUserId, string loggedUserName);
-
-    Task<QuestionUserAnswer> GetQuestionUserAnswersByIdAsync(long idUserQuestionAnswer);
+    Task<QuestionUserAnswer?> GetQuestionUserAnswerByIdAsync(long id);
 }
 
 public sealed class QuestionService(
@@ -154,6 +152,7 @@ public sealed class QuestionService(
         return true;
     }
 
+
     public async Task UpsertQuestionUserAnswerAsync(QuestionUserAnswer model, long loggedUserId, string loggedUserName)
     {
         var validation = await model.ValidateAsync();
@@ -217,7 +216,7 @@ public sealed class QuestionService(
         questionUserAnwers.UpdatedBy = loggedUserName;
 
         var nameFile = string.Concat(Guid.NewGuid().ToString(), ".", file.FileName.AsSpan(file.FileName.LastIndexOf('.') + 1));
-        var stream = ResizeImage(file, 540, 330);
+        var stream = ImageExtensions.ResizeImage(file, 540, 330);
 
         var uploaded = await azureBlobServiceClient.UploadFileFromStreamAsync("photos", nameFile, stream);
         questionUserAnwers.ImagePhotoUrl = uploaded;
@@ -235,64 +234,25 @@ public sealed class QuestionService(
             notification.AddNotification("QuestionUserAnswer", "QuestionUserAnswer not found.");
             return;
         }
-        questionUserAnwers.ImagePhotoLabel = model.ImagePhotoLabel;
+
+        questionUserAnwers.ImagePhotoLabel = null;
         questionUserAnwers.UpdatedAt = DateTimeBr.Now;
         questionUserAnwers.UpdatedBy = loggedUserName;
-        questionUserAnwers.ImagePhotoOriginalFileName = model.ImagePhotoOriginalFileName;
+        questionUserAnwers.ImagePhotoOriginalFileName = null;
+
         await RemovePhotoStorage(questionUserAnwers, model);
-        questionUserAnwers.ImagePhotoUrl = string.IsNullOrWhiteSpace(model.ImagePhotoUrl)? null: model.ImagePhotoUrl;
-        
-       
+
+        questionUserAnwers.ImagePhotoUrl = null;
+        questionUserAnwers.ImagePhotoUploadDate = null;
+
         await db.SaveChangesAsync().ConfigureAwait(false);
     }
 
     private async Task RemovePhotoStorage(QuestionUserAnswer questionUserAnswer, QuestionUserAnswer model)
     {
-        if (questionUserAnswer.ImagePhotoUrl != null && string.IsNullOrEmpty(model.ImagePhotoUrl)) 
-        { 
+        if (questionUserAnswer.ImagePhotoUrl != null && string.IsNullOrEmpty(model.ImagePhotoUrl))
             await azureBlobServiceClient.DeleteFileAsync("photos", questionUserAnswer.ImagePhotoUrl);
-        }
     }
 
-    private static Stream ResizeImage(IFormFile file, int maxWidth, int maxHeight)
-    {
-        using var stream = file.OpenReadStream();
-        byte[] imageBytes;
-        using (Image img = Image.FromStream(stream))
-        {
-            var size =  ResizeKeepAspect(new Size(img.Width, img.Height), img.Width > maxWidth ? maxWidth : img.Width, img.Height > maxHeight ? maxHeight : img.Height);
-            using (Bitmap b = new Bitmap(img, size))
-            {
-                using (MemoryStream ms2 = new MemoryStream())
-                {
-                    b.Save(ms2, System.Drawing.Imaging.ImageFormat.Jpeg);
-                    imageBytes = ms2.ToArray();
-
-                    Stream streamRet = new MemoryStream(imageBytes);
-                    return streamRet;
-
-                }
-            }
-        }
-    }
-
-    private static Size ResizeKeepAspect(Size src, int maxWidth, int maxHeight, bool enlarge = false)
-    {
-        maxWidth = enlarge ? maxWidth : Math.Min(maxWidth, src.Width);
-        maxHeight = enlarge ? maxHeight : Math.Min(maxHeight, src.Height);
-
-        decimal rnd = Math.Min(maxWidth / (decimal)src.Width, maxHeight / (decimal)src.Height);
-        return new Size((int)Math.Round(src.Width * rnd), (int)Math.Round(src.Height * rnd));
-    }
-
-    public async Task<QuestionUserAnswer> GetQuestionUserAnswersByIdAsync(long idUserQuestionAnswer)
-    {
-        var questionUserAnwers = await db.QuestionUserAnswers.FirstOrDefaultAsync(r => r.Id == idUserQuestionAnswer);
-        if (questionUserAnwers == null)
-        {
-            notification.AddNotification("QuestionUserAnswer", "QuestionUserAnswer not found.");
-            return null;
-        }
-        return questionUserAnwers;
-    }
+    public async Task<QuestionUserAnswer?> GetQuestionUserAnswerByIdAsync(long id) => await db.QuestionUserAnswers.FirstOrDefaultAsync(f => f.Id == id).ConfigureAwait(false);
 }

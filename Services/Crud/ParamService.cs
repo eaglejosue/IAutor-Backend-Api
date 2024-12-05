@@ -1,4 +1,4 @@
-﻿namespace IAutor.Api.Services;
+﻿namespace IAutor.Api.Services.Crud;
 
 public interface IParamService
 {
@@ -41,7 +41,7 @@ public sealed class ParamService(
         if (!string.IsNullOrEmpty(filters.Value))
             predicate.And(a => EF.Functions.Like(a.Value, filters.Value.LikeConcat()));
 
-        return await db.Params.Where(predicate).AsNoTracking().ToListAsync().ConfigureAwait(false);
+        return await db.Params.Where(predicate).ToListAsync().ConfigureAwait(false);
     }
 
     public async Task<Param?> CreateAsync(Param model)

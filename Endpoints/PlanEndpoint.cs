@@ -139,7 +139,7 @@ public static class PlanEndpoint
         app.MapGet("/api/plans/{planId:long}/planchapter",
         async (long planId, [FromServices] IPlanService service) =>
         {
-            var entitie = await service.GetPlanChapterByPlanIdAsync(planId);
+            var entitie = await service.GetPlanChaptersByPlanIdAsync(planId);
             if (entitie is null) return Results.NoContent();
             return Results.Ok(entitie);
         })

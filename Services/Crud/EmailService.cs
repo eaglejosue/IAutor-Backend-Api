@@ -1,4 +1,4 @@
-﻿namespace IAutor.Api.Services;
+﻿namespace IAutor.Api.Services.Crud;
 
 public interface IEmailService
 {
@@ -58,7 +58,7 @@ public sealed class EmailService(
         if (filters.IncludeUser.HasValue && filters.IncludeUser.Value)
             query = query.Include(i => i.User);
 
-        return await query.AsNoTracking().ToListAsync().ConfigureAwait(false);
+        return await query.ToListAsync().ConfigureAwait(false);
     }
 
     public async Task<Email?> CreateAsync(Email model)

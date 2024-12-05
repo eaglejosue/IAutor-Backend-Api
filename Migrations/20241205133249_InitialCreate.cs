@@ -147,30 +147,6 @@ namespace IAutor.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "item_plan",
-                columns: table => new
-                {
-                    id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    description = table.Column<string>(type: "varchar(500)", nullable: false),
-                    PlanId = table.Column<long>(type: "bigint", nullable: true),
-                    is_active = table.Column<bool>(type: "boolean", nullable: false),
-                    created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp", nullable: true),
-                    deleted_at = table.Column<DateTime>(type: "timestamp", nullable: true),
-                    updated_by = table.Column<string>(type: "varchar(50)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_item_plan", x => x.id);
-                    table.ForeignKey(
-                        name: "FK_item_plan_plans_PlanId",
-                        column: x => x.PlanId,
-                        principalTable: "plans",
-                        principalColumn: "id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "plan_chapters",
                 columns: table => new
                 {
@@ -195,6 +171,30 @@ namespace IAutor.Api.Migrations
                         principalTable: "plans",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "plan_items",
+                columns: table => new
+                {
+                    id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    description = table.Column<string>(type: "varchar(500)", nullable: false),
+                    PlanId = table.Column<long>(type: "bigint", nullable: true),
+                    is_active = table.Column<bool>(type: "boolean", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp", nullable: true),
+                    deleted_at = table.Column<DateTime>(type: "timestamp", nullable: true),
+                    updated_by = table.Column<string>(type: "varchar(50)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_plan_items", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_plan_items_plans_PlanId",
+                        column: x => x.PlanId,
+                        principalTable: "plans",
+                        principalColumn: "id");
                 });
 
             migrationBuilder.CreateTable(
@@ -534,11 +534,6 @@ namespace IAutor.Api.Migrations
                 column: "user_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_item_plan_PlanId",
-                table: "item_plan",
-                column: "PlanId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_orders_book_id",
                 table: "orders",
                 column: "book_id");
@@ -578,6 +573,11 @@ namespace IAutor.Api.Migrations
                 name: "IX_plan_chapters_plan_id",
                 table: "plan_chapters",
                 column: "plan_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_plan_items_PlanId",
+                table: "plan_items",
+                column: "PlanId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_question_user_answers_book_id",
@@ -628,9 +628,6 @@ namespace IAutor.Api.Migrations
                 name: "emails");
 
             migrationBuilder.DropTable(
-                name: "item_plan");
-
-            migrationBuilder.DropTable(
                 name: "owners");
 
             migrationBuilder.DropTable(
@@ -641,6 +638,9 @@ namespace IAutor.Api.Migrations
 
             migrationBuilder.DropTable(
                 name: "plan_chapter_questions");
+
+            migrationBuilder.DropTable(
+                name: "plan_items");
 
             migrationBuilder.DropTable(
                 name: "question_user_answers");

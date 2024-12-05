@@ -1,4 +1,4 @@
-﻿namespace IAutor.Api.Services;
+﻿namespace IAutor.Api.Services.Crud;
 
 public interface IOrderService
 {
@@ -60,7 +60,7 @@ public sealed class OrderService(
                 query = query.Include(i => i.Payments.FirstOrDefault(f => f.Id == filters.PaymentId));
         }
 
-        return await query.AsNoTracking().ToListAsync().ConfigureAwait(false);
+        return await query.ToListAsync().ConfigureAwait(false);
     }
 
     public async Task<Order?> CreateAsync(Order model, string userEmail)

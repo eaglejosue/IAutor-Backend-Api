@@ -9,13 +9,11 @@ public class Plan : Base
     public DateTime InitialValidityPeriod { get; set; }
     public DateTime? FinalValidityPeriod { get; set; }
     public decimal CaractersLimitFactor { get; set; }
-
     public string? Description { get; set; }
-
-    public ICollection<ItemPlan>? ItensPlanHome { get; set; }
 
     public ICollection<PlanChapter>? PlanChapters { get; set; }
     [JsonIgnore] public ICollection<Book>? Books { get; set; }
+    public ICollection<PlanItem>? PlanItems { get; set; }
 
     //Used on front
     [NotMapped] public IList<ChapterIdQuestionId> ChapterQuestions { get; set; }
