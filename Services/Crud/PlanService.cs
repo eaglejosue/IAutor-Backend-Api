@@ -22,7 +22,7 @@ public sealed class PlanService(
 
     public async Task<List<Plan>> GetAllAsync(PlanFilters filters)
     {
-        var predicate = PredicateBuilder.New<Plan>(n => n.Id > 0);
+        var predicate = PredicateBuilder.New<Plan>(true);
 
         #region Filters
 
@@ -61,10 +61,10 @@ public sealed class PlanService(
         #endregion
 
 #if DEBUG
-        var queryString = query.ToQueryString();
+        var queryString = query.Include(i => i.PlanItems).ToQueryString();
 #endif
 
-        return await query.ToListAsync().ConfigureAwait(false);
+        return await query.Include(i => i.PlanItems).ToListAsync().ConfigureAwait(false);
     }
 
     public async Task<Plan?> CreateAsync(Plan model)
@@ -188,7 +188,7 @@ public sealed class PlanService(
             .Include(pc => pc.Chapter)
             .Include(pc => pc.PlanChapterQuestions)
                 .ThenInclude(pcq => pcq.Question)
-                    .ThenInclude(q => q.QuestionUserAnswer);
+                    .ThenInclude(q => q.QuestionUserAnswers);
 
         var result = await query
             .GroupBy(g => g.Plan)
