@@ -46,7 +46,7 @@ public sealed class PlanService(
 
         #endregion
 
-        var query = db.Plans.Where(predicate);
+        var query = db.Plans.Include(r=>r.PlanItems).Where(predicate);
 
         #region OrderBy
 
@@ -115,15 +115,15 @@ public sealed class PlanService(
 
     private async Task<Plan?> UpdateEntityAsync(Plan model, long loggedUserId, string loggedUserName, string changeFrom)
     {
-        var entitie = await db.Plans.FirstOrDefaultAsync(f => f.Id == model.Id).ConfigureAwait(false);
+        var entitie = await db.Plans.Include(r=>r.PlanChapters).Include(r=>r.PlanItems).FirstOrDefaultAsync(f => f.Id == model.Id).ConfigureAwait(false);
 
         if (entitie == null) return null;
 
-        if (model.PlanChapters != null && model.PlanChapters.Count > 0)
+        if (entitie.PlanChapters != null && entitie.PlanChapters.Count > 0)
         {
-            foreach (var pc in model.PlanChapters)
+            foreach (var pc in entitie.PlanChapters)
                 db.PlansChapters.Remove(pc);
-        }
+        }   
 
         if (entitie.PlanItems != null && entitie.PlanItems.Count > 0)
         {
@@ -132,6 +132,7 @@ public sealed class PlanService(
         }
 
         AddChapterQuestions(model);
+        AddPlanItens(model, entitie);
 
         if (entitie.EntityUpdated(model))
         {
@@ -145,6 +146,7 @@ public sealed class PlanService(
 
         return entitie;
     }
+
 
     public async Task<bool?> DeleteAsync(long id, long loggedUserId, string loggedUserName)
     {
@@ -239,4 +241,15 @@ public sealed class PlanService(
             })
             .ToList();
     }
+
+    private static void AddPlanItens(Plan model, Plan entity)
+    {
+        if (model.PlanItems?.Count == 0)
+            return;
+
+        entity.PlanItems = new List<PlanItem>(model.PlanItems);
+
+
+    }
+
 }
