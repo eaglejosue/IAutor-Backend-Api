@@ -115,7 +115,7 @@ public sealed class PlanService(
 
     private async Task<Plan?> UpdateEntityAsync(Plan model, long loggedUserId, string loggedUserName, string changeFrom)
     {
-        var entitie = await db.Plans.Include(r=>r.PlanChapters).FirstOrDefaultAsync(f => f.Id == model.Id).ConfigureAwait(false);
+        var entitie = await db.Plans.Include(r=>r.PlanChapters).Include(r=>r.PlanItems).FirstOrDefaultAsync(f => f.Id == model.Id).ConfigureAwait(false);
 
         if (entitie == null) return null;
 
@@ -123,7 +123,7 @@ public sealed class PlanService(
         {
             foreach (var pc in entitie.PlanChapters)
                 db.PlansChapters.Remove(pc);
-        }
+        }   
 
         if (entitie.PlanItems != null && entitie.PlanItems.Count > 0)
         {
