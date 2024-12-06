@@ -11,5 +11,4 @@ public sealed class Question : Base
     [JsonIgnore] public ICollection<QuestionUserAnswer>? QuestionUserAnswers { get; set; }
 
     [NotMapped] public bool Selected { get; set; }
-    [NotMapped] public QuestionUserAnswer? QuestionUserAnswer => QuestionUserAnswers?.FirstOrDefault() ?? new();
 }
