@@ -1,4 +1,6 @@
-﻿namespace IAutor.Api.Services.Crud;
+﻿using IAutor.Api.Data.Entities;
+
+namespace IAutor.Api.Services.Crud;
 
 public interface IQuestionService
 {
@@ -234,24 +236,32 @@ public sealed class QuestionService(
             notification.AddNotification("QuestionUserAnswer", "QuestionUserAnswer not found.");
             return;
         }
-
-        questionUserAnwers.ImagePhotoLabel = null;
-        questionUserAnwers.UpdatedAt = DateTimeBr.Now;
-        questionUserAnwers.UpdatedBy = loggedUserName;
-        questionUserAnwers.ImagePhotoOriginalFileName = null;
-
-        await RemovePhotoStorage(questionUserAnwers, model);
-
-        questionUserAnwers.ImagePhotoUrl = null;
-        questionUserAnwers.ImagePhotoUploadDate = null;
+        await RemovePhotoStorage(questionUserAnwers, model, loggedUserName);
+   
 
         await db.SaveChangesAsync().ConfigureAwait(false);
     }
 
-    private async Task RemovePhotoStorage(QuestionUserAnswer questionUserAnswer, QuestionUserAnswer model)
+    private async Task RemovePhotoStorage(QuestionUserAnswer questionUserAnswer, QuestionUserAnswer model, string loggedUserName)
     {
         if (questionUserAnswer.ImagePhotoUrl != null && string.IsNullOrEmpty(model.ImagePhotoUrl))
+        {
             await azureBlobServiceClient.DeleteFileAsync("photos", questionUserAnswer.ImagePhotoUrl);
+            questionUserAnswer.ImagePhotoLabel = null;
+            questionUserAnswer.UpdatedAt = DateTimeBr.Now;
+            questionUserAnswer.UpdatedBy = loggedUserName;
+            questionUserAnswer.ImagePhotoOriginalFileName = null;
+            questionUserAnswer.ImagePhotoUrl = null;
+            questionUserAnswer.ImagePhotoUploadDate = DateTimeBr.Now;
+            return;
+
+        }
+        questionUserAnswer.ImagePhotoLabel = model.ImagePhotoLabel;
+        questionUserAnswer.UpdatedAt = DateTimeBr.Now;
+        questionUserAnswer.UpdatedBy = loggedUserName;
+        questionUserAnswer.ImagePhotoOriginalFileName = model.ImagePhotoOriginalFileName;
+        questionUserAnswer.ImagePhotoUrl = model.ImagePhotoUrl;
+        questionUserAnswer.ImagePhotoUploadDate = DateTimeBr.Now;
     }
 
     public async Task<QuestionUserAnswer?> GetQuestionUserAnswerByIdAsync(long id) => await db.QuestionUserAnswers.FirstOrDefaultAsync(f => f.Id == id).ConfigureAwait(false);
