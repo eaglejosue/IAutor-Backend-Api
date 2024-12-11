@@ -91,6 +91,9 @@ public sealed class BookService(
         if (filters?.IncludeUserBookLogs ?? false)
             query = query.Include(i => i.UserBookLogs.Take(1));
 
+        if (filters?.IncludeUserBookPlan ?? false)
+            query = query.Include(i => i.Plan);
+
         if ((filters?.PaymentsApproved ?? false) || (filters?.IncludePayments ?? false))
             query = query
                 .Include(i => i.Orders.Where(w => w.UserId == loggedUserId && w.Payments.Any(a => a.Status == PaymentStatus.Paid)).Take(1))
