@@ -37,24 +37,23 @@ public sealed class PDFService(
 
                     page.Margin(1, Unit.Centimetre);
                     page.PageColor(Colors.White);
-                    page.DefaultTextStyle(x => x.FontSize(6));
+                    page.DefaultTextStyle(x => x.FontSize(5));
 
                     page.Header()
                         .Column(c =>
                         {
-                            c.Item().AlignCenter().Text(string.Concat("Capítulo", " ", chapter.ChapterNumber)).FontSize(10).FontColor(Colors.Black);
+                            c.Item().AlignCenter().Text(string.Concat("Capítulo", " ", chapter.ChapterNumber)).FontSize(8).FontColor(Colors.Black);
                             c.Item().AlignCenter().Text(question.Subject).SemiBold().FontSize(18).FontColor(Colors.Black);
                         });
 
                     //Tratar Img aqui
                     //TODO
 
-                    page.Content().PaddingTop(20, Unit.Point).Text(questionUserAnswer).FontSize(10);
+                    page.Content().PaddingTop(20, Unit.Point).Text(questionUserAnswer).FontSize(8);
 
                     page.Footer().AlignCenter()
                         .Text(x =>
                         {
-                            x.Span("Página ");
                             x.CurrentPageNumber();
                         });
                 });
