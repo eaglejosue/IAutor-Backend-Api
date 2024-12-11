@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace IAutor.Api.Migrations
 {
     [DbContext(typeof(IAutorDb))]
-    [Migration("20241203210101_InitialCreate")]
+    [Migration("20241205133249_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -86,6 +86,10 @@ namespace IAutor.Api.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(100)")
                         .HasColumnName("title");
+
+                    b.Property<short?>("Type")
+                        .HasColumnType("smallint")
+                        .HasColumnName("type");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp")

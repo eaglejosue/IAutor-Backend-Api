@@ -39,7 +39,12 @@ public sealed class PDFService(
 
                 c.Page(page =>
                 {
-                    page.Size(PageSizes.A4);
+                    if (book.Type.HasValue && book.Type == BookType.Size210X297)
+                        page.Size(210f, 297f);
+
+                    if ((book?.Type ?? BookType.Size148X210) == BookType.Size148X210)
+                        page.Size(148f, 210f);
+
                     page.Margin(2, Unit.Centimetre);
                     page.PageColor(Colors.White);
                     page.DefaultTextStyle(x => x.FontSize(12));
@@ -54,7 +59,7 @@ public sealed class PDFService(
                     //Tratar Img aqui
                     //TODO
 
-                    page.Content().PaddingTop(20, Unit.Point).Text(questionUserAnswer).FontSize(14);
+                    page.Content().PaddingTop(20, Unit.Point).Text(questionUserAnswer).FontSize(12);
 
                     page.Footer().AlignCenter()
                         .Text(x =>

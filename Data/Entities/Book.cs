@@ -13,6 +13,7 @@ public sealed class Book : Base
     public DateTime? PromotionExpirationDate { get; set; }
     public long PlanId { get; set; }
     public long UserId { get; set; }
+    public BookType? Type { get; set; }
 
     [JsonIgnore] public Plan Plan { get; set; }
     [JsonIgnore] public User User { get; set; }

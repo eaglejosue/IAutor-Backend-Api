@@ -133,9 +133,10 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
             entity.Property(v => v.PublicId).HasColumnType("varchar(1000)").HasColumnName("public_id");
             entity.Property(v => v.ThumbImgUrl).HasColumnType("varchar(1000)").HasColumnName("thumb_img_url");
             entity.Property(v => v.SaleExpirationDate).HasColumnType("timestamp").HasColumnName("sale_expiration_date");
+            entity.Property(v => v.DownloadExpirationDate).HasColumnType("timestamp").HasColumnName("download_expiration_date");
             entity.Property(v => v.PromotionPrice).HasColumnType("decimal(10,2)").HasColumnName("promotion_price");
             entity.Property(v => v.PromotionExpirationDate).HasColumnType("timestamp").HasColumnName("promotion_expiration_date");
-            entity.Property(v => v.DownloadExpirationDate).HasColumnType("timestamp").HasColumnName("download_expiration_date");
+            entity.Property(o => o.Type).HasColumnType("smallint").HasColumnName("type");
 
             entity.Property(o => o.PlanId).HasColumnType("bigint").HasColumnName("plan_id");
             entity.Property(o => o.UserId).HasColumnType("bigint").HasColumnName("user_id");
