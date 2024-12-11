@@ -135,12 +135,12 @@ public static class BookEndpoints
         })
         .RequireAuthorization("Delete");
 
-        app.MapPost("/api/books/{id:long}/pdf",
+        app.MapGet("/api/books/{id:long}/pdf",
         async (long id, [FromServices] IBookService service) =>
         {
-            var file = await service.GenerateBookPDF(id);
+            var file = await service.GetBookPDF(id);
             if (file is null) return Results.NoContent();
-            return Results.File(file.ByteArray, file.MimeType, file.FileName);
+            return Results.Ok(file);
         })
         .Produces((int)HttpStatusCode.OK)
         .WithName("Book PDF")

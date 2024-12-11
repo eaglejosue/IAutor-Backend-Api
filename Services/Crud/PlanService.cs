@@ -248,8 +248,5 @@ public sealed class PlanService(
             return;
 
         entity.PlanItems = new List<PlanItem>(model.PlanItems);
-
-
     }
-
 }
