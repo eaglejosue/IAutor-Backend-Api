@@ -40,10 +40,10 @@ public sealed class PDFService(
                 c.Page(page =>
                 {
                     if (book.Type.HasValue && book.Type == BookType.Size210X297)
-                        page.Size(210f, 297f);
+                        page.Size(PageSizes.A4);
 
                     if ((book?.Type ?? BookType.Size148X210) == BookType.Size148X210)
-                        page.Size(148f, 210f);
+                        page.Size(PageSizes.A5);
 
                     page.Margin(2, Unit.Centimetre);
                     page.PageColor(Colors.White);
