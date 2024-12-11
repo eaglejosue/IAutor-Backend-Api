@@ -11,6 +11,7 @@ public sealed class BookFilters : BaseFilters
     public bool? PaymentsApproved { get; set; }
     public bool? IncludePayments { get; set; }
     public bool? IncludeUserBookLogs { get; set; }
+    public bool? IncludeUserBookPlan { get; set; }
     public bool? ListToCrud { get; set; }
     public bool? ListToDownload { get; set; }
     public long? PlanId { get; set; }
