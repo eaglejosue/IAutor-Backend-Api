@@ -14,7 +14,7 @@ public sealed class Book : Base
     public long PlanId { get; set; }
     public long UserId { get; set; }
 
-    [JsonIgnore] public Plan Plan { get; set; }
+    public Plan Plan { get; set; }
     [JsonIgnore] public User User { get; set; }
     public ICollection<Order>? Orders { get; set; }
     public ICollection<UserBookLog>? UserBookLogs { get; set; }
