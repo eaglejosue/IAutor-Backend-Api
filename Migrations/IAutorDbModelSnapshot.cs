@@ -84,6 +84,10 @@ namespace IAutor.Api.Migrations
                         .HasColumnType("varchar(100)")
                         .HasColumnName("title");
 
+                    b.Property<short?>("Type")
+                        .HasColumnType("smallint")
+                        .HasColumnName("type");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp")
                         .HasColumnName("updated_at");

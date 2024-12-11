@@ -8,7 +8,7 @@ public interface IBookService
     Task<Book?> UpdateAsync(Book model, long loggedUserId, string loggedUserName);
     Task<Book?> PatchAsync(Book model, long loggedUserId, string loggedUserName);
     Task<bool?> DeleteAsync(long id, long loggedUserId, string loggedUserName);
-    Task<PdfFileInfo?> GenerateBookPDF(long id);
+    Task<PdfFileInfo?> GetBookPDF(long id);
 }
 
 public sealed class BookService(
@@ -201,7 +201,7 @@ public sealed class BookService(
         return true;
     }
 
-    public async Task<PdfFileInfo?> GenerateBookPDF(long id)
+    public async Task<PdfFileInfo?> GetBookPDF(long id)
     {
         var book = await db.Books.Where(w => w.Id == id).FirstOrDefaultAsync().ConfigureAwait(false);
 

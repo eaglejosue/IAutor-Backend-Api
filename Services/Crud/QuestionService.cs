@@ -1,6 +1,4 @@
-﻿using IAutor.Api.Data.Entities;
-
-namespace IAutor.Api.Services.Crud;
+﻿namespace IAutor.Api.Services.Crud;
 
 public interface IQuestionService
 {
@@ -236,8 +234,8 @@ public sealed class QuestionService(
             notification.AddNotification("QuestionUserAnswer", "QuestionUserAnswer not found.");
             return;
         }
+
         await RemovePhotoStorage(questionUserAnwers, model, loggedUserName);
-   
 
         await db.SaveChangesAsync().ConfigureAwait(false);
     }
@@ -254,8 +252,8 @@ public sealed class QuestionService(
             questionUserAnswer.ImagePhotoUrl = null;
             questionUserAnswer.ImagePhotoUploadDate = DateTimeBr.Now;
             return;
-
         }
+
         questionUserAnswer.ImagePhotoLabel = model.ImagePhotoLabel;
         questionUserAnswer.UpdatedAt = DateTimeBr.Now;
         questionUserAnswer.UpdatedBy = loggedUserName;
