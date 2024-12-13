@@ -26,4 +26,10 @@ public sealed class Constants
         private static string GetTemplate(string name) =>
             File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot", "Templates", $"{name}.html"));
     }
+
+    public static class Folders
+    {
+        public const string Photos = "photos";
+        public const string Pdfs = "pdfs";
+    }
 }

@@ -6,14 +6,15 @@ namespace IAutor.Api.Services;
 
 public interface IPDFService
 {
-    PdfFileInfo GenerateBookPDF(Book book, List<Chapter> chapters);
+    Task<PdfFileInfo> GenerateBookPDFAsync(Book book, List<Chapter> chapters, bool isPreview = true);
 }
 
 public sealed class PDFService(
     IAutorDb db,
-    INotificationService notification) : IPDFService
+    INotificationService notification,
+    IAzureBlobServiceClient azureBlobServiceClient) : IPDFService
 {
-    public PdfFileInfo GenerateBookPDF(Book book, List<Chapter> chapters)
+    public async Task<PdfFileInfo> GenerateBookPDFAsync(Book book, List<Chapter> chapters, bool isPreview = true)
     {
         var document = Document.Create(c =>
         {
@@ -24,10 +25,10 @@ public sealed class PDFService(
             where question.QuestionUserAnswers != null
             select (chapter, question))
             {
-                var questionUserAnswer = question?.QuestionUserAnswers?.FirstOrDefault()?.Answer;
-                if (string.IsNullOrEmpty(questionUserAnswer)) continue;
+                var questionUserAnswer = question?.QuestionUserAnswers?.FirstOrDefault();
+                if (string.IsNullOrEmpty(questionUserAnswer?.Answer)) continue;
 
-                c.Page(page =>
+                c.Page(async page =>
                 {
                     if (book.Type.HasValue && book.Type == BookType.Size210X297)
                         page.Size(PageSizes.A4);
@@ -42,20 +43,40 @@ public sealed class PDFService(
                     page.Header()
                         .Column(c =>
                         {
-                            c.Item().AlignCenter().Text(string.Concat("Capítulo", " ", chapter.ChapterNumber)).FontSize(8).FontColor(Colors.Black);
+                            c.Item().AlignCenter().Text(string.Concat("Capítulo", " ", chapter.ChapterNumber)).FontSize(11).FontColor(Colors.Black);
                             c.Item().AlignCenter().Text(question.Subject).SemiBold().FontSize(18).FontColor(Colors.Black);
                         });
 
-                    //Tratar Img aqui
-                    //TODO
-
-                    page.Content().PaddingTop(20, Unit.Point).Text(questionUserAnswer).FontSize(8);
-
-                    page.Footer().AlignCenter()
-                        .Text(x =>
+                    page.Content().Column(c =>
+                    {
+                        if (!string.IsNullOrEmpty(questionUserAnswer.ImagePhotoUrl))
                         {
-                            x.CurrentPageNumber();
-                        });
+                            try
+                            {
+                                var fileName = questionUserAnswer.ImagePhotoUrl[questionUserAnswer.ImagePhotoUrl.LastIndexOf('/')..];
+                                var img = azureBlobServiceClient.DownloadFileBytesAsync(Folders.Photos, fileName);
+                                c.Item().AlignCenter().PaddingTop(20, Unit.Point).Height(200).Image(img.Result).WithCompressionQuality(ImageCompressionQuality.High);
+                                
+                                if (!string.IsNullOrEmpty(questionUserAnswer.ImagePhotoLabel))
+                                    c.Item().AlignCenter().PaddingTop(5, Unit.Point).Text(questionUserAnswer.ImagePhotoLabel).FontSize(8);
+                                
+                                c.Item().PaddingTop(5, Unit.Point).Text(questionUserAnswer.Answer).FontSize(8);
+                            }
+                            catch (Exception ex)
+                            {
+                                notification.AddNotification(new Notification("PDF Img Error", ex.Message));
+                            }
+                        }
+                        else
+                        {
+                            c.Item().PaddingTop(20, Unit.Point).Text(questionUserAnswer.Answer).FontSize(8);
+                        }
+
+                        if (isPreview)
+                            c.Item().AlignCenter().PaddingTop(5, Unit.Point).Text("*** EM EDIÇÃO ***").FontSize(20);
+                    });
+
+                    page.Footer().AlignCenter().Text(x => x.CurrentPageNumber());
                 });
             }
         });

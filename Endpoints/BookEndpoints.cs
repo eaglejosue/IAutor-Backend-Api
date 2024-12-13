@@ -1,4 +1,6 @@
-﻿namespace IAutor.Api.Endpoints;
+﻿using Amazon;
+
+namespace IAutor.Api.Endpoints;
 
 public static class BookEndpoints
 {
@@ -138,9 +140,10 @@ public static class BookEndpoints
         app.MapGet("/api/books/{id:long}/pdf",
         async (long id, [FromServices] IBookService service) =>
         {
-            var file = await service.GetBookPDF(id);
-            if (file is null) return Results.NoContent();
-            return Results.Ok(file);
+            var pdfFile = await service.GetBookPDF(id);
+            if (pdfFile is null) return Results.NoContent();
+            //return Results.File(pdfFile.FileStream, pdfFile.MimeType, pdfFile.FileName);
+            return Results.Ok(pdfFile);
         })
         .Produces((int)HttpStatusCode.OK)
         .WithName("Book PDF")

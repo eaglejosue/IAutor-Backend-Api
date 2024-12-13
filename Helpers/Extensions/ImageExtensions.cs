@@ -8,22 +8,15 @@ public static class ImageExtensions
     {
         using var stream = file.OpenReadStream();
         byte[] imageBytes;
-        using (Image img = Image.FromStream(stream))
-        {
-            var size = ResizeKeepAspect(new Size(img.Width, img.Height), img.Width > maxWidth ? maxWidth : img.Width, img.Height > maxHeight ? maxHeight : img.Height);
-            using (Bitmap b = new Bitmap(img, size))
-            {
-                using (MemoryStream ms2 = new MemoryStream())
-                {
-                    b.Save(ms2, System.Drawing.Imaging.ImageFormat.Jpeg);
-                    imageBytes = ms2.ToArray();
+        using Image img = Image.FromStream(stream);
+        var size = ResizeKeepAspect(new Size(img.Width, img.Height), img.Width > maxWidth ? maxWidth : img.Width, img.Height > maxHeight ? maxHeight : img.Height);
+        using Bitmap b = new(img, size);
+        using MemoryStream ms2 = new();
+        b.Save(ms2, System.Drawing.Imaging.ImageFormat.Jpeg);
+        imageBytes = ms2.ToArray();
 
-                    Stream streamRet = new MemoryStream(imageBytes);
-                    return streamRet;
-
-                }
-            }
-        }
+        var streamRet = new MemoryStream(imageBytes);
+        return streamRet;
     }
 
     public static Size ResizeKeepAspect(Size src, int maxWidth, int maxHeight, bool enlarge = false)

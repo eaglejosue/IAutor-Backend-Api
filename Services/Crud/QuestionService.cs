@@ -11,7 +11,7 @@ public interface IQuestionService
 
     Task UpsertQuestionUserAnswerAsync(QuestionUserAnswer model, long loggedUserId, string loggedUserName);
     Task<List<QuestionUserAnswer>> GetQuestionUserAnswersAsync(long loggedUserId, long bookId);
-    Task UploadPhotoQuestionUserAnswer(long idQuestionUserAnwser, IFormFile file, string label, long loggedUserId, string loggedUserName);
+    Task UploadPhotoQuestionUserAnswer(long id, IFormFile file, string label, long loggedUserId, string loggedUserName);
     Task UpdateQuestionUserPhotoAnswerAsync(QuestionUserAnswer model, long loggedUserId, string loggedUserName);
     Task<QuestionUserAnswer?> GetQuestionUserAnswerByIdAsync(long id);
 }
@@ -200,35 +200,33 @@ public sealed class QuestionService(
         return await db.QuestionUserAnswers.Where(w => w.BookId == bookId && w.UserId == loggedUserId).ToListAsync().ConfigureAwait(false);
     }
 
-    public async Task UploadPhotoQuestionUserAnswer(long idQuestionUserAnwser, IFormFile file, string label, long loggedUserId, string loggedUserName)
+    public async Task UploadPhotoQuestionUserAnswer(long id, IFormFile file, string label, long loggedUserId, string loggedUserName)
     {
-        var questionUserAnwers = await db.QuestionUserAnswers.FirstOrDefaultAsync(r => r.Id == idQuestionUserAnwser);
-        if (questionUserAnwers == null)
+        var questionUserAnswer = await db.QuestionUserAnswers.FirstOrDefaultAsync(r => r.Id == id);
+        if (questionUserAnswer == null)
         {
             notification.AddNotification("QuestionUserAnswer", "QuestionUserAnswer not found.");
             return;
         }
 
-        questionUserAnwers.ImagePhotoOriginalFileName = file.FileName;
-        questionUserAnwers.ImagePhotoUploadDate = DateTime.Now;
-        questionUserAnwers.ImagePhotoLabel = label;
-        questionUserAnwers.UpdatedAt = DateTimeBr.Now;
-        questionUserAnwers.UpdatedBy = loggedUserName;
+        questionUserAnswer.ImagePhotoOriginalFileName = file.FileName;
+        questionUserAnswer.ImagePhotoUploadDate = DateTime.Now;
+        questionUserAnswer.ImagePhotoLabel = label;
+        questionUserAnswer.UpdatedAt = DateTimeBr.Now;
+        questionUserAnswer.UpdatedBy = loggedUserName;
 
-        var nameFile = string.Concat(Guid.NewGuid().ToString(), ".", file.FileName.AsSpan(file.FileName.LastIndexOf('.') + 1));
+        var fileName = string.Concat(Guid.NewGuid().ToString(), ".", file.FileName.AsSpan(file.FileName.LastIndexOf('.') + 1));
         var stream = ImageExtensions.ResizeImage(file, 540, 330);
+        var url = await azureBlobServiceClient.UploadFileFromStreamAsync(Folders.Photos, fileName, stream);
+        questionUserAnswer.ImagePhotoUrl = url;
 
-        var uploaded = await azureBlobServiceClient.UploadFileFromStreamAsync("photos", nameFile, stream);
-        questionUserAnwers.ImagePhotoUrl = uploaded;
-
-        db.QuestionUserAnswers.Update(questionUserAnwers);
+        db.QuestionUserAnswers.Update(questionUserAnswer);
         await db.SaveChangesAsync().ConfigureAwait(false);
     }
 
     public async Task UpdateQuestionUserPhotoAnswerAsync(QuestionUserAnswer model, long loggedUserId, string loggedUserName)
     {
         var questionUserAnwers = await db.QuestionUserAnswers.FirstOrDefaultAsync(r => r.Id == model.Id);
-
         if (questionUserAnwers == null)
         {
             notification.AddNotification("QuestionUserAnswer", "QuestionUserAnswer not found.");

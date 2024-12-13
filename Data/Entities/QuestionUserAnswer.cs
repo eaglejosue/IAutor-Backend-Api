@@ -16,7 +16,6 @@ public class QuestionUserAnswer
     public string? ImagePhotoThumbUrl { get; set; }
     public string? ImagePhotoLabel { get; set; }
     public DateTime? ImagePhotoUploadDate { get; set; }
-
     public string? ImagePhotoOriginalFileName { get; set; }
 
     [JsonIgnore] public Chapter? Chapter { get; set; }
