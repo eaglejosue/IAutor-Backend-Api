@@ -231,6 +231,6 @@ public sealed class BookService(
             .ToListAsync()
             .ConfigureAwait(false);
 
-        return pdfService.GenerateBookPDF(book, chapters);
+        return await pdfService.GenerateBookPDF(book, chapters);
     }
 }
