@@ -1,4 +1,6 @@
-﻿using QuestPDF.Infrastructure;
+﻿using Amazon;
+using Amazon.S3;
+using QuestPDF.Infrastructure;
 
 namespace IAutor.Api.Helpers.Extensions;
 
@@ -22,11 +24,9 @@ public static class BuilderExtensions
         //builder.Services.AddDbContext<IAutorDb>(o => o.UseSqlite("DataSource=IAutor.db;Cache=Shared", b => b.MigrationsAssembly("IAutor.Api")));
 
         builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options => options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
-        builder.Services.AddSingleton<IAzureBlobServiceClient>(x =>
-        {
-            var blobServiceClient = new AzureBlobServiceClient(new BlobServiceClient(config.GetSection("AzureBlobStorageConnString").Value));
-            return blobServiceClient;
-        });
+        builder.Services.AddSingleton<IAzureBlobServiceClient>(new AzureBlobServiceClient(new BlobServiceClient(config.GetSection("AzureBlobStorageConnString").Value)));
+        builder.Services.AddSingleton<IAmazonS3StorageManager>(new AmazonS3StorageManager(
+            new AmazonS3Client(new AmazonS3Config { ServiceURL = config.GetSection("Aws:S3BucketUrl").Value }), config.GetSection("Aws:BucketName").Value));
 
         builder.AddSwagger();
         builder.AddSecurity(config);
