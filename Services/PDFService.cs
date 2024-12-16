@@ -60,7 +60,7 @@ public sealed class PDFService(
                                 if (!string.IsNullOrEmpty(questionUserAnswer.ImagePhotoLabel))
                                     c.Item().AlignCenter().PaddingTop(5, Unit.Point).Text(questionUserAnswer.ImagePhotoLabel).FontSize(8);
                                 
-                                c.Item().PaddingTop(5, Unit.Point).Text(questionUserAnswer.Answer).FontSize(8);
+                                c.Item().PaddingTop(10, Unit.Point).Text(questionUserAnswer.Answer).FontSize(8);
                             }
                             catch (Exception ex)
                             {

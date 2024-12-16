@@ -186,7 +186,8 @@ public sealed class BookService(
 
     public async Task<bool?> DeleteAsync(long id, long loggedUserId, string loggedUserName)
     {
-        var entitie = await GetByIdAsync(id);
+        var entitie = await db.Books.FirstOrDefaultAsync(f => f.Id == id).ConfigureAwait(false);
+
         if (entitie == null) return null;
 
         entitie.IsActive = false;
