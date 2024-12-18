@@ -20,7 +20,9 @@ public sealed class QuestionService(
     IAutorDb db,
     INotificationService notification,
     IUserService userService,
-    IAzureBlobServiceClient azureBlobServiceClient) : IQuestionService
+    IAzureBlobServiceClient azureBlobServiceClient,
+    IAmazonS3StorageManager amazonS3,
+    IWebHostEnvironment env) : IQuestionService
 {
     public async Task<Question?> GetByIdAsync(long id) => await db.Questions.FirstOrDefaultAsync(f => f.Id == id).ConfigureAwait(false);
 
@@ -217,7 +219,15 @@ public sealed class QuestionService(
 
         var fileName = string.Concat(Guid.NewGuid().ToString(), ".", file.FileName.AsSpan(file.FileName.LastIndexOf('.') + 1));
         var stream = ImageExtensions.ResizeImage(file, 540, 330);
-        var url = await azureBlobServiceClient.UploadFileFromStreamAsync(Folders.Photos, fileName, stream);
+        var url = "";
+        if (env.IsDevelopment())
+            url = await azureBlobServiceClient.UploadFileFromStreamAsync(Folders.Photos, fileName, stream);
+        else
+        {
+            await amazonS3.UploadFileContainerAsync(Folders.Photos, fileName, stream);
+            url = amazonS3.GetUlrRootContainer(Folders.Photos) + "/" + fileName;
+        }
+
         questionUserAnswer.ImagePhotoUrl = url;
 
         db.QuestionUserAnswers.Update(questionUserAnswer);
@@ -242,7 +252,12 @@ public sealed class QuestionService(
     {
         if (questionUserAnswer.ImagePhotoUrl != null && string.IsNullOrEmpty(model.ImagePhotoUrl))
         {
-            await azureBlobServiceClient.DeleteFileAsync("photos", questionUserAnswer.ImagePhotoUrl);
+            if (env.IsDevelopment()) 
+                await azureBlobServiceClient.DeleteFileAsync(Folders.Photos, questionUserAnswer.ImagePhotoUrl);
+            else
+            {
+                await amazonS3.DeleteFileContainerAsync(Folders.Photos, questionUserAnswer.ImagePhotoUrl);
+            }
             questionUserAnswer.ImagePhotoLabel = null;
             questionUserAnswer.UpdatedAt = DateTimeBr.Now;
             questionUserAnswer.UpdatedBy = loggedUserName;
