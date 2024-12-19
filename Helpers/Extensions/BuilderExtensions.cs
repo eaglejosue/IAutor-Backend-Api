@@ -1,5 +1,4 @@
-﻿using Amazon;
-using Amazon.S3;
+﻿using Amazon.S3;
 using QuestPDF.Infrastructure;
 
 namespace IAutor.Api.Helpers.Extensions;
@@ -19,7 +18,7 @@ public static class BuilderExtensions
             o.JsonSerializerOptions.WriteIndented = true;
             o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
         });
-        builder.Services.AddSingleton(builder.Environment);
+        
         builder.Services.AddDbContext<IAutorDb>(o => o.UseNpgsql(config.GetConnectionString("IAutorDb")));
         //builder.Services.AddDbContext<IAutorDb>(o => o.UseSqlite("DataSource=IAutor.db;Cache=Shared", b => b.MigrationsAssembly("IAutor.Api")));
 

@@ -1,6 +1,4 @@
-﻿using Amazon;
-
-namespace IAutor.Api.Endpoints;
+﻿namespace IAutor.Api.Endpoints;
 
 public static class BookEndpoints
 {

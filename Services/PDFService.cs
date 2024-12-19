@@ -10,11 +10,10 @@ public interface IPDFService
 }
 
 public sealed class PDFService(
-    IAutorDb db,
     INotificationService notification,
-    IAzureBlobServiceClient azureBlobServiceClient,
-    IAmazonS3StorageManager amazonS3,
-    IWebHostEnvironment env) : IPDFService
+    IAzureBlobServiceClient azureBlobServiceClient//,
+    //IAmazonS3StorageManager amazonS3
+    ) : IPDFService
 {
     public async Task<PdfFileInfo> GenerateBookPDFAsync(Book book, List<Chapter> chapters, bool isPreview = true)
     {
@@ -56,16 +55,11 @@ public sealed class PDFService(
                             try
                             {
                                 var fileName = questionUserAnswer.ImagePhotoUrl[questionUserAnswer.ImagePhotoUrl.LastIndexOf('/')..];
-                                if (env.IsDevelopment())
-                                {
-                                    var img = azureBlobServiceClient.DownloadFileBytesAsync(Folders.Photos, fileName);
-                                    c.Item().AlignCenter().PaddingTop(20, Unit.Point).Height(200).Image(img.Result).WithCompressionQuality(ImageCompressionQuality.Best);
-                                }
-                                else
-                                {
-                                    var img = amazonS3.GetFileContainerAsync(Folders.Photos, fileName);
-                                    c.Item().AlignCenter().PaddingTop(20, Unit.Point).Height(200).Image(img.Result).WithCompressionQuality(ImageCompressionQuality.Best);
-                                }
+                                var img = azureBlobServiceClient.DownloadFileBytesAsync(Folders.Photos, fileName);
+                                //var img = amazonS3.GetFileContainerAsync(Folders.Photos, fileName);
+
+                                c.Item().AlignCenter().PaddingTop(20, Unit.Point).Height(200).Image(img.Result).WithCompressionQuality(ImageCompressionQuality.Best);
+
                                 if (!string.IsNullOrEmpty(questionUserAnswer.ImagePhotoLabel))
                                     c.Item().AlignCenter().PaddingTop(5, Unit.Point).Text(questionUserAnswer.ImagePhotoLabel).FontSize(8);
                                 

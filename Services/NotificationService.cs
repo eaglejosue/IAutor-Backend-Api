@@ -37,7 +37,7 @@ public sealed class NotificationService : INotificationService
     public void AddNotifications(ValidationResult validationResult)
     {
         foreach (var error in validationResult.Errors)
-            AddNotification(error.ErrorCode, error.ErrorMessage);
+            AddNotification(error.PropertyName, error.ErrorMessage);
     }
 
     public void ClearNotifications() => _notifications.Clear();

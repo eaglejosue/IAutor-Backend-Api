@@ -8,7 +8,7 @@ using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var dbContext = services.GetRequiredService<IAutorDb>();
-   // dbContext.Database.Migrate();
+    //dbContext.Database.Migrate();
 }
 
 app.Run();

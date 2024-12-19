@@ -160,9 +160,9 @@ public static class QuestionEndpoint
         {
             var loggedUserId = TokenExtension.GetUserIdFromToken(context);
             var loggedUserName = TokenExtension.GetUserNameFromToken(context);
-            await service.UpsertQuestionUserAnswerAsync(model, loggedUserId, loggedUserName);
+            var result = await service.UpsertQuestionUserAnswerAsync(model, loggedUserId, loggedUserName);
             if (notification.HasNotifications) return Results.BadRequest(notification.Notifications);
-            return Results.Ok();
+            return Results.Ok(result);
         })
         .Produces((int)HttpStatusCode.OK)
         .WithName("CreateQuestionUserAnswer")

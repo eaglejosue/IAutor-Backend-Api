@@ -9,7 +9,7 @@ public interface IQuestionService
     Task<Question?> PatchAsync(Question model, long loggedUserId, string loggedUserName);
     Task<bool?> DeleteAsync(long id, long loggedUserId, string loggedUserName);
 
-    Task UpsertQuestionUserAnswerAsync(QuestionUserAnswer model, long loggedUserId, string loggedUserName);
+    Task<QuestionUserAnswer?> UpsertQuestionUserAnswerAsync(QuestionUserAnswer model, long loggedUserId, string loggedUserName);
     Task<List<QuestionUserAnswer>> GetQuestionUserAnswersAsync(long loggedUserId, long bookId);
     Task UploadPhotoQuestionUserAnswer(long id, IFormFile file, string label, long loggedUserId, string loggedUserName);
     Task UpdateQuestionUserPhotoAnswerAsync(QuestionUserAnswer model, long loggedUserId, string loggedUserName);
@@ -20,9 +20,9 @@ public sealed class QuestionService(
     IAutorDb db,
     INotificationService notification,
     IUserService userService,
-    IAzureBlobServiceClient azureBlobServiceClient,
-    IAmazonS3StorageManager amazonS3,
-    IWebHostEnvironment env) : IQuestionService
+    IAzureBlobServiceClient azureBlobServiceClient//,
+    //IAmazonS3StorageManager amazonS3
+    ) : IQuestionService
 {
     public async Task<Question?> GetByIdAsync(long id) => await db.Questions.FirstOrDefaultAsync(f => f.Id == id).ConfigureAwait(false);
 
@@ -155,13 +155,13 @@ public sealed class QuestionService(
     }
 
 
-    public async Task UpsertQuestionUserAnswerAsync(QuestionUserAnswer model, long loggedUserId, string loggedUserName)
+    public async Task<QuestionUserAnswer?> UpsertQuestionUserAnswerAsync(QuestionUserAnswer model, long loggedUserId, string loggedUserName)
     {
         var validation = await model.ValidateAsync();
         if (!validation.IsValid)
         {
             notification.AddNotifications(validation);
-            return;
+            return default;
         }
 
         var entitie = await db.QuestionUserAnswers
@@ -176,7 +176,9 @@ public sealed class QuestionService(
         if (entitie == null)
         {
             model.CreatedAt = DateTimeBr.Now;
-            await db.QuestionUserAnswers.AddAsync(model).ConfigureAwait(false);
+            var addResult = await db.QuestionUserAnswers.AddAsync(model).ConfigureAwait(false);
+            await db.SaveChangesAsync().ConfigureAwait(false);
+            return addResult.Entity;
         }
         else
         {
@@ -185,9 +187,10 @@ public sealed class QuestionService(
             entitie.Answer = model.Answer;
             entitie.QtdCallIASugestionsUsed = model.QtdCallIASugestionsUsed;
             db.QuestionUserAnswers.Update(entitie);
+            await db.SaveChangesAsync().ConfigureAwait(false);
         }
 
-        await db.SaveChangesAsync().ConfigureAwait(false);
+        return entitie;
     }
 
     public async Task<List<QuestionUserAnswer>> GetQuestionUserAnswersAsync(long loggedUserId, long bookId)
@@ -219,14 +222,10 @@ public sealed class QuestionService(
 
         var fileName = string.Concat(Guid.NewGuid().ToString(), ".", file.FileName.AsSpan(file.FileName.LastIndexOf('.') + 1));
         var stream = ImageExtensions.ResizeImage(file, 540, 330);
-        var url = "";
-        if (env.IsDevelopment())
-            url = await azureBlobServiceClient.UploadFileFromStreamAsync(Folders.Photos, fileName, stream);
-        else
-        {
-            await amazonS3.UploadFileContainerAsync(Folders.Photos, fileName, stream);
-            url = amazonS3.GetUlrRootContainer(Folders.Photos) + "/" + fileName;
-        }
+        var url = await azureBlobServiceClient.UploadFileFromStreamAsync(Folders.Photos, fileName, stream);
+
+        //await amazonS3.UploadFileContainerAsync(Folders.Photos, fileName, stream);
+        //var url = amazonS3.GetUlrRootContainer(Folders.Photos) + "/" + fileName;
 
         questionUserAnswer.ImagePhotoUrl = url;
 
@@ -252,12 +251,9 @@ public sealed class QuestionService(
     {
         if (questionUserAnswer.ImagePhotoUrl != null && string.IsNullOrEmpty(model.ImagePhotoUrl))
         {
-            if (env.IsDevelopment()) 
-                await azureBlobServiceClient.DeleteFileAsync(Folders.Photos, questionUserAnswer.ImagePhotoUrl);
-            else
-            {
-                await amazonS3.DeleteFileContainerAsync(Folders.Photos, questionUserAnswer.ImagePhotoUrl);
-            }
+            await azureBlobServiceClient.DeleteFileAsync(Folders.Photos, questionUserAnswer.ImagePhotoUrl);
+            //await amazonS3.DeleteFileContainerAsync(Folders.Photos, questionUserAnswer.ImagePhotoUrl);
+
             questionUserAnswer.ImagePhotoLabel = null;
             questionUserAnswer.UpdatedAt = DateTimeBr.Now;
             questionUserAnswer.UpdatedBy = loggedUserName;

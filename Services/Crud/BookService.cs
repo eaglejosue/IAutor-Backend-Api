@@ -48,8 +48,8 @@ public sealed class BookService(
             );
         }
 
-        if (!string.IsNullOrEmpty(filters.CloudinaryPublicId))
-            predicate.And(a => a.PublicId != null && EF.Functions.Like(a.PublicId, filters.CloudinaryPublicId.LikeConcat()));
+        if (!string.IsNullOrEmpty(filters.PublicId))
+            predicate.And(a => a.PublicId != null && EF.Functions.Like(a.PublicId, filters.PublicId.LikeConcat()));
 
         if (filters.Price.HasValue && filters.Price.Value > decimal.Zero)
             predicate.And(a => a.Price == filters.Price);
@@ -93,6 +93,9 @@ public sealed class BookService(
 
         if (filters?.IncludeUserBookPlan ?? false)
             query = query.Include(i => i.Plan);
+
+        if (filters?.IncludeQuestionUserAnswers ?? false)
+            query = query.Include(i => i.QuestionUserAnswers);
 
         if ((filters?.PaymentsApproved ?? false) || (filters?.IncludePayments ?? false))
             query = query
