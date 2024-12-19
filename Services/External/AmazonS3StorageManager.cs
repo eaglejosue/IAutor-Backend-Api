@@ -94,6 +94,7 @@ public class AmazonS3StorageManager(
     public string GetUlrRoot() => config.GetSection("Aws:S3BucketUrl").Value ?? "https://dev-assets.iautor.com.br/public/";
 
     public string GetUlrRootContainer(string prefix) => string.Concat(GetUlrRoot(), "/", prefix);
+
     public async Task MoveFileContainerAsync(string prefix, string fileUrlOrigin, string fileUrlDestin)
     {
         await CreatBucketAsync();
