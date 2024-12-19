@@ -225,9 +225,7 @@ public sealed class QuestionService(
         //var url = await azureBlobServiceClient.UploadFileFromStreamAsync(Folders.Photos, fileName, stream);
 
         await amazonS3.UploadFileContainerAsync(Folders.Photos, fileName, stream);
-        var url = string.Concat(amazonS3.GetUlrRootContainer(Folders.Photos), "/", fileName);
-
-        questionUserAnswer.ImagePhotoUrl = url;
+        questionUserAnswer.ImagePhotoUrl = amazonS3.GetUlrRootContainer(fileName);
 
         db.QuestionUserAnswers.Update(questionUserAnswer);
         await db.SaveChangesAsync().ConfigureAwait(false);
