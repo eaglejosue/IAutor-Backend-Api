@@ -15,7 +15,10 @@ public interface IAmazonS3StorageManager
     Task MoveFileContainerAsync(string prefix, string fileUrlOrigin, string fileUrlDestin);
 }
 
-public class AmazonS3StorageManager(AmazonS3Client s3Client, string bucketName) : IAmazonS3StorageManager
+public class AmazonS3StorageManager(
+    AmazonS3Client s3Client,
+    string bucketName,
+    IConfiguration config) : IAmazonS3StorageManager
 {
     private async Task CreatBucketAsync()
     {
@@ -32,41 +35,41 @@ public class AmazonS3StorageManager(AmazonS3Client s3Client, string bucketName) 
         }
     }
 
-    public async Task UploadFileContainerAsync(string prefix, string caminhoArquivo, Stream arquivo)
+    public async Task UploadFileContainerAsync(string prefix, string fileUrl, Stream arquivo)
     {
         await CreatBucketAsync();
 
         var putRequest = new PutObjectRequest
         {
             BucketName = bucketName,
-            Key = prefix + "/" + caminhoArquivo,
+            Key = prefix + "/" + fileUrl,
             InputStream = arquivo,
         };
 
         await s3Client.PutObjectAsync(putRequest);
     }
 
-    public async Task DeleteFileContainerAsync(string prefix, string caminhoArquivo)
+    public async Task DeleteFileContainerAsync(string prefix, string fileUrl)
     {
         await CreatBucketAsync();
 
         var deleteObjectRequest = new DeleteObjectRequest
         {
             BucketName = bucketName,
-            Key = prefix + "/" + caminhoArquivo
+            Key = prefix + "/" + fileUrl
         };
 
         await s3Client.DeleteObjectAsync(deleteObjectRequest);
     }
 
-    public async Task<Stream> GetFileContainerAsync(string prefix, string caminhoArquivo)
+    public async Task<Stream> GetFileContainerAsync(string prefix, string fileUrl)
     {
         await CreatBucketAsync();
 
         var getObjectRequest = new GetObjectRequest
         {
             BucketName = bucketName,
-            Key = prefix + "/" + caminhoArquivo
+            Key = prefix + "/" + fileUrl
         };
 
         var response = await s3Client.GetObjectAsync(getObjectRequest);
@@ -74,47 +77,38 @@ public class AmazonS3StorageManager(AmazonS3Client s3Client, string bucketName) 
         return response.ResponseStream;
     }
 
-    public async Task<string> CreateTempUrlAsync(string prefix, string caminhoArquivo, DateTime dataExpiracao)
+    public async Task<string> CreateTempUrlAsync(string prefix, string fileUrl, DateTime dataExpiracao)
     {
         await CreatBucketAsync();
 
         var request = new GetPreSignedUrlRequest
         {
             BucketName = bucketName,
-            Key = prefix + "/" + caminhoArquivo,
+            Key = prefix + "/" + fileUrl,
             Expires = dataExpiracao
         };
 
         return s3Client.GetPreSignedURL(request);
     }
 
-    public string GetUlrRoot() => string.Concat("https://", bucketName, ".s3.us-east-1.amazonaws.com/");
+    public string GetUlrRoot() => config.GetSection("Aws:S3BucketUrl").Value ?? "https://dev-assets.iautor.com.br/public/";
 
     public string GetUlrRootContainer(string prefix) => string.Concat(GetUlrRoot(), "/", prefix);
-    public async Task MoveFileContainerAsync(string prefix, string caminhoOrigem, string caminhoDestino)
+    public async Task MoveFileContainerAsync(string prefix, string fileUrlOrigin, string fileUrlDestin)
     {
         await CreatBucketAsync();
 
         var getObjectRequest = new GetObjectRequest
         {
             BucketName = bucketName,
-            Key = prefix + "/" + caminhoOrigem
+            Key = prefix + "/" + fileUrlOrigin
         };
 
         var response = await s3Client.GetObjectAsync(getObjectRequest);
 
         using (var stream = response.ResponseStream)
-            await UploadFileContainerAsync(prefix, caminhoDestino, stream);
+            await UploadFileContainerAsync(prefix, fileUrlDestin, stream);
 
-        await DeleteFileContainerAsync(prefix, caminhoOrigem);
-    }
-
-    public class StorageManagerConfig
-    {
-        public static readonly string[] Containers =
-        [
-            "default",
-            "IAutor-files",
-        ];
+        await DeleteFileContainerAsync(prefix, fileUrlOrigin);
     }
 }

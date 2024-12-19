@@ -20,8 +20,8 @@ public sealed class QuestionService(
     IAutorDb db,
     INotificationService notification,
     IUserService userService,
-    IAzureBlobServiceClient azureBlobServiceClient//,
-    //IAmazonS3StorageManager amazonS3
+    //IAzureBlobServiceClient azureBlobServiceClient//,
+    IAmazonS3StorageManager amazonS3
     ) : IQuestionService
 {
     public async Task<Question?> GetByIdAsync(long id) => await db.Questions.FirstOrDefaultAsync(f => f.Id == id).ConfigureAwait(false);
@@ -222,10 +222,10 @@ public sealed class QuestionService(
 
         var fileName = string.Concat(Guid.NewGuid().ToString(), ".", file.FileName.AsSpan(file.FileName.LastIndexOf('.') + 1));
         var stream = ImageExtensions.ResizeImage(file, 540, 330);
-        var url = await azureBlobServiceClient.UploadFileFromStreamAsync(Folders.Photos, fileName, stream);
+        //var url = await azureBlobServiceClient.UploadFileFromStreamAsync(Folders.Photos, fileName, stream);
 
-        //await amazonS3.UploadFileContainerAsync(Folders.Photos, fileName, stream);
-        //var url = amazonS3.GetUlrRootContainer(Folders.Photos) + "/" + fileName;
+        await amazonS3.UploadFileContainerAsync(Folders.Photos, fileName, stream);
+        var url = string.Concat(amazonS3.GetUlrRootContainer(Folders.Photos), "/", fileName);
 
         questionUserAnswer.ImagePhotoUrl = url;
 
@@ -251,8 +251,8 @@ public sealed class QuestionService(
     {
         if (questionUserAnswer.ImagePhotoUrl != null && string.IsNullOrEmpty(model.ImagePhotoUrl))
         {
-            await azureBlobServiceClient.DeleteFileAsync(Folders.Photos, questionUserAnswer.ImagePhotoUrl);
-            //await amazonS3.DeleteFileContainerAsync(Folders.Photos, questionUserAnswer.ImagePhotoUrl);
+            //await azureBlobServiceClient.DeleteFileAsync(Folders.Photos, questionUserAnswer.ImagePhotoUrl);
+            await amazonS3.DeleteFileContainerAsync(Folders.Photos, questionUserAnswer.ImagePhotoUrl);
 
             questionUserAnswer.ImagePhotoLabel = null;
             questionUserAnswer.UpdatedAt = DateTimeBr.Now;

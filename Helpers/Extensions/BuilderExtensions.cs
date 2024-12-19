@@ -1,4 +1,6 @@
-﻿using Amazon.S3;
+﻿using Amazon;
+using Amazon.Runtime;
+using Amazon.S3;
 using QuestPDF.Infrastructure;
 
 namespace IAutor.Api.Helpers.Extensions;
@@ -27,10 +29,16 @@ public static class BuilderExtensions
         var azureBlobStorageConnString = "DefaultEndpointsProtocol=https;AccountName=blobfilesiautor;AccountKey=Pe0MHLxUbwGlyxLGaZ0yKsevjBcwMCIw0kywS3LX7m4g0PAWvTs2NOhsIK1BqeGQhxFlOEWlYpny+ASt2cnsxg==;EndpointSuffix=core.windows.net";
         builder.Services.AddSingleton<IAzureBlobServiceClient>(new AzureBlobServiceClient(new BlobServiceClient(config.GetSection("AzureBlobStorageConnString")?.Value ?? azureBlobStorageConnString)));
 
-        var awsS3BucketUrl = "https://dev-assets.iautor.com.br/";
-        var awsBucketName = "iautor-assets-dev";
+        var awsS3BucketUrl = config.GetSection("Aws:S3BucketUrl")?.Value ?? "https://dev-assets.iautor.com.br/";
+        var awsRegionEndpoint = RegionEndpoint.USEast1;
+        if (!string.IsNullOrWhiteSpace(awsS3BucketUrl))
+            awsRegionEndpoint = RegionEndpoint.GetBySystemName(awsS3BucketUrl);
+
         builder.Services.AddSingleton<IAmazonS3StorageManager>(new AmazonS3StorageManager(
-            new AmazonS3Client(new AmazonS3Config { ServiceURL = config.GetSection("Aws:S3BucketUrl")?.Value ?? awsS3BucketUrl }), config.GetSection("Aws:BucketName")?.Value ?? awsBucketName));
+            new AmazonS3Client(config.GetSection("Aws:AccessKey").Value, config.GetSection("Aws:SecretKey").Value, awsRegionEndpoint),
+            config.GetSection("Aws:BucketName")?.Value ?? "iautor-assets-dev",
+            config)
+        );
 
         builder.AddSwagger();
         builder.AddSecurity(config);
