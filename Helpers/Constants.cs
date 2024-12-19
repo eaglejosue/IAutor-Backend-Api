@@ -29,7 +29,7 @@ public sealed class Constants
 
     public static class Folders
     {
-        public const string Photos = "photos";
-        public const string Pdfs = "pdfs";
+        public const string Photos = "public/photos";
+        public const string Pdfs = "public/pdfs";
     }
 }

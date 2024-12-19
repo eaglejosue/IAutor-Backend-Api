@@ -91,7 +91,7 @@ public class AmazonS3StorageManager(
         return s3Client.GetPreSignedURL(request);
     }
 
-    public string GetUlrRoot() => config.GetSection("Aws:S3BucketUrl").Value ?? "https://dev-assets.iautor.com.br/public/";
+    public string GetUlrRoot() => config.GetSection("Aws:S3BucketUrl").Value ?? "https://dev-assets.iautor.com.br";
 
     public string GetUlrRootContainer(string prefix) => string.Concat(GetUlrRoot(), "/", prefix);
 
