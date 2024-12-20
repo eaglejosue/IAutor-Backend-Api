@@ -225,7 +225,7 @@ public sealed class QuestionService(
         //var url = await azureBlobServiceClient.UploadFileFromStreamAsync(Folders.Photos, fileName, stream);
 
         await amazonS3.UploadFileContainerAsync(Folders.Photos, fileName, stream);
-        questionUserAnswer.ImagePhotoUrl = amazonS3.GetUlrRootContainer(fileName);
+        questionUserAnswer.ImagePhotoUrl = amazonS3.GetUlrRootContainer("/photos/"+fileName);
 
         db.QuestionUserAnswers.Update(questionUserAnswer);
         await db.SaveChangesAsync().ConfigureAwait(false);
@@ -233,7 +233,8 @@ public sealed class QuestionService(
 
     public async Task UpdateQuestionUserPhotoAnswerAsync(QuestionUserAnswer model, long loggedUserId, string loggedUserName)
     {
-        var questionUserAnwers = await db.QuestionUserAnswers.FirstOrDefaultAsync(r => r.Id == model.Id);
+        var questionUserAnwers = await db.QuestionUserAnswers.FirstOrDefaultAsync(r
+            => r.Id == model.Id);
         if (questionUserAnwers == null)
         {
             notification.AddNotification("QuestionUserAnswer", "QuestionUserAnswer not found.");
