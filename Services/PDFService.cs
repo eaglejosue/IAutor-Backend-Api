@@ -11,8 +11,7 @@ public interface IPDFService
 
 public sealed class PDFService(
     INotificationService notification,
-    IAzureBlobServiceClient azureBlobServiceClient//,
-    //IAmazonS3StorageManager amazonS3
+    IAmazonS3StorageManager amazonS3
     ) : IPDFService
 {
     public async Task<PdfFileInfo> GenerateBookPDFAsync(Book book, List<Chapter> chapters, bool isPreview = true)
@@ -54,9 +53,8 @@ public sealed class PDFService(
                         {
                             try
                             {
-                                var fileName = questionUserAnswer.ImagePhotoUrl[questionUserAnswer.ImagePhotoUrl.LastIndexOf('/')..];
-                                var img = azureBlobServiceClient.DownloadFileBytesAsync(Folders.Photos, fileName);
-                                //var img = amazonS3.GetFileContainerAsync(Folders.Photos, fileName);
+                                var fileName = questionUserAnswer.ImagePhotoUrl[questionUserAnswer.ImagePhotoUrl.LastIndexOf('/')..].Remove(0,1);
+                                var img = amazonS3.GetFileContainerAsync(Folders.Photos, fileName);
 
                                 c.Item().AlignCenter().PaddingTop(20, Unit.Point).Height(200).Image(img.Result).WithCompressionQuality(ImageCompressionQuality.Best);
 
