@@ -26,9 +26,6 @@ public static class BuilderExtensions
 
         builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options => options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
-        var azureBlobStorageConnString = "DefaultEndpointsProtocol=https;AccountName=blobfilesiautor;AccountKey=Pe0MHLxUbwGlyxLGaZ0yKsevjBcwMCIw0kywS3LX7m4g0PAWvTs2NOhsIK1BqeGQhxFlOEWlYpny+ASt2cnsxg==;EndpointSuffix=core.windows.net";
-        builder.Services.AddSingleton<IAzureBlobServiceClient>(new AzureBlobServiceClient(new BlobServiceClient(config.GetSection("AzureBlobStorageConnString")?.Value ?? azureBlobStorageConnString)));
-
         var awsRegion = config.GetSection("Aws:Region")?.Value;
         var awsRegionEndpoint = RegionEndpoint.USEast1;
         if (!string.IsNullOrWhiteSpace(awsRegion))
