@@ -11,8 +11,8 @@ public interface IPDFService
 
 public sealed class PDFService(
     INotificationService notification,
-    IAzureBlobServiceClient azureBlobServiceClient//,
-    //IAmazonS3StorageManager amazonS3
+    //IAzureBlobServiceClient azureBlobServiceClient//,
+    IAmazonS3StorageManager amazonS3
     ) : IPDFService
 {
     public async Task<PdfFileInfo> GenerateBookPDFAsync(Book book, List<Chapter> chapters, bool isPreview = true)
@@ -39,13 +39,13 @@ public sealed class PDFService(
 
                     page.Margin(1, Unit.Centimetre);
                     page.PageColor(Colors.White);
-                    page.DefaultTextStyle(x => x.FontSize(5));
+                    page.DefaultTextStyle(x => x.FontSize(6));
 
                     page.Header()
                         .Column(c =>
                         {
-                            c.Item().AlignCenter().Text(string.Concat("Capítulo", " ", chapter.ChapterNumber)).FontSize(11).FontColor(Colors.Black);
-                            c.Item().AlignCenter().Text(question.Subject).SemiBold().FontSize(18).FontColor(Colors.Black);
+                            c.Item().AlignCenter().Text(string.Concat("Capítulo", " ", chapter.ChapterNumber)).FontSize(14).FontColor(Colors.Black);
+                            c.Item().AlignCenter().Text(question.Subject).SemiBold().FontSize(20).FontColor(Colors.Black);
                         });
 
                     page.Content().Column(c =>
@@ -55,15 +55,15 @@ public sealed class PDFService(
                             try
                             {
                                 var fileName = questionUserAnswer.ImagePhotoUrl[questionUserAnswer.ImagePhotoUrl.LastIndexOf('/')..];
-                                var img = azureBlobServiceClient.DownloadFileBytesAsync(Folders.Photos, fileName);
-                                //var img = amazonS3.GetFileContainerAsync(Folders.Photos, fileName);
+                                //var img = azureBlobServiceClient.DownloadFileBytesAsync(Folders.Photos, fileName);
+                                var img = amazonS3.GetFileContainerAsync(Folders.Photos, fileName);
 
                                 c.Item().AlignCenter().PaddingTop(20, Unit.Point).Height(200).Image(img.Result).WithCompressionQuality(ImageCompressionQuality.Best);
 
                                 if (!string.IsNullOrEmpty(questionUserAnswer.ImagePhotoLabel))
-                                    c.Item().AlignCenter().PaddingTop(5, Unit.Point).Text(questionUserAnswer.ImagePhotoLabel).FontSize(8);
+                                    c.Item().AlignCenter().PaddingTop(5, Unit.Point).Text(questionUserAnswer.ImagePhotoLabel).FontSize(12);
                                 
-                                c.Item().PaddingTop(10, Unit.Point).Text(questionUserAnswer.Answer).FontSize(8);
+                                c.Item().PaddingTop(10, Unit.Point).Text(questionUserAnswer.Answer).FontSize(12);
                             }
                             catch (Exception ex)
                             {
@@ -72,11 +72,11 @@ public sealed class PDFService(
                         }
                         else
                         {
-                            c.Item().PaddingTop(20, Unit.Point).Text(questionUserAnswer.Answer).FontSize(8);
+                            c.Item().PaddingTop(20, Unit.Point).Text(questionUserAnswer.Answer).FontSize(12);
                         }
 
                         if (isPreview)
-                            c.Item().AlignCenter().PaddingTop(5, Unit.Point).Text("*** EM EDIÇÃO ***").FontSize(20);
+                            c.Item().AlignCenter().PaddingTop(5, Unit.Point).Text("*** EM EDIÇÃO ***").FontSize(30);
                     });
 
                     page.Footer().AlignCenter().Text(x => x.CurrentPageNumber());

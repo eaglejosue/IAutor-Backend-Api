@@ -1,4 +1,6 @@
-﻿namespace IAutor.Api.Endpoints;
+﻿using System.Reflection.Emit;
+
+namespace IAutor.Api.Endpoints;
 
 public static class QuestionEndpoint
 {
@@ -174,7 +176,7 @@ public static class QuestionEndpoint
         })
         .RequireAuthorization("Create");
 
-        app.MapPost("/api/questions/uploadPhotoQuestionUserAnswer/{id:long}",
+        app.MapPost("/api/questions/upload-photo/{id:long}",
         async (
             long id,
             IFormFile file,
@@ -184,12 +186,12 @@ public static class QuestionEndpoint
         {
              var loggedUserId = TokenExtension.GetUserIdFromToken(context);
              var loggedUserName = TokenExtension.GetUserNameFromToken(context);
-             await service.UploadPhotoQuestionUserAnswer(id, file, "", loggedUserId, loggedUserName);
+             var result = await service.UploadPhotoQuestionUserAnswer(id, file, "", loggedUserId, loggedUserName);
              if (notification.HasNotifications) return Results.BadRequest(notification.Notifications);
-             return Results.Created();
+             return Results.Ok(result);
         })
         .Produces((int)HttpStatusCode.OK)
-        .WithName("uploadPhotoQuestionUserAnswer")
+        .WithName("uploadPhoto")
         .WithOpenApi(x => new OpenApiOperation(x)
         {
             Summary = "Create a new Photo",
@@ -198,7 +200,7 @@ public static class QuestionEndpoint
         }).DisableAntiforgery()
         .RequireAuthorization("Create");
 
-        app.MapPut("/api/questions/user-answers-edit-photos",
+        app.MapPut("/api/questions/update-photo",
         async (
             QuestionUserAnswer model,
             [FromServices] IQuestionService service,
@@ -212,7 +214,7 @@ public static class QuestionEndpoint
             return Results.Ok();
         })
         .Produces((int)HttpStatusCode.OK)
-        .WithName("UpdateQuestionUserAnswerPhotos")
+        .WithName("UpdatePhoto")
         .WithOpenApi(x => new OpenApiOperation(x)
         {
             Summary = "Update a Photo from QuestionUserAnswer",

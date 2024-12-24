@@ -11,7 +11,7 @@ public interface IQuestionService
 
     Task<QuestionUserAnswer?> UpsertQuestionUserAnswerAsync(QuestionUserAnswer model, long loggedUserId, string loggedUserName);
     Task<List<QuestionUserAnswer>> GetQuestionUserAnswersAsync(long loggedUserId, long bookId);
-    Task UploadPhotoQuestionUserAnswer(long id, IFormFile file, string label, long loggedUserId, string loggedUserName);
+    Task<QuestionUserAnswer?> UploadPhotoQuestionUserAnswer(long id, IFormFile file, string label, long loggedUserId, string loggedUserName);
     Task UpdateQuestionUserPhotoAnswerAsync(QuestionUserAnswer model, long loggedUserId, string loggedUserName);
     Task<QuestionUserAnswer?> GetQuestionUserAnswerByIdAsync(long id);
 }
@@ -205,13 +205,13 @@ public sealed class QuestionService(
         return await db.QuestionUserAnswers.Where(w => w.BookId == bookId && w.UserId == loggedUserId).ToListAsync().ConfigureAwait(false);
     }
 
-    public async Task UploadPhotoQuestionUserAnswer(long id, IFormFile file, string label, long loggedUserId, string loggedUserName)
+    public async Task<QuestionUserAnswer?> UploadPhotoQuestionUserAnswer(long id, IFormFile file, string label, long loggedUserId, string loggedUserName)
     {
         var questionUserAnswer = await db.QuestionUserAnswers.FirstOrDefaultAsync(r => r.Id == id);
         if (questionUserAnswer == null)
         {
             notification.AddNotification("QuestionUserAnswer", "QuestionUserAnswer not found.");
-            return;
+            return default;
         }
 
         questionUserAnswer.ImagePhotoOriginalFileName = file.FileName;
@@ -224,11 +224,13 @@ public sealed class QuestionService(
         var stream = ImageExtensions.ResizeImage(file, 540, 330);
         //var url = await azureBlobServiceClient.UploadFileFromStreamAsync(Folders.Photos, fileName, stream);
 
-        await amazonS3.UploadFileContainerAsync(Folders.Photos, fileName, stream);
-        questionUserAnswer.ImagePhotoUrl = amazonS3.GetUlrRootContainer(fileName);
+        await amazonS3.UploadFileContainerAsync(string.Concat("public", "/", Folders.Photos), fileName, stream);
+        questionUserAnswer.ImagePhotoUrl = amazonS3.GetUlrRootContainer(string.Concat(Folders.Photos, "/", fileName));
 
         db.QuestionUserAnswers.Update(questionUserAnswer);
         await db.SaveChangesAsync().ConfigureAwait(false);
+
+        return questionUserAnswer;
     }
 
     public async Task UpdateQuestionUserPhotoAnswerAsync(QuestionUserAnswer model, long loggedUserId, string loggedUserName)

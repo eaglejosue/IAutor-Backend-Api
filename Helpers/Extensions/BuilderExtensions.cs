@@ -32,7 +32,16 @@ public static class BuilderExtensions
         var awsRegion = config.GetSection("Aws:Region")?.Value;
         var awsRegionEndpoint = RegionEndpoint.USEast1;
         if (!string.IsNullOrWhiteSpace(awsRegion))
-            awsRegionEndpoint = RegionEndpoint.GetBySystemName(awsRegion);
+        {
+            try
+            {
+                awsRegionEndpoint = RegionEndpoint.GetBySystemName(awsRegion);
+            }
+            catch (Exception)
+            {
+                awsRegionEndpoint = RegionEndpoint.USEast1;
+            }
+        }
 
         builder.Services.AddSingleton<IAmazonS3StorageManager>(new AmazonS3StorageManager(
             new AmazonS3Client(config.GetSection("Aws:AccessKey").Value, config.GetSection("Aws:SecretKey").Value, awsRegionEndpoint),
