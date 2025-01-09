@@ -8,7 +8,8 @@ public interface IBookService
     Task<Book?> UpdateAsync(Book model, long loggedUserId, string loggedUserName);
     Task<Book?> PatchAsync(Book model, long loggedUserId, string loggedUserName);
     Task<bool?> DeleteAsync(long id, long loggedUserId, string loggedUserName);
-    Task<PdfFileInfo?> GetBookPDF(long id);
+    Task<PdfFileInfo?> GetBookPDFv1(long id);
+    Task<PdfFileInfo?> GetBookPDFv2(long id);
 }
 
 public sealed class BookService(
@@ -205,7 +206,7 @@ public sealed class BookService(
         return true;
     }
 
-    public async Task<PdfFileInfo?> GetBookPDF(long id)
+    public async Task<PdfFileInfo?> GetBookPDFv1(long id)
     {
         var book = await db.Books.Where(w => w.Id == id).FirstOrDefaultAsync().ConfigureAwait(false);
 
@@ -235,6 +236,39 @@ public sealed class BookService(
             .ToListAsync()
             .ConfigureAwait(false);
 
-        return await pdfService.GenerateBookPDFAsync(book, chapters);
+        return await pdfService.GenerateBookPDFv1Async(book, chapters);
+    }
+
+    public async Task<PdfFileInfo?> GetBookPDFv2(long id)
+    {
+        var book = await db.Books.Where(w => w.Id == id).FirstOrDefaultAsync().ConfigureAwait(false);
+
+        if (book == null) return null;
+
+        var query = db.PlansChapters
+            .Where(w => w.PlanId == book.PlanId)
+            .Include(pc => pc.Chapter)
+            .Include(pc => pc.PlanChapterQuestions)
+                .ThenInclude(pcq => pcq.Question)
+                    .ThenInclude(q => q.QuestionUserAnswers);
+
+        var chapters = await query
+            .OrderBy(o => o.Chapter.ChapterNumber)
+            .Select(s => new Chapter
+            {
+                Id = s.Chapter.Id,
+                Title = s.Chapter.Title,
+                ChapterNumber = s.Chapter.ChapterNumber,
+                Questions = s.PlanChapterQuestions.Select(pcq => new Question
+                {
+                    Id = pcq.Question.Id,
+                    Subject = pcq.Question.Subject,
+                    QuestionUserAnswers = pcq.Question.QuestionUserAnswers.Where(w => w.BookId == book.Id).ToList()
+                }).ToList(),
+            })
+            .ToListAsync()
+            .ConfigureAwait(false);
+
+        return await pdfService.GenerateBookPDFv2Async(book, chapters);
     }
 }

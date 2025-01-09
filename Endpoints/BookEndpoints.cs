@@ -135,16 +135,31 @@ public static class BookEndpoints
         })
         .RequireAuthorization("Delete");
 
-        app.MapGet("/api/books/{id:long}/pdf",
+        app.MapGet("/api/books/{id:long}/pdf-v1",
         async (long id, [FromServices] IBookService service) =>
         {
-            var pdfFile = await service.GetBookPDF(id);
+            var pdfFile = await service.GetBookPDFv1(id);
             if (pdfFile is null) return Results.NoContent();
-            //return Results.File(pdfFile.FileStream, pdfFile.MimeType, pdfFile.FileName);
             return Results.Ok(pdfFile);
         })
         .Produces((int)HttpStatusCode.OK)
-        .WithName("Book PDF")
+        .WithName("Book PDF v1")
+        .WithOpenApi(x => new OpenApiOperation(x)
+        {
+            Summary = $"Return a {ModelName} PDF",
+            Description = $"This endpoint receives an Id from the body and returns the {ModelName} PDF. It produces a 200 status code.",
+            Tags = tag
+        });
+
+        app.MapGet("/api/books/{id:long}/pdf",
+        async (long id, [FromServices] IBookService service) =>
+        {
+            var pdfFile = await service.GetBookPDFv2(id);
+            if (pdfFile is null) return Results.NoContent();
+            return Results.Ok(pdfFile);
+        })
+        .Produces((int)HttpStatusCode.OK)
+        .WithName("Book PDF v2")
         .WithOpenApi(x => new OpenApiOperation(x)
         {
             Summary = $"Return a {ModelName} PDF",

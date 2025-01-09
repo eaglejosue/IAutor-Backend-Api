@@ -1,4 +1,5 @@
-﻿using QuestPDF.Fluent;
+﻿using IAutor.Api.Data.Entities;
+using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 
@@ -6,7 +7,8 @@ namespace IAutor.Api.Services;
 
 public interface IPDFService
 {
-    Task<PdfFileInfo> GenerateBookPDFAsync(Book book, List<Chapter> chapters, bool isPreview = true);
+    Task<PdfFileInfo> GenerateBookPDFv1Async(Book book, List<Chapter> chapters, bool isPreview = true);
+    Task<PdfFileInfo> GenerateBookPDFv2Async(Book book, List<Chapter> chapters, bool isPreview = true);
 }
 
 public sealed class PDFService(
@@ -15,7 +17,7 @@ public sealed class PDFService(
     IAmazonS3StorageManager amazonS3
     ) : IPDFService
 {
-    public async Task<PdfFileInfo> GenerateBookPDFAsync(Book book, List<Chapter> chapters, bool isPreview = true)
+    public async Task<PdfFileInfo> GenerateBookPDFv1Async(Book book, List<Chapter> chapters, bool isPreview = true)
     {
         var document = Document.Create(c =>
         {
@@ -88,4 +90,94 @@ public sealed class PDFService(
 
         return new PdfFileInfo(pdfBytes, "application/pdf", $"{book.Title}.pdf");
     }
+
+    public async Task<PdfFileInfo> GenerateBookPDFv2Async(Book book, List<Chapter> chapters, bool isPreview = true)
+    {
+        var document = Document.Create(c =>
+        {
+            foreach (var chapter in chapters)
+            {
+                var chapterQuestions = chapter.Questions
+                    .Where(q => q.QuestionUserAnswers != null && q.QuestionUserAnswers.Count != 0)
+                    .ToList();
+
+                if (chapterQuestions.Count == 0) continue;
+
+                // Add chapter header only once
+                c.Page(page =>
+                {
+                    if (book.Type.HasValue && book.Type == BookType.Size210X297)
+                        page.Size(PageSizes.A4);
+
+                    if ((book?.Type ?? BookType.Size148X210) == BookType.Size148X210)
+                        page.Size(PageSizes.A5);
+
+                    page.Margin(1, Unit.Centimetre);
+                    page.PageColor(Colors.White);
+                    page.DefaultTextStyle(x => x.FontSize(6));
+
+                    page.Header()
+                        .Column(col =>
+                        {
+                            col.Item().AlignCenter().Text($"Capítulo {chapter.ChapterNumber}").FontSize(14).FontColor(Colors.Black);
+                        });
+
+                    page.Content().Column(col =>
+                    {
+                        var isFirstAnswer = true;
+
+                        foreach (var question in chapterQuestions)
+                        {
+                            var questionUserAnswer = question?.QuestionUserAnswers?.FirstOrDefault();
+                            if (string.IsNullOrEmpty(questionUserAnswer?.Answer)) continue;
+
+                            if (!string.IsNullOrEmpty(questionUserAnswer.ImagePhotoUrl))
+                            {
+                                try
+                                {
+                                    var fileName = questionUserAnswer.ImagePhotoUrl[questionUserAnswer.ImagePhotoUrl.LastIndexOf('/')..];
+                                    var img = amazonS3.GetFileContainerAsync(Folders.Photos, fileName);
+
+                                    col.Item().PageBreak();
+                                    col.Item().AlignCenter().Text(question!.Subject).SemiBold().FontSize(20).FontColor(Colors.Black);
+
+                                    col.Item().PaddingTop(10, Unit.Point).AlignCenter().Height(200).Image(img.Result).WithCompressionQuality(ImageCompressionQuality.Best);
+
+                                    if (!string.IsNullOrEmpty(questionUserAnswer.ImagePhotoLabel))
+                                        col.Item().AlignCenter().PaddingTop(5, Unit.Point).Text(questionUserAnswer.ImagePhotoLabel).FontSize(12);
+
+                                    col.Item().PaddingTop(10, Unit.Point).Text(questionUserAnswer.Answer).FontSize(12);
+                                }
+                                catch (Exception ex)
+                                {
+                                    notification.AddNotification(new Notification("PDF Img Error", ex.Message));
+                                }
+                            }
+                            else
+                            {
+                                if (isFirstAnswer)
+                                    col.Item().AlignCenter().Text(question!.Subject).SemiBold().FontSize(20).FontColor(Colors.Black);
+                                else
+                                    col.Item().PaddingTop(10, Unit.Point).AlignCenter().Text(question!.Subject).SemiBold().FontSize(20).FontColor(Colors.Black);
+
+                                col.Item().PaddingTop(10, Unit.Point).Text(questionUserAnswer.Answer).FontSize(12);
+                            }
+
+                            isFirstAnswer = false;
+                        }
+
+                        //if (isPreview)
+                        //    col.Item().AlignCenter().PaddingTop(5, Unit.Point).Text("*** EM EDIÇÃO ***").FontSize(30);
+                    });
+
+                    page.Footer().AlignCenter().Text(x => x.CurrentPageNumber());
+                });
+            }
+        });
+
+        var pdfBytes = document.GeneratePdf();
+
+        return new PdfFileInfo(pdfBytes, "application/pdf", $"{book.Title}.pdf");
+    }
+
 }
