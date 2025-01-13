@@ -12,7 +12,6 @@ public interface IOrderService
 
 public sealed class OrderService(
     IAutorDb db,
-    IBookService bookService,
     IPaymentService paymentService,
     IIuguIntegrationService iuguIntegrationService,
     INotificationService notification) : IOrderService
@@ -77,14 +76,17 @@ public sealed class OrderService(
 
         var newOrder = addResult.Entity;
 
-        var book = (await bookService.GetAllAsync(new BookFilters { Id = newOrder.BookId })).FirstOrDefault();
+        var book = await db.Books
+            .Include(i => i.Plan)
+            .FirstOrDefaultAsync(w => w.Id == newOrder.BookId);
+
         if (book == null)
         {
             notification.AddNotification("Order", "Livro não encontrado.");
             return newOrder;
         }
 
-        var fatura = await iuguIntegrationService.CreateFaturaAsync(userEmail, newOrder.Id, book.Title, book.Price);
+        var fatura = await iuguIntegrationService.CreateFaturaAsync(userEmail, newOrder.Id, book.Title, book.Plan.Price);
         if (notification.HasNotifications) return newOrder;
 
         newOrder.IuguFaturaSecureUrl = fatura!.SecureUrl;
