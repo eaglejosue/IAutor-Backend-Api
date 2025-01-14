@@ -48,8 +48,10 @@ public static class OrderEndpoints
             [FromServices] INotificationService notification,
             HttpContext context) =>
         {
+            var loggedUserId = TokenExtension.GetUserIdFromToken(context);
+            var loggedUserName = TokenExtension.GetUserNameFromToken(context);
             var userEmail = TokenExtension.GetUserEmailFromToken(context);
-            var entitie = await service.CreateAsync(model, userEmail);
+            var entitie = await service.CreateAsync(model, userEmail, loggedUserId, loggedUserName);
             if (notification.HasNotifications) return Results.BadRequest(notification.Notifications);
             return Results.Ok(entitie);
         })
@@ -67,9 +69,11 @@ public static class OrderEndpoints
         async (
             Order model,
             [FromServices] IOrderService service,
-            [FromServices] INotificationService notification) =>
+            [FromServices] INotificationService notification,
+            HttpContext context) =>
         {
-            var entitie = await service.UpdateAsync(model);
+            var loggedUserName = TokenExtension.GetUserNameFromToken(context);
+            var entitie = await service.UpdateAsync(model, loggedUserName);
             if (notification.HasNotifications) return Results.BadRequest(notification.Notifications);
             if (entitie is null) return Results.NoContent();
             return Results.Ok(entitie);
@@ -88,9 +92,11 @@ public static class OrderEndpoints
         async (
             Order model,
             [FromServices] IOrderService service,
-            [FromServices] INotificationService notification) =>
+            [FromServices] INotificationService notification,
+            HttpContext context) =>
         {
-            var entitie = await service.PatchAsync(model);
+            var loggedUserName = TokenExtension.GetUserNameFromToken(context);
+            var entitie = await service.PatchAsync(model, loggedUserName);
             if (notification.HasNotifications) return Results.BadRequest(notification.Notifications);
             if (entitie is null) return Results.NoContent();
             return Results.Ok(entitie);
@@ -109,9 +115,11 @@ public static class OrderEndpoints
         async (
             long id,
             [FromServices] IOrderService service,
-            [FromServices] INotificationService notification) =>
+            [FromServices] INotificationService notification,
+            HttpContext context) =>
         {
-            var result = await service.DeleteAsync(id);
+            var loggedUserName = TokenExtension.GetUserNameFromToken(context);
+            var result = await service.DeleteAsync(id, loggedUserName);
             if (notification.HasNotifications) return Results.BadRequest(notification.Notifications);
             if (result == null) return Results.NoContent();
             return Results.Ok(result);

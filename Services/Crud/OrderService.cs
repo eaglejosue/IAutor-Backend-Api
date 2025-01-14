@@ -4,14 +4,15 @@ public interface IOrderService
 {
     Task<Order?> GetByIdAsync(long id);
     Task<List<Order>> GetAllAsync(OrderFilters filters);
-    Task<Order?> CreateAsync(Order model, string userEmail);
-    Task<Order?> UpdateAsync(Order model);
-    Task<Order?> PatchAsync(Order model);
-    Task<bool?> DeleteAsync(long id);
+    Task<Order?> CreateAsync(Order model, string userEmail, long loggedUserId, string loggedUserName);
+    Task<Order?> UpdateAsync(Order model, string loggedUserName);
+    Task<Order?> PatchAsync(Order model, string loggedUserName);
+    Task<bool?> DeleteAsync(long id, string loggedUserName);
 }
 
 public sealed class OrderService(
     IAutorDb db,
+    IBookService bookService,
     IPaymentService paymentService,
     IIuguIntegrationService iuguIntegrationService,
     INotificationService notification) : IOrderService
@@ -62,7 +63,7 @@ public sealed class OrderService(
         return await query.ToListAsync().ConfigureAwait(false);
     }
 
-    public async Task<Order?> CreateAsync(Order model, string userEmail)
+    public async Task<Order?> CreateAsync(Order model, string userEmail, long loggedUserId, string loggedUserName)
     {
         var validation = await model.ValidateCreateAsync();
         if (!validation.IsValid)
@@ -76,6 +77,12 @@ public sealed class OrderService(
 
         var newOrder = addResult.Entity;
 
+        await bookService.UpdateAsync(new Book {
+            Id = model.BookId,
+            UserId = model.UserId,
+            PlanId = model.PlanId,
+        }, loggedUserId, loggedUserName);
+
         var book = await db.Books
             .Include(i => i.Plan)
             .FirstOrDefaultAsync(w => w.Id == newOrder.BookId);
@@ -86,17 +93,22 @@ public sealed class OrderService(
             return newOrder;
         }
 
-        var fatura = await iuguIntegrationService.CreateFaturaAsync(userEmail, newOrder.Id, book.Title, book.Plan.Price);
-        if (notification.HasNotifications) return newOrder;
+        IuguFaturaResponse? fatura = null;
 
-        newOrder.IuguFaturaSecureUrl = fatura!.SecureUrl;
+        //if (book.Plan.Price > decimal.Zero)
+        //{
+        //    fatura = await iuguIntegrationService.CreateFaturaAsync(userEmail, newOrder.Id, book.Title, book.Plan.Price);
+        //    if (notification.HasNotifications) return newOrder;
 
-        await paymentService.CreateAsync(new Payment(newOrder, book!.Price, fatura));
+        //    newOrder.IuguFaturaSecureUrl = fatura!.SecureUrl;
+        //}
+
+        await paymentService.CreateAsync(new Payment(newOrder, book.Plan.Price, fatura));
 
         return newOrder;
     }
 
-    public async Task<Order?> UpdateAsync(Order model)
+    public async Task<Order?> UpdateAsync(Order model, string loggedUserName)
     {
         var validation = await model.ValidateUpdateAsync();
         if (!validation.IsValid)
@@ -111,6 +123,7 @@ public sealed class OrderService(
         if (entitie.EntityUpdated(model))
         {
             entitie.UpdatedAt = DateTimeBr.Now;
+            entitie.UpdatedBy = loggedUserName;
             db.Orders.Update(entitie);
             await db.SaveChangesAsync().ConfigureAwait(false);
         }
@@ -118,7 +131,7 @@ public sealed class OrderService(
         return entitie;
     }
 
-    public async Task<Order?> PatchAsync(Order model)
+    public async Task<Order?> PatchAsync(Order model, string loggedUserName)
     {
         var validation = await model.ValidatePatchAsync();
         if (!validation.IsValid)
@@ -133,6 +146,7 @@ public sealed class OrderService(
         if (entitie.EntityUpdated(model))
         {
             entitie.UpdatedAt = DateTimeBr.Now;
+            entitie.UpdatedBy = loggedUserName;
             db.Orders.Update(entitie);
             await db.SaveChangesAsync().ConfigureAwait(false);
         }
@@ -140,13 +154,14 @@ public sealed class OrderService(
         return entitie;
     }
 
-    public async Task<bool?> DeleteAsync(long id)
+    public async Task<bool?> DeleteAsync(long id, string loggedUserName)
     {
         var entitie = await GetByIdAsync(id);
         if (entitie == null) return null;
 
         entitie.IsActive = false;
         entitie.DeletedAt = DateTimeBr.Now;
+        entitie.UpdatedBy = loggedUserName;
 
         db.Orders.Update(entitie);
         await db.SaveChangesAsync().ConfigureAwait(false);

@@ -11,7 +11,7 @@ public interface IQuestionService
 
     Task<QuestionUserAnswer?> UpsertQuestionUserAnswerAsync(QuestionUserAnswer model, long loggedUserId, string loggedUserName);
     Task<List<QuestionUserAnswer>> GetQuestionUserAnswersAsync(long loggedUserId, long bookId);
-    Task<QuestionUserAnswer?> UploadPhotoQuestionUserAnswer(long id, IFormFile file, string label, long loggedUserId, string loggedUserName);
+    Task<QuestionUserAnswer?> UploadPhotoQuestionUserAnswer(long id, IFormFile file, string? label, long loggedUserId, string loggedUserName);
     Task UpdateQuestionUserPhotoAnswerAsync(QuestionUserAnswer model, long loggedUserId, string loggedUserName);
     Task<QuestionUserAnswer?> GetQuestionUserAnswerByIdAsync(long id);
 }
@@ -205,7 +205,7 @@ public sealed class QuestionService(
         return await db.QuestionUserAnswers.Where(w => w.BookId == bookId && w.UserId == loggedUserId).ToListAsync().ConfigureAwait(false);
     }
 
-    public async Task<QuestionUserAnswer?> UploadPhotoQuestionUserAnswer(long id, IFormFile file, string label, long loggedUserId, string loggedUserName)
+    public async Task<QuestionUserAnswer?> UploadPhotoQuestionUserAnswer(long id, IFormFile file, string? label, long loggedUserId, string loggedUserName)
     {
         var questionUserAnswer = await db.QuestionUserAnswers.FirstOrDefaultAsync(r => r.Id == id);
         if (questionUserAnswer == null)

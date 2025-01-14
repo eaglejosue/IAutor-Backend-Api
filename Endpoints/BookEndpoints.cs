@@ -140,7 +140,8 @@ public static class BookEndpoints
         {
             var pdfFile = await service.GetBookPDFv1(id);
             if (pdfFile is null) return Results.NoContent();
-            return Results.Ok(pdfFile);
+            //return Results.Ok(pdfFile);
+            return Results.File(pdfFile.ByteArray, pdfFile.MimeType, pdfFile.FileName);
         })
         .Produces((int)HttpStatusCode.OK)
         .WithName("Book PDF v1")
@@ -157,7 +158,6 @@ public static class BookEndpoints
             var pdfFile = await service.GetBookPDFv2(id);
             if (pdfFile is null) return Results.NoContent();
             return Results.Ok(pdfFile);
-            //return Results.File(pdfFile.ByteArray, pdfFile.MimeType, pdfFile.FileName);
         })
         .Produces((int)HttpStatusCode.OK)
         .WithName("Book PDF v2")

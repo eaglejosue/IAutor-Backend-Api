@@ -1,5 +1,4 @@
-﻿using IAutor.Api.Data.Entities;
-using QuestPDF.Fluent;
+﻿using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 
@@ -98,7 +97,8 @@ public sealed class PDFService(
             foreach (var chapter in chapters)
             {
                 var chapterQuestions = chapter.Questions
-                    .Where(q => q.QuestionUserAnswers != null && q.QuestionUserAnswers.Count != 0)
+                    .Where(q => q.QuestionUserAnswers != null
+                             && q.QuestionUserAnswers.Any(qa => !string.IsNullOrEmpty(qa.Answer)))
                     .ToList();
 
                 if (chapterQuestions.Count == 0) continue;
@@ -138,9 +138,10 @@ public sealed class PDFService(
                                     var fileName = questionUserAnswer.ImagePhotoUrl[questionUserAnswer.ImagePhotoUrl.LastIndexOf('/')..];
                                     var img = amazonS3.GetFileContainerAsync(Folders.Photos, fileName);
 
-                                    col.Item().PageBreak();
-                                    col.Item().AlignCenter().Text(question!.Subject).SemiBold().FontSize(20).FontColor(Colors.Black);
+                                    if (!isFirstAnswer)
+                                        col.Item().PageBreak();
 
+                                    col.Item().AlignCenter().Text(question!.Subject).SemiBold().FontSize(20).FontColor(Colors.Black);
                                     col.Item().PaddingTop(10, Unit.Point).AlignCenter().Height(200).Image(img.Result).WithCompressionQuality(ImageCompressionQuality.Best);
 
                                     if (!string.IsNullOrEmpty(questionUserAnswer.ImagePhotoLabel))

@@ -1,6 +1,4 @@
-﻿using System.Reflection.Emit;
-
-namespace IAutor.Api.Endpoints;
+﻿namespace IAutor.Api.Endpoints;
 
 public static class QuestionEndpoint
 {
