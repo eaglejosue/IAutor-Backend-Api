@@ -31,5 +31,6 @@ public sealed class Constants
     {
         public const string Photos = "photos";
         public const string Pdfs = "pdfs";
+        public const string Public = "public";
     }
 }
