@@ -135,14 +135,14 @@ public sealed class PDFService(
                             {
                                 try
                                 {
-                                    var fileName = questionUserAnswer.ImagePhotoUrl[questionUserAnswer.ImagePhotoUrl.LastIndexOf('/')..];
-                                    var img = amazonS3.GetFileContainerAsync(Folders.Photos, fileName);
+                                    var fileName = questionUserAnswer.ImagePhotoUrl[questionUserAnswer.ImagePhotoUrl.LastIndexOf('/')..].Remove(0, 1);
+                                    var img = amazonS3.GetFileContainerAsync(string.Concat(Folders.Public,"/",Folders.Photos), fileName); 
 
                                     if (!isFirstAnswer)
                                         col.Item().PageBreak();
 
                                     col.Item().AlignCenter().Text(question!.Subject).SemiBold().FontSize(20).FontColor(Colors.Black);
-                                    col.Item().PaddingTop(10, Unit.Point).AlignCenter().Height(200).Image(img.Result).WithCompressionQuality(ImageCompressionQuality.Best);
+                                    col.Item().PaddingTop(10, Unit.Point).AlignCenter().Height(150).Image(img.Result).WithCompressionQuality(ImageCompressionQuality.Best);
 
                                     if (!string.IsNullOrEmpty(questionUserAnswer.ImagePhotoLabel))
                                         col.Item().AlignCenter().PaddingTop(5, Unit.Point).Text(questionUserAnswer.ImagePhotoLabel).FontSize(12);
@@ -175,9 +175,7 @@ public sealed class PDFService(
                 });
             }
         });
-
         var pdfBytes = document.GeneratePdf();
-
         return new PdfFileInfo(pdfBytes, "application/pdf", $"{book.Title}.pdf");
     }
 
