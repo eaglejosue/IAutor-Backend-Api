@@ -20,7 +20,6 @@ public sealed class QuestionService(
     IAutorDb db,
     INotificationService notification,
     IUserService userService,
-    //IAzureBlobServiceClient azureBlobServiceClient//,
     IAmazonS3StorageManager amazonS3
     ) : IQuestionService
 {
@@ -222,7 +221,6 @@ public sealed class QuestionService(
 
         var fileName = string.Concat(Guid.NewGuid().ToString(), ".", file.FileName.AsSpan(file.FileName.LastIndexOf('.') + 1));
         var stream = ImageExtensions.ResizeImage(file, 540, 330);
-        //var url = await azureBlobServiceClient.UploadFileFromStreamAsync(Folders.Photos, fileName, stream);
 
         await amazonS3.UploadFileContainerAsync(string.Concat("public", "/", Folders.Photos), fileName, stream);
         questionUserAnswer.ImagePhotoUrl = amazonS3.GetUlrRootContainer(string.Concat(Folders.Photos, "/", fileName));
@@ -251,7 +249,6 @@ public sealed class QuestionService(
     {
         if (questionUserAnswer.ImagePhotoUrl != null && string.IsNullOrEmpty(model.ImagePhotoUrl))
         {
-            //await azureBlobServiceClient.DeleteFileAsync(Folders.Photos, questionUserAnswer.ImagePhotoUrl);
             await amazonS3.DeleteFileContainerAsync(Folders.Photos, questionUserAnswer.ImagePhotoUrl);
 
             questionUserAnswer.ImagePhotoLabel = null;

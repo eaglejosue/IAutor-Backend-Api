@@ -122,7 +122,7 @@ public sealed class PlanService(
         if (entitie.PlanChapters != null && entitie.PlanChapters.Count > 0)
         {
             foreach (var pc in entitie.PlanChapters)
-                db.PlansChapters.Remove(pc);
+                db.PlanChapters.Remove(pc);
         }   
 
         if (entitie.PlanItems != null && entitie.PlanItems.Count > 0)
@@ -168,10 +168,11 @@ public sealed class PlanService(
 
     public async Task<List<PlanChapter>?> GetPlanChaptersByPlanIdAsync(long planId)
     {
-        var query = db.PlansChapters
+        var query = db.PlanChapters
             .Where(w => w.PlanId == planId)
             .Include(pc => pc.Chapter)
-            .Include(pc => pc.PlanChapterQuestions).ThenInclude(g => g.Question);
+            .Include(pc => pc.PlanChapterQuestions)
+                .ThenInclude(g => g.Question);
 
 #if DEBUG
         var queryString = query.ToQueryString();
@@ -182,7 +183,7 @@ public sealed class PlanService(
 
     public async Task<Plan?> GetPlanChaptersAndQuestionsByPlanIdAsync(long planId, long bookId)
     {
-        var query = db.PlansChapters
+        var query = db.PlanChapters
             .Where(w => w.PlanId == planId)
             .Include(pc => pc.Plan)
             .Include(pc => pc.Chapter)

@@ -212,7 +212,7 @@ public sealed class BookService(
 
         if (book == null) return null;
 
-        var query = db.PlansChapters
+        var query = db.PlanChapters
             .Where(w => w.PlanId == book.PlanId)
             .Include(pc => pc.Chapter)
             .Include(pc => pc.PlanChapterQuestions)
@@ -245,7 +245,7 @@ public sealed class BookService(
 
         if (book == null) return null;
 
-        var query = db.PlansChapters
+        var query = db.PlanChapters
             .Where(w => w.PlanId == book.PlanId)
             .Include(pc => pc.Chapter)
             .Include(pc => pc.PlanChapterQuestions)

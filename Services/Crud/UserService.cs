@@ -117,11 +117,11 @@ public sealed class UserService(
         var addResult = await db.Users.AddAsync(model).ConfigureAwait(false);
         await db.SaveChangesAsync().ConfigureAwait(false);
 
-        var newEntitie = addResult.Entity;
+        var newUser = addResult.Entity;
 
         if (model.SignInWith.Equals(SignIn.Default.ToString(), StringComparison.CurrentCultureIgnoreCase))
         {
-            var newEmail = await emailService.CreateAsync(new Email(newEntitie.Id, EmailType.UserActivation));
+            var newEmail = await emailService.CreateAsync(new Email(newUser.Id, EmailType.UserActivation));
             await emailService.SendEmailActivateAccountByIdAsync(newEmail!.Id);
         }
 
@@ -129,18 +129,38 @@ public sealed class UserService(
         var freePlan = await db.Plans.FirstOrDefaultAsync(f => f.IsActive && f.Price == decimal.Zero).ConfigureAwait(false);
         if (freePlan != null)
         {
+            var newBook = (
             await db.Books.AddAsync(new Book
             {
                 Title = "Minha História",
                 Description = "Minha História",
                 Price = freePlan.Price,
                 PlanId = freePlan.Id,
-                UserId = newEntitie.Id
+                UserId = newUser.Id,
+            })
+            ).Entity;
+            await db.SaveChangesAsync().ConfigureAwait(false);
+
+            var newOrder = (
+            await db.Orders.AddAsync(new Order
+            {
+                BookId = newBook.Id,
+                UserId = newUser.Id,
+            })
+            ).Entity;
+            await db.SaveChangesAsync().ConfigureAwait(false);
+
+            await db.Payments.AddAsync(new Payment
+            {
+                OrderId = newOrder.Id,
+                CreatedAt = DateTimeBr.Now,
+                PricePaid = freePlan.Price,
+                Status = PaymentStatus.Authorized,
             });
             await db.SaveChangesAsync().ConfigureAwait(false);
         }
 
-        return newEntitie;
+        return newUser;
     }
 
     public async Task<User?> UpdateAsync(User model, long loggedUserId, string loggedUserName)

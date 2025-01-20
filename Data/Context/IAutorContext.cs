@@ -15,8 +15,8 @@ public class IAutorDb(DbContextOptions<IAutorDb> o, IConfiguration config) : DbC
     public DbSet<Chapter> Chapters => Set<Chapter>();
     public DbSet<Question> Questions => Set<Question>();
     public DbSet<Theme> Themes => Set<Theme>();
-    public DbSet<PlanChapter> PlansChapters => Set<PlanChapter>();
-    public DbSet<PlanChapterQuestion> PlansChapterQuestions => Set<PlanChapterQuestion>();
+    public DbSet<PlanChapter> PlanChapters => Set<PlanChapter>();
+    public DbSet<PlanChapterQuestion> PlanChapterQuestions => Set<PlanChapterQuestion>();
     public DbSet<QuestionUserAnswer> QuestionUserAnswers => Set<QuestionUserAnswer>();
     public DbSet<PlanItem> PlanItems => Set<PlanItem>();
 

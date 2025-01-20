@@ -72,38 +72,81 @@ public sealed class OrderService(
             return default;
         }
 
+        var plan = await db.Plans.FirstOrDefaultAsync(f => f.Id == model.PlanId).ConfigureAwait(false);
+        if (plan == null)
+        {
+            notification.AddNotification("Order", "Plano não encontrado.");
+            return default;
+        }
+
+        //Create new Book
+        var newBook = await bookService.CreateAsync(new Book
+        {
+            Title = plan.Title,
+            Description = "Minha História",
+            Price = plan.Price,
+            PlanId = model.PlanId,
+            UserId = model.UserId,
+        });
+
+        if (newBook == null)
+        {
+            notification.AddNotification("Order", "Erro ao criar novo Livro.");
+            return default;
+        }
+
+        //Get answears from old plan if exists
+        var answearsFreePlan = await db.QuestionUserAnswers
+            .Where(w => w.UserId == model.UserId && w.Book.Plan.Price == decimal.Zero)
+            .ToListAsync().ConfigureAwait(false);
+
+        var newAnswers = new List<QuestionUserAnswer>();
+
+        if (answearsFreePlan.Count > 0)
+        {
+            var chapterIdsAndQuestionIds = await db.PlanChapterQuestions
+                .Where(w => w.PlanChapter.PlanId == model.PlanId)
+                .Select(s => new { s.PlanChapter.ChapterId, s.QuestionId })
+                .ToListAsync().ConfigureAwait(false);
+
+            foreach (var item in answearsFreePlan)
+            {
+                //Get ChapterId from new Plan
+                var chapterId = chapterIdsAndQuestionIds.FirstOrDefault(f => f.QuestionId == item.QuestionId)?.ChapterId ?? 0;
+                if (chapterId == 0) continue;
+
+                item.ChapterId = chapterId;
+                item.BookId = newBook.Id;
+                newAnswers.Add(item);
+            }
+            
+            await db.QuestionUserAnswers.AddRangeAsync(answearsFreePlan).ConfigureAwait(false);
+            await db.SaveChangesAsync().ConfigureAwait(false);
+        }
+
+        //Add order com new book
+        model.BookId = newBook.Id;
         var addResult = await db.Orders.AddAsync(model).ConfigureAwait(false);
         await db.SaveChangesAsync().ConfigureAwait(false);
 
         var newOrder = addResult.Entity;
 
-        await bookService.UpdateAsync(new Book {
-            Id = model.BookId,
-            UserId = model.UserId,
-            PlanId = model.PlanId,
-        }, loggedUserId, loggedUserName);
-
-        var book = await db.Books
-            .Include(i => i.Plan)
-            .FirstOrDefaultAsync(w => w.Id == newOrder.BookId);
-
-        if (book == null)
-        {
-            notification.AddNotification("Order", "Livro não encontrado.");
-            return newOrder;
-        }
-
+        //Create Payment URL
         IuguFaturaResponse? fatura = null;
 
-        //if (book.Plan.Price > decimal.Zero)
-        //{
-        //    fatura = await iuguIntegrationService.CreateFaturaAsync(userEmail, newOrder.Id, book.Title, book.Plan.Price);
-        //    if (notification.HasNotifications) return newOrder;
+        if (plan.Price > decimal.Zero)
+        {
+            //fatura = await iuguIntegrationService.CreateFaturaAsync(userEmail, newOrder.Id, book.Title, plan.Price);
+            //if (notification.HasNotifications) return default;
+            //newOrder.IuguFaturaSecureUrl = fatura!.SecureUrl;
 
-        //    newOrder.IuguFaturaSecureUrl = fatura!.SecureUrl;
-        //}
-
-        await paymentService.CreateAsync(new Payment(newOrder, book.Plan.Price, fatura));
+            //For tests, remove after Payment hook is integrated
+            await paymentService.CreateAsync(new Payment(newOrder, plan.Price, fatura));
+        }
+        else
+        {
+            await paymentService.CreateAsync(new Payment(newOrder, plan.Price, fatura));
+        }
 
         return newOrder;
     }
