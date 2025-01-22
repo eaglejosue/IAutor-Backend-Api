@@ -120,8 +120,11 @@ public sealed class OrderService(
                 newAnswers.Add(item);
             }
             
-            await db.QuestionUserAnswers.AddRangeAsync(answearsFreePlan).ConfigureAwait(false);
-            await db.SaveChangesAsync().ConfigureAwait(false);
+            if (newAnswers.Count > 0)
+            {
+                await db.QuestionUserAnswers.AddRangeAsync(newAnswers).ConfigureAwait(false);
+                await db.SaveChangesAsync().ConfigureAwait(false);
+            }
         }
 
         //Add order com new book
@@ -141,7 +144,7 @@ public sealed class OrderService(
             //newOrder.IuguFaturaSecureUrl = fatura!.SecureUrl;
 
             //For tests, remove after Payment hook is integrated
-            await paymentService.CreateAsync(new Payment(newOrder, plan.Price, fatura));
+            await paymentService.CreateAsync(new Payment(newOrder, plan.Price, fatura, PaymentStatus.Paid));
         }
         else
         {

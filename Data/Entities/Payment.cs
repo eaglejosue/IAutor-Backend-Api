@@ -22,7 +22,7 @@ public sealed class Payment : Base
 
     public Payment() { }
 
-    public Payment(Order o, decimal pricePaid, IuguFaturaResponse? fatura = null)
+    public Payment(Order o, decimal pricePaid, IuguFaturaResponse? fatura = null, PaymentStatus? status = PaymentStatus.Pending)
     {
         OrderId = o.Id;
         CreatedAt = DateTimeBr.Now;

@@ -155,7 +155,7 @@ public sealed class UserService(
                 OrderId = newOrder.Id,
                 CreatedAt = DateTimeBr.Now,
                 PricePaid = freePlan.Price,
-                Status = PaymentStatus.Authorized,
+                Status = PaymentStatus.Paid,
             });
             await db.SaveChangesAsync().ConfigureAwait(false);
         }
