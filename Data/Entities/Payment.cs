@@ -27,7 +27,7 @@ public sealed class Payment : Base
         OrderId = o.Id;
         CreatedAt = DateTimeBr.Now;
         PricePaid = pricePaid;
-        Status = PaymentStatus.Pending;
+        Status = status;
         IuguFaturaId = fatura?.FaturaId;
         IuguOrderId = o.Id.ToString();
         IuguStatus = fatura?.Status;
