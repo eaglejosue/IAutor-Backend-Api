@@ -1,4 +1,6 @@
-﻿namespace IAutor.Api.Services.Crud;
+﻿using IAutor.Api.Data.Dtos.Picpay;
+
+namespace IAutor.Api.Services.Crud;
 
 public interface IOrderService
 {
@@ -15,7 +17,8 @@ public sealed class OrderService(
     IBookService bookService,
     IPaymentService paymentService,
     IIuguIntegrationService iuguIntegrationService,
-    INotificationService notification) : IOrderService
+    INotificationService notification,
+    IApiPicPayCheckOutService apiPicPayCheckOutService) : IOrderService
 {
     public async Task<Order?> GetByIdAsync(long id) => await db.Orders.FirstOrDefaultAsync(f => f.Id == id).ConfigureAwait(false);
 
@@ -123,19 +126,32 @@ public sealed class OrderService(
             if (newAnswers.Count > 0)
             {
                 await db.QuestionUserAnswers.AddRangeAsync(newAnswers).ConfigureAwait(false);
-                await db.SaveChangesAsync().ConfigureAwait(false);
+               // await db.SaveChangesAsync().ConfigureAwait(false);
             }
         }
 
         //Add order com new book
         model.BookId = newBook.Id;
         var addResult = await db.Orders.AddAsync(model).ConfigureAwait(false);
-        await db.SaveChangesAsync().ConfigureAwait(false);
+       // await db.SaveChangesAsync().ConfigureAwait(false);
 
         var newOrder = addResult.Entity;
 
         //Create Payment URL
         IuguFaturaResponse? fatura = null;
+
+        //checkout picpay
+        Customer customer = new Customer("juliano", "julianomiquelleto@gmail.com", DocumentType.CPF, "00682490989") 
+        { Email = "julianomiquelleto@gmail.com", Name = "juliano" };
+      
+        PicPayCheckOut checkOut = new PicPayCheckOut() { Amount = 10090, Customer = customer };
+       
+        var result = await apiPicPayCheckOutService.CheckOut(checkOut);
+            
+
+
+
+
 
         if (plan.Price > decimal.Zero)
         {
@@ -144,11 +160,11 @@ public sealed class OrderService(
             //newOrder.IuguFaturaSecureUrl = fatura!.SecureUrl;
 
             //For tests, remove after Payment hook is integrated
-            await paymentService.CreateAsync(new Payment(newOrder, plan.Price, fatura, PaymentStatus.Paid));
+            //await paymentService.CreateAsync(new Payment(newOrder, plan.Price, fatura, PaymentStatus.Paid));
         }
         else
         {
-            await paymentService.CreateAsync(new Payment(newOrder, plan.Price, fatura));
+            //await paymentService.CreateAsync(new Payment(newOrder, plan.Price, fatura));
         }
 
         return newOrder;

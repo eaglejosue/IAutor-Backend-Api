@@ -1,6 +1,8 @@
 ﻿using Amazon;
 using Amazon.S3;
+using IAutor.Api.Data.Dtos.Picpay;
 using QuestPDF.Infrastructure;
+using Refit;
 
 namespace IAutor.Api.Helpers.Extensions;
 
@@ -47,6 +49,17 @@ public static class BuilderExtensions
             config.GetSection("Aws:BucketName")?.Value ?? "iautor-assets-dev",
             config)
         );
+
+        builder.Services.AddRefitClient<IApiPicPayLoginService>()
+            .ConfigureHttpClient(c => c.BaseAddress = new Uri(config.GetSection("PicPayConfig:ApiUrl")?.Value ?? ""));
+
+        builder.Services.AddScoped<HeaderTokenHandler>();
+
+        builder.Services.AddRefitClient<IApiPicPayCheckOutService>()
+           .ConfigureHttpClient(c => c.BaseAddress = new Uri(config.GetSection("PicPayConfig:ApiUrl")?.Value ?? ""))
+           .AddHttpMessageHandler<HeaderTokenHandler>();
+
+
 
         builder.AddSwagger();
         builder.AddSecurity(config);
