@@ -12,8 +12,8 @@
             var result = await apiPicPayLoginService.Login(new PicPayLogin() { ClientId = clientId, ClientSecret = clientSecret });
 
 
-            //request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", result?.Content?.Token);
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", "123456");
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", result?.Content?.Token);
+           // request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", "123456");
             return await base.SendAsync(request, cancellationToken);  
         }
     }
